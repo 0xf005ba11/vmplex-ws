@@ -1,0 +1,115 @@
+﻿<Window x:Class="VMPlex.UI.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:local="clr-namespace:VMPlex.UI"
+        mc:Ignorable="d"
+        Title="About VMPlex"
+        Height="397"
+        Width="440"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        ui:ThemeManager.IsThemeAware="True"
+        ui:WindowHelper.UseModernWindowStyle="True">
+    <Grid Background="{DynamicResource SystemControlPageBackgroundAltHighBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Margin="20" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image Name="AboutIcon" Height="128" Width="128" Margin="0,0,40,0" VerticalAlignment="Top"/>
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="VMPlex" FontWeight="Bold" FontFamily="Microsoft Sans Serif" FontSize="24"/>
+                    <TextBlock Text=" Workstation" FontFamily="Microsoft Sans Serif" FontSize="20" VerticalAlignment="Bottom"/>
+                </StackPanel>
+                <TextBlock Text="A UI for Microsoft Hyper-V" FontSize="14" HorizontalAlignment="Right"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBlock Text="Version " FontSize="12"/>
+                    <TextBlock Name="VersionText" FontSize="12"/>
+                </StackPanel>
+                <TextBlock Text=""/>
+                <TextBlock Text="Copyright © 2022, Ira Strawser." FontSize="12" HorizontalAlignment="Right"/>
+                <TextBlock Text="Licensed under the MIT License." FontSize="12" HorizontalAlignment="Right"/>
+                <TextBlock Text=""/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel Margin="10,0,10,0" Grid.Row="1" Orientation="Vertical">
+            <TextBlock Text="Hyper-V is a registered trademark of Microsoft Corporation in the United States and/or other countries." FontSize="12" TextWrapping="Wrap"/>
+        </StackPanel>
+        <TextBox Grid.Row="2" 
+                Focusable="False"
+                 BorderThickness="0"  
+                 Background="Transparent" 
+                 VerticalAlignment="Center"
+                 TextWrapping="Wrap"
+                 TextAlignment="Left"
+                 IsReadOnly="True"
+                 VerticalScrollBarVisibility="Auto"
+                 FontSize="12"
+                 Height="160"
+                 xml:space="preserve">
+ModernWpf
+MIT License
+
+Copyright (c) 2019 Yimeng Wu
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+            
+            
+ModernWpf.MessageBox
+MIT License
+
+Copyright (c) OpenByte &lt;development.openbyte@gmail.com&gt;
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+ORMi
+MIT License
+
+Copyright (c) 2018 nicoriff
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+        </TextBox>
+    </Grid>
+</Window>
