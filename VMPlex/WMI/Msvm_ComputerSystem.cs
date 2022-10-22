@@ -1,4 +1,8 @@
-﻿using System.ComponentModel;
+﻿/*
+ * Copyright (c) 2022 Ira Strawser. All rights reserved.
+ */
+
+using System.ComponentModel;
 using System.Management;
 using ORMi;
 

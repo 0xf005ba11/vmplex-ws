@@ -1,4 +1,8 @@
-﻿using System;
+﻿/*
+ * Copyright (c) 2022 Ira Strawser. All rights reserved.
+ */
+
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
