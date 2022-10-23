@@ -28,11 +28,18 @@
             </TabItem>
         </TabControl>
         <Grid Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,5,5,0">
-            <ui:AppBarButton Name="About" ToolTip="About" Width="53" Height="43" Margin="0,-5,-10,0" Click="OnAbout" IsTabStop="False" IsCompact="True">
-                <ui:AppBarButton.Icon>
-                    <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7E7;"/>
-                </ui:AppBarButton.Icon>
-            </ui:AppBarButton>
+            <DockPanel Grid.Column="1" Margin="0,-4,-5,0" Height="42">
+                <ui:AppBarButton Name="UserSettingsButton" ToolTip="User Settings" Click="OnUserSettings" IsTabStop="False" IsCompact="True">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEF58;"/>
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
+                <ui:AppBarButton Name="About" ToolTip="About" Click="OnAbout" IsTabStop="False" IsCompact="True">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7E7;"/>
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
+            </DockPanel>
         </Grid>
     </Grid>
 </Page>

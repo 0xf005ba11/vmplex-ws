@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+
 // Icon codes:
 // &#xE80F; = Home icon
 // &#xE7F4; = Single monitor
@@ -26,6 +27,7 @@ using System.Windows.Shapes;
 
 namespace VMPlex.UI
 {
+
     /// <summary>
     /// Interaction logic for MainPage.xaml
     /// </summary>
@@ -35,6 +37,7 @@ namespace VMPlex.UI
 
         public MainPage()
         {
+
             InitializeComponent();
             SetValue(TextOptions.TextFormattingModeProperty, TextFormattingMode.Display);
             SetValue(FontFamilyProperty, SystemFonts.MessageFontFamily);
@@ -44,6 +47,7 @@ namespace VMPlex.UI
             manager.Icon.Content = "\xE912";
             manager.Title.Content = "Manager";
             Tab(0).Header = manager;
+
         }
 
         public TabItem Tab(int index)
@@ -54,8 +58,13 @@ namespace VMPlex.UI
         private void OnAbout(object sender, RoutedEventArgs e)
         {
             Window about = new AboutWindow();
-            about.Owner = Application.Current.MainWindow;
+            about.Owner = MainWindow.Get();
             about.ShowDialog();
+        }
+
+        private void OnUserSettings(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Get().UserSettings.OpenInEditor();
         }
 
         private void TabItem_PreviewMouseMove(object sender, MouseEventArgs e)

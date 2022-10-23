@@ -12,6 +12,9 @@ using System.IO;
 using System.Diagnostics;
 
 using VMPlex.WMI;
+using System.Linq;
+using VMPlex.UI;
+using Windows.ApplicationModel.Background;
 
 namespace VMPlex
 {
@@ -111,6 +114,11 @@ namespace VMPlex
             ProcessID = vm.ProcessID;
             EnhancedSessionModeState = vm.EnhancedSessionModeState;
 
+            //
+            // Generates user settings if they don't exist.
+            //
+            GetVmUserSettings();
+
             if (!hvClientAvailable)
             {
                 return;
@@ -153,15 +161,62 @@ namespace VMPlex
             Utility.InvokeMethod(VMComputerSystem, "BeginDelete", new object[] { });
         }
 
+        public VmConfig GetVmUserSettings()
+        {
+            var main = MainWindow.Get(); 
+            var settings = main.UserSettings.Get();
+
+            var vmSetting = settings.VirtualMachines.FirstOrDefault(v => v.Guid == Guid);
+            if (vmSetting != null)
+            {
+                return vmSetting;
+            }
+
+            //
+            // Create a new entry for this VM.
+            //
+            settings = main.UserSettings.Mutate(s =>
+            {
+                s.VirtualMachines.Add(
+                    new VmConfig
+                    {
+                        Guid = Guid,
+                        Name = Name,
+                        DebuggerArguments = ""
+                    });
+
+                return s;
+            });
+
+            return settings.VirtualMachines.FirstOrDefault(v => v.Guid == Guid);
+        }
+
         public void OpenDebugger()
         {
-            string lnk = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).DirectoryName + "\\LaunchDebugger\\" + Name + ".lnk";
-            if (!File.Exists(lnk))
+            var main = MainWindow.Get();
+            var settings = main.UserSettings.Get();
+            var vm = GetVmUserSettings();
+
+            if (settings.Debugger.Length == 0 ||
+                vm.DebuggerArguments.Length == 0)
             {
-                Utility.ErrorPopup("In the LaunchDebugger subfolder of your installation, create a shortcut named \"" + Name + "\" to your debugger command.");
+                Utility.ErrorPopup(
+                    "Debugger settings are incomplete. Please specify the " +
+                    "debugger and arguments for the virtual machine in the " +
+                    "user settings. The settings file will be opened when " +
+                    "you close this dialog.");
+                main.UserSettings.OpenInEditor();
                 return;
             }
-            Process.Start(lnk);
+
+            var process = new Process();
+            process.StartInfo = new ProcessStartInfo()
+            {
+                FileName = settings.Debugger,
+                Arguments = vm.DebuggerArguments, 
+                UseShellExecute = true
+            };
+            process.Start();
         }
 
         public void OpenSettingsDialog()
@@ -181,7 +236,7 @@ namespace VMPlex
 
             object[] parameters = new object[] { server, instanceId, false, true, state, operationStatus, false  };
             Form settingsDialog = (Form)Activator.CreateInstance(VMSettingsDialog, parameters);
-            settingsDialog.Show(new Utility.WinFormInterop(System.Windows.Application.Current.MainWindow));
+            settingsDialog.Show(new Utility.WinFormInterop(MainWindow.Get()));
         }
 
         public static void OpenSwitchManagerDialog()
@@ -191,7 +246,7 @@ namespace VMPlex
                 return;
             }
             Form dialog = (Form)Activator.CreateInstance(NetworkManagerDialog, new object[] { ServerConnection });
-            dialog.Show(new Utility.WinFormInterop(System.Windows.Application.Current.MainWindow));
+            dialog.Show(new Utility.WinFormInterop(MainWindow.Get()));
         }
 
         public static void OpenEditDiskWizard()
@@ -214,7 +269,7 @@ namespace VMPlex
                 return;
             }
             Form dialog = (Form)Activator.CreateInstance(VirtualizationSettingsDialog, new object[] { ServerConnection });
-            dialog.Show(new Utility.WinFormInterop(System.Windows.Application.Current.MainWindow));
+            dialog.Show(new Utility.WinFormInterop(MainWindow.Get()));
         }
 
         public uint RequestStateChange(StateChange state)
