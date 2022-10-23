@@ -9,6 +9,10 @@
       mc:Ignorable="d">
 
     <UserControl.Resources>
+        <local:VMPidConverter x:Key="VMPidConverter"/>
+        <local:VMMemoryConverter x:Key="VMMemoryConverter"/>
+        <local:VMCpuUsageConverter x:Key="VMCpuUsageConverter"/>
+        <local:VMUptimeConverter x:Key="VMUptimeConverter"/>
         <DataTemplate x:Key="VmTemplate">
             <Button MouseDoubleClick="VmTemplate_MouseDoubleClick" Background="{DynamicResource SystemControlBackgroundAltMediumLowBrush}">
                 <StackPanel Orientation="Vertical">
@@ -108,22 +112,22 @@
                                         Width="75"
                                         util:GridViewSort.PropertyName="State"/>
                         <GridViewColumn Header="Cpu Usage (Host)"
-                                        DisplayMemberBinding="{Binding ProcessorLoad,StringFormat='{}{0}%'}"
+                                        DisplayMemberBinding="{Binding Self, Converter={StaticResource VMCpuUsageConverter}}"
                                         HeaderTemplate="{StaticResource HeaderTempl}"
                                         Width="148"
                                         util:GridViewSort.PropertyName="ProcessorLoad"/>
                         <GridViewColumn Header="Assigned Memory"
-                                        DisplayMemberBinding="{Binding MemoryUsage,StringFormat='{}{0} MB'}"
+                                        DisplayMemberBinding="{Binding Self, Converter={StaticResource VMMemoryConverter}}"
                                         HeaderTemplate="{StaticResource HeaderTempl}"
                                         Width="150"
                                         util:GridViewSort.PropertyName="MemoryUsage"/>
                         <GridViewColumn Header="Uptime"
-                                        DisplayMemberBinding="{Binding UpTime}"
+                                        DisplayMemberBinding="{Binding Self, Converter={StaticResource VMUptimeConverter}}"
                                         HeaderTemplate="{StaticResource HeaderTempl}"
                                         Width="83"
                                         util:GridViewSort.PropertyName="UpTime"/>
                         <GridViewColumn Header="Process ID"
-                                        DisplayMemberBinding="{Binding ProcessID}"
+                                        DisplayMemberBinding="{Binding ProcessID, Converter={StaticResource VMPidConverter}}"
                                         HeaderTemplate="{StaticResource HeaderTempl}"
                                         Width="83"
                                         util:GridViewSort.PropertyName="ProcessID"/>

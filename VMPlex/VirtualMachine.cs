@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Management;
 using System.Windows.Media.Imaging;
 using System.Windows.Forms;
+using System.Windows.Data;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Diagnostics;
@@ -476,6 +477,7 @@ namespace VMPlex
             }
             else
             {
+                NotifyChange("Self");
                 NotifyChange("UpTime");
                 NotifyChange("Thumbnail");
             }
@@ -484,11 +486,28 @@ namespace VMPlex
         private object systemLock = new object();
         private Msvm_ComputerSystem Msvm { get; set; }
         private object VMComputerSystem { get; set; }
+        public VirtualMachine Self { get { return this; } }
         public string Name { get; set; }
         public string Guid { get; set; }
         public string Version { get; set; }
         public uint ProcessID { get; set; }
         public Msvm_ComputerSystem.SystemState State { get; set; }
+        public bool IsRunning {
+            get
+            {
+                switch(State)
+                {
+                    case Msvm_ComputerSystem.SystemState.Unknown:
+                    case Msvm_ComputerSystem.SystemState.Off:
+                    case Msvm_ComputerSystem.SystemState.Saved:
+                    case Msvm_ComputerSystem.SystemState.Paused:
+                    case Msvm_ComputerSystem.SystemState.FastSaved:
+                    case Msvm_ComputerSystem.SystemState.Hibernated:
+                        return false;
+                }
+                return true;
+            }
+        }
         public Msvm_ComputerSystem.EnhancedSessionMode EnhancedSessionModeState { get; set; }
         public ushort NumberOfProcessors { get; set; }
         public BitmapSource Thumbnail { get; set; }

@@ -278,4 +278,72 @@ namespace VMPlex.UI
             }
         }
     }
+
+    public class VMPidConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value != null && (uint)value != 0)
+            {
+                return ((uint)value).ToString();
+            }
+            return String.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class VMMemoryConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value != null && ((VirtualMachine)value).IsRunning)
+            {
+                return String.Format("{0} MB", ((VirtualMachine)value).MemoryUsage);
+            }
+            return String.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class VMCpuUsageConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value != null && ((VirtualMachine)value).IsRunning)
+            {
+                return String.Format("{0}%", ((VirtualMachine)value).ProcessorLoad);
+            }
+            return String.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class VMUptimeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value != null && ((VirtualMachine)value).IsRunning)
+            {
+                return ((VirtualMachine)value).UpTime.ToString();
+            }
+            return String.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
