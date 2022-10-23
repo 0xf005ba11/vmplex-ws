@@ -183,6 +183,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Compile Include="UI\GridViewSort.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

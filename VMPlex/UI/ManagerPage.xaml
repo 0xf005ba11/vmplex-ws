@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:ui="http://schemas.modernwpf.com/2019"
       xmlns:local="clr-namespace:VMPlex.UI"
+      xmlns:util="clr-namespace:Wpf.Util"
       mc:Ignorable="d">
 
     <UserControl.Resources>
@@ -85,7 +86,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="500"/>
             </Grid.ColumnDefinitions>
-            <ListView Grid.Column="0" x:Name="vmList" ItemsSource="{Binding}">
+            <ListView Grid.Column="0" x:Name="vmList" ItemsSource="{Binding}" util:GridViewSort.AutoSort="True">
                 <ListView.Resources>
                     <DataTemplate x:Key="HeaderTempl">
                         <TextBlock HorizontalAlignment="Left" Text="{Binding}" Margin="5,0,0,0"/>
@@ -96,12 +97,36 @@
                 </ListView.Resources>
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" HeaderTemplate="{StaticResource HeaderTempl}" Width="170"/>
-                        <GridViewColumn Header="Status" DisplayMemberBinding="{Binding State}" HeaderTemplate="{StaticResource HeaderTempl}" Width="75"/>
-                        <GridViewColumn Header="Cpu Usage (Host)" DisplayMemberBinding="{Binding ProcessorLoad,StringFormat='{}{0}%'}" HeaderTemplate="{StaticResource HeaderTempl}" Width="140"/>
-                        <GridViewColumn Header="Assigned Memory" DisplayMemberBinding="{Binding MemoryUsage,StringFormat='{}{0} MB'}" HeaderTemplate="{StaticResource HeaderTempl}" Width="140"/>
-                        <GridViewColumn Header="Uptime" DisplayMemberBinding="{Binding UpTime}" HeaderTemplate="{StaticResource HeaderTempl}" Width="80"/>
-                        <GridViewColumn Header="Process ID" DisplayMemberBinding="{Binding ProcessID}" HeaderTemplate="{StaticResource HeaderTempl}" Width="80"/>
+                        <GridViewColumn Header="Name"
+                                        DisplayMemberBinding="{Binding Name}"
+                                        HeaderTemplate="{StaticResource HeaderTempl}"
+                                        Width="170"
+                                        util:GridViewSort.PropertyName="Name"/>
+                        <GridViewColumn Header="Status"
+                                        DisplayMemberBinding="{Binding State}"
+                                        HeaderTemplate="{StaticResource HeaderTempl}"
+                                        Width="75"
+                                        util:GridViewSort.PropertyName="State"/>
+                        <GridViewColumn Header="Cpu Usage (Host)"
+                                        DisplayMemberBinding="{Binding ProcessorLoad,StringFormat='{}{0}%'}"
+                                        HeaderTemplate="{StaticResource HeaderTempl}"
+                                        Width="148"
+                                        util:GridViewSort.PropertyName="ProcessorLoad"/>
+                        <GridViewColumn Header="Assigned Memory"
+                                        DisplayMemberBinding="{Binding MemoryUsage,StringFormat='{}{0} MB'}"
+                                        HeaderTemplate="{StaticResource HeaderTempl}"
+                                        Width="150"
+                                        util:GridViewSort.PropertyName="MemoryUsage"/>
+                        <GridViewColumn Header="Uptime"
+                                        DisplayMemberBinding="{Binding UpTime}"
+                                        HeaderTemplate="{StaticResource HeaderTempl}"
+                                        Width="83"
+                                        util:GridViewSort.PropertyName="UpTime"/>
+                        <GridViewColumn Header="Process ID"
+                                        DisplayMemberBinding="{Binding ProcessID}"
+                                        HeaderTemplate="{StaticResource HeaderTempl}"
+                                        Width="83"
+                                        util:GridViewSort.PropertyName="ProcessID"/>
                     </GridView>
                 </ListView.View>
                 <ListView.ItemContainerStyle>
