@@ -10,7 +10,7 @@
         ui:WindowHelper.UseModernWindowStyle="True"
         ui:TitleBar.ExtendViewIntoTitleBar="True"
         Title="VMPlex Workstation"
-        Height="700" Width="900" MinWidth="800" MinHeight="650">
+        Height="700" Width="900" MinWidth="1075" MinHeight="650">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="32"/>

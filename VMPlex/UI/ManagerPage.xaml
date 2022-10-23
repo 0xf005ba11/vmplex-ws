@@ -59,7 +59,22 @@
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
                 <ui:AppBarSeparator IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmSettings" Icon="Setting" ToolTip="Settings" Click="OnSettingsCommand" IsTabStop="False" IsCompact="True"/>
+                <ui:AppBarButton x:Name="hypervSettings" ToolTip="Hyper-V Settings" Click="OnHyperVSettingsCommand" IsTabStop="False" IsCompact="True">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE912;"/>
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
+                <ui:AppBarButton x:Name="networkSettings" ToolTip="Virtual Switch Manager" Click="OnVirtualSwitchManagerCommand" IsTabStop="False" IsCompact="True">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEC27;"/>
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
+                <ui:AppBarButton x:Name="editVirtualDrive" ToolTip="Edit Disk" Click="OnEditDiskCommand" IsTabStop="False" IsCompact="True">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEDA2;"/>
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
+                <ui:AppBarButton x:Name="vmSettings" Icon="Setting" ToolTip="VM Settings" Click="OnSettingsCommand" IsTabStop="False" IsCompact="True"/>
                 <ui:AppBarSeparator IsCompact="True"/>
                 <ui:AppBarButton x:Name="vmAdd" Icon="Add" ToolTip="Create VM" Click="OnAddCommand" IsTabStop="False" IsCompact="True"/>
                 <ui:AppBarButton x:Name="vmDelete" Icon="Delete" ToolTip="Delete VM" Click="OnDeleteCommand" IsTabStop="False" IsCompact="True"/>

@@ -28,6 +28,8 @@ namespace VMPlex
         private static System.Type WindowsCredential = null;
         private static System.Type ConnectionHelper = null;
         private static System.Type VMSettingsDialog = null;
+        private static System.Type NetworkManagerDialog = null;
+        private static System.Type VirtualizationSettingsDialog = null;
         private static System.Type VMComputerSystemState = null;
         private static System.Type VMComputerSystemOperationalStatus = null;
         private static System.Type Server = null;
@@ -35,6 +37,7 @@ namespace VMPlex
         private static System.Type IUserPassCredential = null;
         private static System.Type VMWizardForm = null;
         private static System.Type NewVirtualMachineWizard = null;
+        private static System.Type EditVirtualHardDiskWizard = null;
         private static object ServerConnection = null;
         private static object Displayer = null;
         private static bool hvClientAvailable = false;
@@ -82,8 +85,11 @@ namespace VMPlex
                 ConnectionHelper = client.GetType("Microsoft.Virtualization.Client.ConnectionHelper", true);
                 InformationDisplayer = client.GetType("Microsoft.Virtualization.Client.InformationDisplayer", true);
                 VMSettingsDialog = clientSettings.GetType("Microsoft.Virtualization.Client.Settings.VMSettingsDialog", true);
+                NetworkManagerDialog = clientSettings.GetType("Microsoft.Virtualization.Client.Settings.NetworkManagerDialog", true);
+                VirtualizationSettingsDialog = clientSettings.GetType("Microsoft.Virtualization.Client.Settings.VirtualizationSettingsDialog", true);
                 VMWizardForm = clientWizards.GetType("Microsoft.Virtualization.Client.Wizards.VMWizardForm", true);
                 NewVirtualMachineWizard = clientWizards.GetType("Microsoft.Virtualization.Client.Wizards.NewVM.NewVirtualMachineWizard", true);
+                EditVirtualHardDiskWizard = clientWizards.GetType("Microsoft.Virtualization.Client.Wizards.EditVhd.EditVirtualHardDiskWizard", true);
 
                 Displayer = Activator.CreateInstance(InformationDisplayer);
                 Type[] types = new Type[] { InformationDisplayer, typeof(string), typeof(bool), IUserPassCredential };
@@ -177,6 +183,41 @@ namespace VMPlex
             object settingsDialog = Activator.CreateInstance(VMSettingsDialog, parameters);
             Utility.InvokeMethod(settingsDialog, "Show", new Type[] { typeof(IWin32Window) }, new object[] { null });
             Utility.InvokeMethod(settingsDialog, "ActivateSelf", new object[] {});
+        }
+
+        public static void OpenSwitchManagerDialog()
+        {
+            if (!hvClientAvailable)
+            {
+                return;
+            }
+            object dialog = Activator.CreateInstance(NetworkManagerDialog, new object[] { ServerConnection });
+            Utility.InvokeMethod(dialog, "Show", new Type[] { typeof(IWin32Window) }, new object[] { null });
+            Utility.InvokeMethod(dialog, "ActivateSelf", new object[] {});
+        }
+
+        public static void OpenEditDiskWizard()
+        {
+            if (!hvClientAvailable)
+            {
+                return;
+            }
+            object wizard = Activator.CreateInstance(EditVirtualHardDiskWizard, new object[] { ServerConnection });
+            Utility.InvokeMethod(wizard, "Activate", new object[] { });
+            Utility.SetProperty(wizard, "WindowState", FormWindowState.Normal);
+            Utility.SetProperty(wizard, "ShowInTaskbar", true);
+            Utility.InvokeMethod(wizard, "StartModeless", new Type[] { typeof(IWin32Window) }, new object[] { null });
+        }
+
+        public static void OpenHyperVSettingsDialog()
+        {
+            if (!hvClientAvailable)
+            {
+                return;
+            }
+            object dialog = Activator.CreateInstance(VirtualizationSettingsDialog, new object[] { ServerConnection });
+            Utility.InvokeMethod(dialog, "Show", new Type[] { typeof(IWin32Window) }, new object[] { null });
+            Utility.InvokeMethod(dialog, "ActivateSelf", new object[] {});
         }
 
         public uint RequestStateChange(StateChange state)

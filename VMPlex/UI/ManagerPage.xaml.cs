@@ -234,6 +234,19 @@ namespace VMPlex.UI
             }
             vm.OpenSettingsDialog();
         }
+        private void OnVirtualSwitchManagerCommand(object sender, RoutedEventArgs e)
+        {
+            VirtualMachine.OpenSwitchManagerDialog();
+        }
+        private void OnEditDiskCommand(object sender, RoutedEventArgs e)
+        {
+            VirtualMachine.OpenEditDiskWizard();
+        }
+
+        private void OnHyperVSettingsCommand(object sender, RoutedEventArgs e)
+        {
+            VirtualMachine.OpenHyperVSettingsDialog();
+        }
 
         private void OnAddCommand(object sender, RoutedEventArgs e)
         {
