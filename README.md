@@ -39,7 +39,7 @@ A modern, tabbed UI for Hyper-V.
    ```
 
 ## Screenshots
-![](readme/Manager.jpg "Manager Tab")
+![](https://github.com/0xf005ba11/vmplex-ws/blob/assets/Manager.jpg?raw=true "Manager Tab")
 
-![](readme/Enhanced.jpg "Virtual Machine Enhanced Session")
+![](https://github.com/0xf005ba11/vmplex-ws/blob/assets/Enhanced.jpg?raw=true "Virtual Machine Enhanced Session")
 
