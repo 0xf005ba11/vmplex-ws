@@ -70,14 +70,20 @@ namespace VMPlex.UI
 
         private void OnEnhancedChecked(object sender, RoutedEventArgs e)
         {
-            rdp.Shutdown();
-            ((TabItem)Parent).Content = new VmRdpPage(m_vm, true);
+            if (Parent != null)
+            {
+                rdp.Shutdown();
+                ((TabItem)Parent).Content = new VmRdpPage(m_vm, true);
+            }
         }
 
         private void OnEnhancedUnchecked(object sender, RoutedEventArgs e)
         {
-            rdp.Shutdown();
-            ((TabItem)Parent).Content = new VmRdpPage(m_vm, false);
+            if (Parent != null)
+            {
+                rdp.Shutdown();
+                ((TabItem)Parent).Content = new VmRdpPage(m_vm, false);
+            }
         }
 
         private void OnPowerCommand(object sender, RoutedEventArgs e)
