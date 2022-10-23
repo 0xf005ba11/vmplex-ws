@@ -1,4 +1,8 @@
-﻿using System;
+﻿/*
+ * Copyright (c) 2022 Johnny Shaw. All rights reserved.
+ */
+
+using System;
 using System.IO;
 using System.Windows;
 using System.Text.Json;
