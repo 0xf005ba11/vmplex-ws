@@ -180,9 +180,8 @@ namespace VMPlex
             var operationStatus = Utility.InvokeMethod(VMComputerSystem, "GetOperationalStatus", new object[] { });
 
             object[] parameters = new object[] { server, instanceId, false, true, state, operationStatus, false  };
-            object settingsDialog = Activator.CreateInstance(VMSettingsDialog, parameters);
-            Utility.InvokeMethod(settingsDialog, "Show", new Type[] { typeof(IWin32Window) }, new object[] { null });
-            Utility.InvokeMethod(settingsDialog, "ActivateSelf", new object[] {});
+            Form settingsDialog = (Form)Activator.CreateInstance(VMSettingsDialog, parameters);
+            settingsDialog.Show(new Utility.WinFormInterop(System.Windows.Application.Current.MainWindow));
         }
 
         public static void OpenSwitchManagerDialog()
@@ -191,9 +190,8 @@ namespace VMPlex
             {
                 return;
             }
-            object dialog = Activator.CreateInstance(NetworkManagerDialog, new object[] { ServerConnection });
-            Utility.InvokeMethod(dialog, "Show", new Type[] { typeof(IWin32Window) }, new object[] { null });
-            Utility.InvokeMethod(dialog, "ActivateSelf", new object[] {});
+            Form dialog = (Form)Activator.CreateInstance(NetworkManagerDialog, new object[] { ServerConnection });
+            dialog.Show(new Utility.WinFormInterop(System.Windows.Application.Current.MainWindow));
         }
 
         public static void OpenEditDiskWizard()
@@ -215,9 +213,8 @@ namespace VMPlex
             {
                 return;
             }
-            object dialog = Activator.CreateInstance(VirtualizationSettingsDialog, new object[] { ServerConnection });
-            Utility.InvokeMethod(dialog, "Show", new Type[] { typeof(IWin32Window) }, new object[] { null });
-            Utility.InvokeMethod(dialog, "ActivateSelf", new object[] {});
+            Form dialog = (Form)Activator.CreateInstance(VirtualizationSettingsDialog, new object[] { ServerConnection });
+            dialog.Show(new Utility.WinFormInterop(System.Windows.Application.Current.MainWindow));
         }
 
         public uint RequestStateChange(StateChange state)

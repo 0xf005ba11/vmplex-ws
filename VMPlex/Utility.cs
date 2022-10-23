@@ -13,6 +13,16 @@ namespace VMPlex
 {
     class Utility
     {
+        public class WinFormInterop : System.Windows.Forms.IWin32Window
+        {
+            public WinFormInterop(System.Windows.Window wpfWindow)
+            {
+                Handle = new System.Windows.Interop.WindowInteropHelper(wpfWindow).Handle;
+            }
+
+            public IntPtr Handle { get; private set; }
+        }
+
         static public Assembly ResolveAssembly(object sender, ResolveEventArgs args)
         {
             string[] parts = args.Name.Split(',');
