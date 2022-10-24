@@ -3,157 +3,141 @@
  */
 
 using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Reflection;
 using System.Windows;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace VMPlex
 {
     class Utility
     {
-        public class WinFormInterop : System.Windows.Forms.IWin32Window
-        {
-            public WinFormInterop(System.Windows.Window wpfWindow)
-            {
-                Handle = new System.Windows.Interop.WindowInteropHelper(wpfWindow).Handle;
-            }
+        private static IntPtr selfJobObject = IntPtr.Zero;
 
-            public IntPtr Handle { get; private set; }
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SECURITY_ATTRIBUTES
+        {
+            public int nLength;
+            public IntPtr lpSecurityDescriptor;
+            public int bInheritHandle;
         }
 
-        static ConcurrentDictionary<string, bool> listOfAssemblies = new ConcurrentDictionary<string, bool>();
-        static public Assembly ResolveAssembly(object sender, ResolveEventArgs args)
+        public enum JOBOBJECTINFOCLASS
         {
-            if (listOfAssemblies.ContainsKey(args.Name))
-            {
-                return null;
-            }
-            try
-            {
-                listOfAssemblies.GetOrAdd(args.Name, true);
-
-                string[] parts = args.Name.Split(',');
-                try
-                {
-                    return LoadGACAssembly(parts[0]);
-                }
-                catch (Exception)
-                {
-                    System.Diagnostics.Debug.WriteLine("Failed to resolve assembly: " + args.Name);
-                }
-                return null;
-            }
-            finally
-            {
-                bool val;
-                listOfAssemblies.TryRemove(args.Name, out val);
-            }
+            AssociateCompletionPortInformation = 7,
+            BasicLimitInformation = 2,
+            BasicUIRestrictions = 4,
+            EndOfJobTimeInformation = 6,
+            ExtendedLimitInformation = 9,
+            SecurityLimitInformation = 5,
+            GroupInformation = 11
         }
 
-        static public string LocateGACAssemblyDll(string assemblyName, string gacFolder = "GAC_64")
+        [Flags]
+        public enum JOBOBJECTLIMIT : uint
         {
-            string gac = Environment.GetFolderPath(Environment.SpecialFolder.Windows) +
-                "\\Microsoft.NET\\assembly\\" + gacFolder + "\\" + assemblyName;
-            if (!Directory.Exists(gac))
-            {
-                if (gacFolder == "GAC_64")
-                {
-                    return LocateGACAssemblyDll(assemblyName, "GAC_MSIL");
-                }
-                return null;
-            }
+            // Basic Limits
+            Workingset = 0x00000001,
+            ProcessTime = 0x00000002,
+            JobTime = 0x00000004,
+            ActiveProcess = 0x00000008,
+            Affinity = 0x00000010,
+            PriorityClass = 0x00000020,
+            PreserveJobTime = 0x00000040,
+            SchedulingClass = 0x00000080,
 
-            IEnumerable<string> versions = Directory.EnumerateDirectories(gac);
-            foreach( string version in versions)
-            {
-                string path = version + "\\" + assemblyName + ".dll";
-                if (File.Exists(path))
-                {
-                    return gac;
-                    //return path;
-                }
-                if (gacFolder == "GAC_64")
-                {
-                    return LocateGACAssemblyDll(assemblyName, "GAC_MSIL");
-                }
-            }
-            return null;
+            // Extended Limits
+            ProcessMemory = 0x00000100,
+            JobMemory = 0x00000200,
+            DieOnUnhandledException = 0x00000400,
+            BreakawayOk = 0x00000800,
+            SilentBreakawayOk = 0x00001000,
+            KillOnJobClose = 0x00002000,
+            SubsetAffinity = 0x00004000,
+
+            // Notification Limits
+            JobReadBytes = 0x00010000,
+            JobWriteBytes = 0x00020000,
+            RateControl = 0x00040000,
         }
 
-        static public string GetGACAssemblyFullName(string assemblyName)
+        [StructLayout(LayoutKind.Sequential)]
+        struct JOBOBJECT_BASIC_LIMIT_INFORMATION
         {
-            string gac = LocateGACAssemblyDll(assemblyName);
-            //string gac = Environment.GetFolderPath(Environment.SpecialFolder.Windows) +
-            //    "\\Microsoft.NET\\assembly\\GAC_MSIL\\" + assemblyName;
-            IEnumerable<string> versions = Directory.EnumerateDirectories(gac);
-
-            foreach( string version in versions)
-            {
-                string[] parts = new FileInfo(version).Name.Split('_');
-                if (parts.Length == 4)
-                {
-                    string culture = parts[2].Length > 0 ? parts[2] : "neutral";
-                    return assemblyName + ", Version=" + parts[1] + ", Culture=" + culture + ", PublicKeyToken=" + parts[3];
-                }
-            }
-            return null;
+            public Int64 PerProcessUserTimeLimit;
+            public Int64 PerJobUserTimeLimit;
+            public JOBOBJECTLIMIT LimitFlags;
+            public UIntPtr MinimumWorkingSetSize;
+            public UIntPtr MaximumWorkingSetSize;
+            public UInt32 ActiveProcessLimit;
+            public Int64 Affinity;
+            public UInt32 PriorityClass;
+            public UInt32 SchedulingClass;
         }
 
-        static public Assembly LoadGACAssembly(string assemblyName)
+        [StructLayout(LayoutKind.Sequential)]
+        struct IO_COUNTERS
         {
-            return Assembly.Load(GetGACAssemblyFullName(assemblyName));
+            public UInt64 ReadOperationCount;
+            public UInt64 WriteOperationCount;
+            public UInt64 OtherOperationCount;
+            public UInt64 ReadTransferCount;
+            public UInt64 WriteTransferCount;
+            public UInt64 OtherTransferCount;
         }
 
-        static public object InvokeStaticMethod(Type t, string methodName, Type[] types, object[] arguments)
+        [StructLayout(LayoutKind.Sequential)]
+        struct JOBOBJECT_EXTENDED_LIMIT_INFORMATION
         {
-            MethodInfo method = t.GetMethod(methodName, types);
-
-            return method.Invoke(null, arguments);
+            public JOBOBJECT_BASIC_LIMIT_INFORMATION BasicLimitInformation;
+            public IO_COUNTERS IoInfo;
+            public UIntPtr ProcessMemoryLimit;
+            public UIntPtr JobMemoryLimit;
+            public UIntPtr PeakProcessMemoryUsed;
+            public UIntPtr PeakJobMemoryUsed;
         }
 
-        static public object InvokeMethod(object o, string methodName, Type[] types,object[] arguments)
-        {
-            MethodInfo method = o.GetType().GetMethod(methodName, types);
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        static public extern IntPtr CreateJobObject([In] ref SECURITY_ATTRIBUTES lpJobAttributes, IntPtr name);
 
-            return method.Invoke(o, arguments);
-        }
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        static public extern bool AssignProcessToJobObject(IntPtr hJob, IntPtr hProcess);
 
-        static public object InvokeMethod(object o, string methodName, object[] arguments)
-        {
-            Type[] types = arguments.Select(x => x.GetType()).ToArray();
-
-            MethodInfo method = o.GetType().GetMethod(methodName, types);
-
-            return method.Invoke(o, arguments);
-        }
-
-        static public object GetProperty(object o, string propertyName)
-        {
-            PropertyInfo pi = o.GetType().GetProperty(propertyName);
-            if (pi is null)
-            {
-                return null;
-            }
-
-            return pi.GetValue(o);
-        }
-
-        static public void SetProperty(object o, string propertyName, object value)
-        {
-            PropertyInfo pi = o.GetType().GetProperty(propertyName);
-            if (pi is null)
-            {
-                return;
-            }
-            pi.SetValue(o, value);
-        }
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        static public extern bool SetInformationJobObject(IntPtr hJob, JOBOBJECTINFOCLASS infoClass, IntPtr jobObjectInfo, uint size);
 
         static public void ErrorPopup(string message)
         {
             ModernWpf.MessageBox.Show(message, "Error", MessageBoxButton.OK, ModernWpf.SymbolGlyph.Error);
+        }
+
+        static public void CreateSelfJob()
+        {
+            SECURITY_ATTRIBUTES sa = new SECURITY_ATTRIBUTES();
+            sa.nLength = Marshal.SizeOf(sa);
+            sa.lpSecurityDescriptor = IntPtr.Zero;
+            sa.bInheritHandle = 0;
+
+            JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobInfo = new JOBOBJECT_EXTENDED_LIMIT_INFORMATION();
+            jobInfo.BasicLimitInformation.LimitFlags = JOBOBJECTLIMIT.KillOnJobClose;
+
+            selfJobObject = CreateJobObject(ref sa, IntPtr.Zero);
+            AssignProcessToJobObject(selfJobObject, System.Diagnostics.Process.GetCurrentProcess().Handle);
+
+            IntPtr jobInfoPtr = Marshal.AllocHGlobal(Marshal.SizeOf(jobInfo));
+            Marshal.StructureToPtr(jobInfo, jobInfoPtr, false);
+            SetInformationJobObject(selfJobObject, JOBOBJECTINFOCLASS.ExtendedLimitInformation, jobInfoPtr, (uint)Marshal.SizeOf(jobInfo));
+        }
+
+        static public void LaunchHvintegrateInJob(string[] args)
+        {
+            string path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            Process hvintegrate = new Process();
+            hvintegrate.StartInfo.FileName = path + "\\hvintegrate.exe";
+            hvintegrate.StartInfo.Arguments = String.Join(" ", args);
+            hvintegrate.Start();
+            bool f = AssignProcessToJobObject(selfJobObject, hvintegrate.Handle);
         }
     }
 }

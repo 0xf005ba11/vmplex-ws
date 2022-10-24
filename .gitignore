@@ -1,4 +1,6 @@
 .vs/
-VMPlex/bin/
+bin/
 VMPlex/obj/
 VMPlex/VMPlex.csproj.user
+hvintegrate/obj/
+
