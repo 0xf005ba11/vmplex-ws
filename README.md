@@ -45,7 +45,6 @@ Here is an example configuration:
 ```
 
 ## Screenshots
-![](https://github.com/0xf005ba11/vmplex-ws/blob/assets/Manager.jpg?raw=true "Manager Tab")
+![](https://github.com/0xf005ba11/vmplex-ws/blob/assets/Manager.png?raw=true "Manager Tab")
 
-![](https://github.com/0xf005ba11/vmplex-ws/blob/assets/Enhanced.jpg?raw=true "Virtual Machine Enhanced Session")
-
+![](https://github.com/0xf005ba11/vmplex-ws/blob/assets/Enhanced.png?raw=true "Virtual Machine Enhanced Session")
