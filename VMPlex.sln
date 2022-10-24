@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.32802.440
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VMPlex", "VMPlex\VMPlex.csproj", "{414E7DF9-C192-4153-9A61-E6C9D96B9FD5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hvintegrate", "hvintegrate\hvintegrate.csproj", "{FDDD2BF0-12B3-4E6A-A346-922C4C82A999}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{414E7DF9-C192-4153-9A61-E6C9D96B9FD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{414E7DF9-C192-4153-9A61-E6C9D96B9FD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{414E7DF9-C192-4153-9A61-E6C9D96B9FD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDDD2BF0-12B3-4E6A-A346-922C4C82A999}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDDD2BF0-12B3-4E6A-A346-922C4C82A999}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDDD2BF0-12B3-4E6A-A346-922C4C82A999}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDDD2BF0-12B3-4E6A-A346-922C4C82A999}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
