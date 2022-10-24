@@ -1,6 +1,8 @@
+*.csproj.user
+*.pubxml.user
+
 .vs/
 bin/
 VMPlex/obj/
-VMPlex/VMPlex.csproj.user
 hvintegrate/obj/
 

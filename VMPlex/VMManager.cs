@@ -212,9 +212,9 @@ namespace VMPlex
         }
 
         // events
-        public event VmCreateHandler OnVmCreated;
+        //public event VmCreateHandler OnVmCreated;
         public event VmDeleteHandler OnVmDeleted;
-        public event VmModifyHandler OnVmModified;
+        //public event VmModifyHandler OnVmModified;
 
         // data for bindings
         public ObservableCollection<VirtualMachine> VirtualMachines;
@@ -227,7 +227,7 @@ namespace VMPlex
         private WMIWatcher creationWatcher;
         private WMIWatcher modificationWatcher;
         private WMIWatcher deletionWatcher;
-        private Timer updateTimer;
+        //private Timer updateTimer;
         private object vmListLock = new object();
     }
 }

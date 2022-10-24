@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32802.440
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VMPlex", "VMPlex\VMPlex.csproj", "{414E7DF9-C192-4153-9A61-E6C9D96B9FD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VMPlex", "VMPlex\VMPlex.csproj", "{414E7DF9-C192-4153-9A61-E6C9D96B9FD5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FDDD2BF0-12B3-4E6A-A346-922C4C82A999} = {FDDD2BF0-12B3-4E6A-A346-922C4C82A999}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hvintegrate", "hvintegrate\hvintegrate.csproj", "{FDDD2BF0-12B3-4E6A-A346-922C4C82A999}"
 EndProject
