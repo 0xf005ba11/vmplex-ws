@@ -164,8 +164,7 @@ namespace VMPlex
 
         public VmConfig GetVmUserSettings()
         {
-            var main = MainWindow.Get(); 
-            var settings = main.UserSettings.Get();
+            var settings = App.UserSettings.Get();
 
             var vmSetting = settings.VirtualMachines.FirstOrDefault(v => v.Guid == Guid);
             if (vmSetting != null)
@@ -176,7 +175,7 @@ namespace VMPlex
             //
             // Create a new entry for this VM.
             //
-            settings = main.UserSettings.Mutate(s =>
+            settings = App.UserSettings.Mutate(s =>
             {
                 s.VirtualMachines.Add(
                     new VmConfig
@@ -194,8 +193,7 @@ namespace VMPlex
 
         public void OpenDebugger()
         {
-            var main = MainWindow.Get();
-            var settings = main.UserSettings.Get();
+            var settings = App.UserSettings.Get();
             var vm = GetVmUserSettings();
 
             if (settings.Debugger.Length == 0 ||
@@ -206,7 +204,7 @@ namespace VMPlex
                     "debugger and arguments for the virtual machine in the " +
                     "user settings. The settings file will be opened when " +
                     "you close this dialog.");
-                main.UserSettings.OpenInEditor();
+                App.UserSettings.OpenInEditor();
                 return;
             }
 
@@ -237,7 +235,7 @@ namespace VMPlex
 
             object[] parameters = new object[] { server, instanceId, false, true, state, operationStatus, false  };
             Form settingsDialog = (Form)Activator.CreateInstance(VMSettingsDialog, parameters);
-            settingsDialog.Show(new Utility.WinFormInterop(MainWindow.Get()));
+            settingsDialog.Show(new Utility.WinFormInterop(System.Windows.Application.Current.MainWindow));
         }
 
         public static void OpenSwitchManagerDialog()
@@ -247,7 +245,7 @@ namespace VMPlex
                 return;
             }
             Form dialog = (Form)Activator.CreateInstance(NetworkManagerDialog, new object[] { ServerConnection });
-            dialog.Show(new Utility.WinFormInterop(MainWindow.Get()));
+            dialog.Show(new Utility.WinFormInterop(System.Windows.Application.Current.MainWindow));
         }
 
         public static void OpenEditDiskWizard()
@@ -270,7 +268,7 @@ namespace VMPlex
                 return;
             }
             Form dialog = (Form)Activator.CreateInstance(VirtualizationSettingsDialog, new object[] { ServerConnection });
-            dialog.Show(new Utility.WinFormInterop(MainWindow.Get()));
+            dialog.Show(new Utility.WinFormInterop(System.Windows.Application.Current.MainWindow));
         }
 
         public uint RequestStateChange(StateChange state)

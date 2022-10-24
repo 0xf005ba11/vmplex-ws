@@ -27,7 +27,7 @@ You may edit the settings at runtime.
 
 ### Debugger Launch Support
 
-Debugger launch support configured via the settings file. When attempting to launch the debugger
+Debugger launch support is configured via the settings file. When attempting to launch the debugger
 for a VM, if configuration is missing, you will be prompted to fill out the required information.
 Here is an example configuration:
 

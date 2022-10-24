@@ -21,8 +21,6 @@ namespace VMPlex
     /// </summary>
     public partial class MainWindow : Window
     {
-        public SettingsManager UserSettings = new SettingsManager();
-
         public MainWindow()
         {
             InitializeComponent();
@@ -33,11 +31,6 @@ namespace VMPlex
             System.Windows.Resources.StreamResourceInfo info = Application.GetResourceStream(new Uri("/Resources/VMPlex.ico", UriKind.Relative));
             Icon icon = new Icon(info.Stream, 16, 16);
             TbIcon.Source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-        }
-
-        public static MainWindow Get()
-        {
-            return (MainWindow)Application.Current.MainWindow;
         }
     }
 }
