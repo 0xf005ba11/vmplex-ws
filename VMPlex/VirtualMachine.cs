@@ -63,10 +63,12 @@ namespace VMPlex
 
         public static void OpenNewVmWizard()
         {
+            Utility.LaunchHvintegrateInJob(new string[] { "av" });
         }
 
         public void DeleteFromServer()
         {
+            Utility.LaunchHvintegrateInJob(new string[] { "dv", Guid });
         }
 
         public VmConfig GetVmUserSettings()
