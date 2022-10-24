@@ -65,4 +65,11 @@
     </Compile>
     <Compile Remove="UI\UXThemeAccess.cs" />
   </ItemGroup>
+  <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
+    <ItemGroup>
+      <DataModelFiles Include="$(OutputPath)..\hvintegrate.exe" />
+      <DataModelFiles Include="$(OutputPath)..\hvintegrate.pdb" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DataModelFiles)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="false" />
+  </Target>
 </Project>
