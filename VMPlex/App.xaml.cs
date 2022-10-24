@@ -16,8 +16,7 @@ namespace VMPlex
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(Utility.ResolveAssembly);
+            Utility.CreateSelfJob();
         }
     }
 }

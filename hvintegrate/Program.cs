@@ -137,6 +137,18 @@ namespace hvintegrate
             return 0;
         }
 
+        private static int DeleteFromServer(Guid vmGuid)
+        {
+            object vm = GetVMComputerSystem(vmGuid);
+            if (vm == null)
+            {
+                return 1;
+            }
+
+            Utility.InvokeMethod(vm, "BeginDelete", new object[] { });
+            return 0;
+        }
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -158,15 +170,16 @@ namespace hvintegrate
             }
             else if (args.Length == 2)
             {
-                if (args[0] == "vm")
+                try
                 {
-                    try
+                    switch (args[0])
                     {
-                        exitCode = OpenVmSettings(new Guid(args[1]));
+                        case "vm": exitCode = OpenVmSettings(new Guid(args[1])); break;
+                        case "dv": exitCode = DeleteFromServer(new Guid(args[1])); break;
                     }
-                    catch(Exception)
-                    {
-                    }
+                }
+                catch (Exception)
+                {
                 }
             }
             Environment.Exit(exitCode);

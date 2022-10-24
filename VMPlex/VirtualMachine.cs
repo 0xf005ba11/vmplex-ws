@@ -22,30 +22,6 @@ namespace VMPlex
 
     public class VirtualMachine : INotifyPropertyChanged
     {
-        private static System.Reflection.Assembly client = null;
-        private static System.Reflection.Assembly clientCommon = null;
-        private static System.Reflection.Assembly clientSettings = null;
-        private static System.Reflection.Assembly clientManagement = null;
-        private static System.Reflection.Assembly clientWizards = null;
-        private static System.Type IVMComputerSystem = null;
-        private static System.Type IVMComputerSystemSetting = null;
-        private static System.Type WindowsCredential = null;
-        private static System.Type ConnectionHelper = null;
-        private static System.Type VMSettingsDialog = null;
-        private static System.Type NetworkManagerDialog = null;
-        private static System.Type VirtualizationSettingsDialog = null;
-        private static System.Type VMComputerSystemState = null;
-        private static System.Type VMComputerSystemOperationalStatus = null;
-        private static System.Type Server = null;
-        private static System.Type InformationDisplayer = null;
-        private static System.Type IUserPassCredential = null;
-        private static System.Type VMWizardForm = null;
-        private static System.Type NewVirtualMachineWizard = null;
-        private static System.Type EditVirtualHardDiskWizard = null;
-        private static object ServerConnection = null;
-        private static object Displayer = null;
-        private static bool hvClientAvailable = false;
-
         public enum HeartbeatState
         {
             Ok = 2,
@@ -70,42 +46,6 @@ namespace VMPlex
             Reset = 11, // Power reset
         }
 
-        static VirtualMachine()
-        {
-            try
-            {
-                client = Utility.LoadGACAssembly("Microsoft.Virtualization.Client");
-                clientCommon = Utility.LoadGACAssembly("Microsoft.Virtualization.Client.Common");
-                clientSettings = Utility.LoadGACAssembly("Microsoft.Virtualization.Client.Settings");
-                clientManagement = Utility.LoadGACAssembly("Microsoft.Virtualization.Client.Management");
-                clientWizards = Utility.LoadGACAssembly("Microsoft.Virtualization.Client.Wizards");
-                WindowsCredential = clientCommon.GetType("Microsoft.Virtualization.Client.Common.WindowsCredential", true);
-                IUserPassCredential = WindowsCredential.GetInterface("IUserPassCredential");
-                IVMComputerSystem = clientManagement.GetType("Microsoft.Virtualization.Client.Management.IVMComputerSystem", true);
-                IVMComputerSystemSetting = clientManagement.GetType("Microsoft.Virtualization.Client.Management.IVMComputerSystemSetting", true);
-                VMComputerSystemState = clientManagement.GetType("Microsoft.Virtualization.Client.Management.VMComputerSystemState", true);
-                VMComputerSystemOperationalStatus = clientManagement.GetType("Microsoft.Virtualization.Client.Management.VMComputerSystemOperationalStatus", true);
-                Server = clientManagement.GetType("Microsoft.Virtualization.Client.Management.Server", true);
-                ConnectionHelper = client.GetType("Microsoft.Virtualization.Client.ConnectionHelper", true);
-                InformationDisplayer = client.GetType("Microsoft.Virtualization.Client.InformationDisplayer", true);
-                VMSettingsDialog = clientSettings.GetType("Microsoft.Virtualization.Client.Settings.VMSettingsDialog", true);
-                NetworkManagerDialog = clientSettings.GetType("Microsoft.Virtualization.Client.Settings.NetworkManagerDialog", true);
-                VirtualizationSettingsDialog = clientSettings.GetType("Microsoft.Virtualization.Client.Settings.VirtualizationSettingsDialog", true);
-                VMWizardForm = clientWizards.GetType("Microsoft.Virtualization.Client.Wizards.VMWizardForm", true);
-                NewVirtualMachineWizard = clientWizards.GetType("Microsoft.Virtualization.Client.Wizards.NewVM.NewVirtualMachineWizard", true);
-                EditVirtualHardDiskWizard = clientWizards.GetType("Microsoft.Virtualization.Client.Wizards.EditVhd.EditVirtualHardDiskWizard", true);
-
-                Displayer = Activator.CreateInstance(InformationDisplayer);
-                Type[] types = new Type[] { InformationDisplayer, typeof(string), typeof(bool), IUserPassCredential };
-                ServerConnection = Utility.InvokeStaticMethod(ConnectionHelper, "ConnectServer", types, new object[] { Displayer, System.Environment.MachineName, false, null });
-                hvClientAvailable = true;
-            }
-            catch(Exception)
-            {
-                Utility.ErrorPopup("Advanced Hyper-V integration disabled. An update is likely required.");
-            }
-        }
-
         public VirtualMachine(Msvm_ComputerSystem vm)
         {
             Msvm = vm;
@@ -119,47 +59,14 @@ namespace VMPlex
             // Generates user settings if they don't exist.
             //
             GetVmUserSettings();
-
-            if (!hvClientAvailable)
-            {
-                return;
-            }
-
-            try
-            {
-                Type[] types = new Type[] { typeof(string), WindowsCredential, typeof(Guid), typeof(string), IVMComputerSystem.MakeByRefType(), typeof(Exception).MakeByRefType() };
-                object[] parameters = new object[] { System.Environment.MachineName, null, new Guid(vm.Guid), "Unable to locate virtual machine", null, null };
-                object ret = Utility.InvokeStaticMethod(ConnectionHelper, "TryGetVirtualMachine", types, parameters);
-                if ((bool)ret)
-                {
-                    VMComputerSystem = parameters[4];
-                }
-            }
-            catch(Exception)
-            {
-            }
         }
 
         public static void OpenNewVmWizard()
         {
-            if (!hvClientAvailable)
-            {
-                return;
-            }
-            object wizard = Activator.CreateInstance(NewVirtualMachineWizard, new object[] { ServerConnection });
-            Utility.InvokeMethod(wizard, "Activate", new object[] { });
-            Utility.SetProperty(wizard, "WindowState", FormWindowState.Normal);
-            Utility.SetProperty(wizard, "ShowInTaskbar", true);
-            Utility.InvokeMethod(wizard, "StartModeless", new Type[] { typeof(IWin32Window) }, new object[] { null });
         }
 
         public void DeleteFromServer()
         {
-            if (VMComputerSystem is null)
-            {
-                return;
-            }
-            Utility.InvokeMethod(VMComputerSystem, "BeginDelete", new object[] { });
         }
 
         public VmConfig GetVmUserSettings()
@@ -222,55 +129,22 @@ namespace VMPlex
 
         public void OpenSettingsDialog()
         {
-            if (VMComputerSystem is null)
-            {
-                return;
-            }
-
-            Utility.InvokeMethod(VMComputerSystem, "UpdateAssociationCache", new object[] { });
-
-            object server = Utility.GetProperty(VMComputerSystem, "Server");
-            object vmSetting = Utility.GetProperty(VMComputerSystem, "Setting");
-            string instanceId = (string)Utility.GetProperty(vmSetting, "InstanceId");
-            object state = Utility.GetProperty(VMComputerSystem, "State");
-            var operationStatus = Utility.InvokeMethod(VMComputerSystem, "GetOperationalStatus", new object[] { });
-
-            object[] parameters = new object[] { server, instanceId, false, true, state, operationStatus, false  };
-            Form settingsDialog = (Form)Activator.CreateInstance(VMSettingsDialog, parameters);
-            settingsDialog.Show(new Utility.WinFormInterop(MainWindow.Get()));
+            Utility.LaunchHvintegrateInJob(new string[] { "vm", Guid });
         }
 
         public static void OpenSwitchManagerDialog()
         {
-            if (!hvClientAvailable)
-            {
-                return;
-            }
-            Form dialog = (Form)Activator.CreateInstance(NetworkManagerDialog, new object[] { ServerConnection });
-            dialog.Show(new Utility.WinFormInterop(MainWindow.Get()));
+            Utility.LaunchHvintegrateInJob(new string[] { "vs" });
         }
 
         public static void OpenEditDiskWizard()
         {
-            if (!hvClientAvailable)
-            {
-                return;
-            }
-            object wizard = Activator.CreateInstance(EditVirtualHardDiskWizard, new object[] { ServerConnection });
-            Utility.InvokeMethod(wizard, "Activate", new object[] { });
-            Utility.SetProperty(wizard, "WindowState", FormWindowState.Normal);
-            Utility.SetProperty(wizard, "ShowInTaskbar", true);
-            Utility.InvokeMethod(wizard, "StartModeless", new Type[] { typeof(IWin32Window) }, new object[] { null });
+            Utility.LaunchHvintegrateInJob(new string[] { "ed" });
         }
 
         public static void OpenHyperVSettingsDialog()
         {
-            if (!hvClientAvailable)
-            {
-                return;
-            }
-            Form dialog = (Form)Activator.CreateInstance(VirtualizationSettingsDialog, new object[] { ServerConnection });
-            dialog.Show(new Utility.WinFormInterop(MainWindow.Get()));
+            Utility.LaunchHvintegrateInJob(new string[] { "hv" });
         }
 
         public uint RequestStateChange(StateChange state)
