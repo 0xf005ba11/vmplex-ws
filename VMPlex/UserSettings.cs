@@ -70,7 +70,18 @@ namespace VMPlex
                 FileName = UserSettingsFile,
                 UseShellExecute = true
             };
-            process.Start();
+            try
+            {
+                process.Start();
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(
+                    $"Failed to open settings file \"{UserSettingsFile}\"\n{exc.Message}",
+                    "VMPlex Settings Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
         public Settings Get()

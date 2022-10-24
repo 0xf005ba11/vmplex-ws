@@ -11,6 +11,7 @@ namespace VMPlex
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            Utility.TryExtractHVIntegrate();
             base.OnStartup(e);
             Utility.CreateSelfJob();
         }

@@ -56,12 +56,12 @@ namespace VMPlex
 
         public static void OpenNewVmWizard()
         {
-            Utility.LaunchHvintegrateInJob(new string[] { "av" });
+            TryLaunchHVIntegrateInJob(new string[] { "av" });
         }
 
         public void DeleteFromServer()
         {
-            Utility.LaunchHvintegrateInJob(new string[] { "dv", Guid });
+            TryLaunchHVIntegrateInJob(new string[] { "dv", Guid });
         }
 
         public VmConfig GetVmUserSettings()
@@ -117,27 +117,35 @@ namespace VMPlex
                 Arguments = vm.DebuggerArguments, 
                 UseShellExecute = true
             };
-            process.Start();
+
+            try
+            {
+                process.Start();
+            }
+            catch (Exception exc)
+            {
+                Utility.ErrorPopup($"Failed to start debugger.\n{exc.Message}");
+            }
         }
 
         public void OpenSettingsDialog()
         {
-            Utility.LaunchHvintegrateInJob(new string[] { "vm", Guid });
+            TryLaunchHVIntegrateInJob(new string[] { "vm", Guid });
         }
 
         public static void OpenSwitchManagerDialog()
         {
-            Utility.LaunchHvintegrateInJob(new string[] { "vs" });
+            TryLaunchHVIntegrateInJob(new string[] { "vs" });
         }
 
         public static void OpenEditDiskWizard()
         {
-            Utility.LaunchHvintegrateInJob(new string[] { "ed" });
+            TryLaunchHVIntegrateInJob(new string[] { "ed" });
         }
 
         public static void OpenHyperVSettingsDialog()
         {
-            Utility.LaunchHvintegrateInJob(new string[] { "hv" });
+            TryLaunchHVIntegrateInJob(new string[] { "hv" });
         }
 
         public uint RequestStateChange(StateChange state)
@@ -347,6 +355,18 @@ namespace VMPlex
                 NotifyChange("Self");
                 NotifyChange("UpTime");
                 NotifyChange("Thumbnail");
+            }
+        }
+
+        private static void TryLaunchHVIntegrateInJob(string[] args)
+        {
+            try
+            {
+                Utility.LaunchHVIntegrateInJob(args);
+            }
+            catch (Exception exc)
+            {
+                Utility.ErrorPopup($"Failed to start Hyper-V Integration\n{exc.Message}");
             }
         }
 

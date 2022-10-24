@@ -21,6 +21,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Resources\VMPlex.ico</ApplicationIcon>
@@ -53,6 +54,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\VMPlex.ico" />
+    <EmbeddedResource Include="$(OutputPath)hvintegrate.exe">
+      <LogicalName>HVIntegrate</LogicalName>
+      <Visible>false</Visible>
+    </EmbeddedResource>
     <Reference Include="MSTSCLib">
       <HintPath>..\MSTSCLib.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -67,9 +72,9 @@
   </ItemGroup>
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
     <ItemGroup>
-      <DataModelFiles Include="$(OutputPath)..\hvintegrate.exe" />
-      <DataModelFiles Include="$(OutputPath)..\hvintegrate.pdb" />
+      <DependentFiles Include="$(OutputPath)hvintegrate.exe" />
+      <DependentFiles Include="$(OutputPath)hvintegrate.pdb" />
     </ItemGroup>
-    <Copy SourceFiles="@(DataModelFiles)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="@(DependentFiles)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="false" />
   </Target>
 </Project>

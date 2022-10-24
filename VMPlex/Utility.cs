@@ -4,8 +4,11 @@
 
 using System;
 using System.Windows;
+using System.Reflection;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.IO;
+using Windows.Storage.Streams;
 
 namespace VMPlex
 {
@@ -128,15 +131,40 @@ namespace VMPlex
             SetInformationJobObject(selfJobObject, JOBOBJECTINFOCLASS.ExtendedLimitInformation, jobInfoPtr, (uint)Marshal.SizeOf(jobInfo));
         }
 
-        static public void LaunchHvintegrateInJob(string[] args)
-        {
-            string path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        private static string HVIntegrateFileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\hvintegrate.exe";
 
+        static public void LaunchHVIntegrateInJob(string[] args)
+        {
             Process hvintegrate = new Process();
-            hvintegrate.StartInfo.FileName = path + "\\hvintegrate.exe";
+            hvintegrate.StartInfo.FileName = HVIntegrateFileName;
             hvintegrate.StartInfo.Arguments = String.Join(" ", args);
             hvintegrate.Start();
-            bool f = AssignProcessToJobObject(selfJobObject, hvintegrate.Handle);
+            _ = AssignProcessToJobObject(selfJobObject, hvintegrate.Handle);
+        }
+
+        static public void ExtractResource(string Name, string Path)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var stream = assembly.GetManifestResourceStream(Name);
+            if ((stream == null) || (stream.Length == 0))
+            {
+                throw new Exception($"Resource {Name} not found!");
+            }
+            var bytes = new byte[stream.Length];
+            stream.Read(bytes);
+            File.WriteAllBytes(Path, bytes);
+        }
+
+        static public void TryExtractHVIntegrate()
+        {
+            //
+            // If we fail to extract or use an older version, we will fail cleanly downstream.
+            // Try with both the assembly name (for publishing) and the root name for debug.
+            //
+            var name = Assembly.GetExecutingAssembly().GetName().Name + ".HVIntegrate";
+            try { ExtractResource(name, HVIntegrateFileName); } catch(Exception) { }
+            name = "HVIntegrate";
+            try { ExtractResource(name, HVIntegrateFileName); } catch(Exception) { }
         }
     }
 }
