@@ -58,13 +58,13 @@ namespace VMPlex.UI
         private void OnAbout(object sender, RoutedEventArgs e)
         {
             Window about = new AboutWindow();
-            about.Owner = MainWindow.Get();
+            about.Owner = Application.Current.MainWindow;
             about.ShowDialog();
         }
 
         private void OnUserSettings(object sender, RoutedEventArgs e)
         {
-            MainWindow.Get().UserSettings.OpenInEditor();
+            App.UserSettings.OpenInEditor();
         }
 
         private void TabItem_PreviewMouseMove(object sender, MouseEventArgs e)

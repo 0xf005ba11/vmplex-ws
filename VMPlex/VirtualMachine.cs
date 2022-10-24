@@ -73,8 +73,7 @@ namespace VMPlex
 
         public VmConfig GetVmUserSettings()
         {
-            var main = MainWindow.Get(); 
-            var settings = main.UserSettings.Get();
+            var settings = App.UserSettings.Get();
 
             var vmSetting = settings.VirtualMachines.FirstOrDefault(v => v.Guid == Guid);
             if (vmSetting != null)
@@ -85,7 +84,7 @@ namespace VMPlex
             //
             // Create a new entry for this VM.
             //
-            settings = main.UserSettings.Mutate(s =>
+            settings = App.UserSettings.Mutate(s =>
             {
                 s.VirtualMachines.Add(
                     new VmConfig
@@ -103,8 +102,7 @@ namespace VMPlex
 
         public void OpenDebugger()
         {
-            var main = MainWindow.Get();
-            var settings = main.UserSettings.Get();
+            var settings = App.UserSettings.Get();
             var vm = GetVmUserSettings();
 
             if (settings.Debugger.Length == 0 ||
@@ -115,7 +113,7 @@ namespace VMPlex
                     "debugger and arguments for the virtual machine in the " +
                     "user settings. The settings file will be opened when " +
                     "you close this dialog.");
-                main.UserSettings.OpenInEditor();
+                App.UserSettings.OpenInEditor();
                 return;
             }
 
