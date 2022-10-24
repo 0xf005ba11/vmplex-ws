@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
@@ -23,18 +24,33 @@ namespace VMPlex
             public IntPtr Handle { get; private set; }
         }
 
+        static ConcurrentDictionary<string, bool> listOfAssemblies = new ConcurrentDictionary<string, bool>();
         static public Assembly ResolveAssembly(object sender, ResolveEventArgs args)
         {
-            string[] parts = args.Name.Split(',');
+            if (listOfAssemblies.ContainsKey(args.Name))
+            {
+                return null;
+            }
             try
             {
-                return LoadGACAssembly(parts[0]);
+                listOfAssemblies.GetOrAdd(args.Name, true);
+
+                string[] parts = args.Name.Split(',');
+                try
+                {
+                    return LoadGACAssembly(parts[0]);
+                }
+                catch (Exception)
+                {
+                    System.Diagnostics.Debug.WriteLine("Failed to resolve assembly: " + args.Name);
+                }
+                return null;
             }
-            catch(Exception)
+            finally
             {
-                System.Diagnostics.Debug.WriteLine("Failed to resolve assembly: " + args.Name);
+                bool val;
+                listOfAssemblies.TryRemove(args.Name, out val);
             }
-            return null;
         }
 
         static public string LocateGACAssemblyDll(string assemblyName, string gacFolder = "GAC_64")
