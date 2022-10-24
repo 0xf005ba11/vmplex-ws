@@ -5,7 +5,6 @@
 using System;
 using System.Windows;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime.InteropServices;
 
 namespace VMPlex
@@ -122,7 +121,7 @@ namespace VMPlex
             jobInfo.BasicLimitInformation.LimitFlags = JOBOBJECTLIMIT.KillOnJobClose;
 
             selfJobObject = CreateJobObject(ref sa, IntPtr.Zero);
-            AssignProcessToJobObject(selfJobObject, System.Diagnostics.Process.GetCurrentProcess().Handle);
+            AssignProcessToJobObject(selfJobObject, Process.GetCurrentProcess().Handle);
 
             IntPtr jobInfoPtr = Marshal.AllocHGlobal(Marshal.SizeOf(jobInfo));
             Marshal.StructureToPtr(jobInfo, jobInfoPtr, false);

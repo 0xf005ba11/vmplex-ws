@@ -3,19 +3,12 @@
  */
 
 using System;
+using System.Linq;
 using System.ComponentModel;
 using System.Management;
 using System.Windows.Media.Imaging;
-using System.Windows.Forms;
-using System.Windows.Data;
-using System.Runtime.InteropServices;
-using System.IO;
 using System.Diagnostics;
-
 using VMPlex.WMI;
-using System.Linq;
-using VMPlex.UI;
-using Windows.ApplicationModel.Background;
 
 namespace VMPlex
 {
@@ -357,9 +350,7 @@ namespace VMPlex
             }
         }
 
-        private object systemLock = new object();
         private Msvm_ComputerSystem Msvm { get; set; }
-        private object VMComputerSystem { get; set; }
         public VirtualMachine Self { get { return this; } }
         public string Name { get; set; }
         public string Guid { get; set; }
