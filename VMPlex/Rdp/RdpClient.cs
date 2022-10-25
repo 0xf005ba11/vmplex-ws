@@ -104,7 +104,7 @@ namespace VMPlex
 
             SecuredSettings2.KeyboardHookMode = 1; // apply remotely (fixes windows key, alt-tab, etc)
 
-            SetExtendedProperty("DesktopScaleFactor", GetDesktopScaleFactor());
+            SetExtendedProperty("DesktopScaleFactor", 100u);
             SetExtendedProperty("DeviceScaleFactor", 100u);
 
             if (options.HardwareAssist)
