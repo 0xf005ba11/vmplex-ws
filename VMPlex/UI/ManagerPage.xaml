@@ -129,21 +129,20 @@
                         <GridViewColumn Header="Process ID"
                                         DisplayMemberBinding="{Binding ProcessID, Converter={StaticResource VMPidConverter}}"
                                         HeaderTemplate="{StaticResource HeaderTempl}"
-                                        Width="83"
+                                        Width="94"
                                         util:GridViewSort.PropertyName="ProcessID"/>
                     </GridView>
                 </ListView.View>
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
+                        <Setter Property="FontSize" Value="14" />
+                        <Setter Property="Padding" Value="10" />
+                        <Setter Property="MinHeight" Value="2" />
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListViewItem">
                                     <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
                                         <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition MaxHeight="11"/>
-                                                <RowDefinition />
-                                            </Grid.RowDefinitions>
                                             <GridViewRowPresenter x:Name="ContentPresenter" Grid.RowSpan="2" 
                                                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
                                                     SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />

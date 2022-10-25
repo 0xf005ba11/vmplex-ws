@@ -23,7 +23,7 @@ A modern, tabbed UI for Hyper-V.
 ## User Settings 
 
 User settings are stored in `vmplex-settings.json`. It is generated and managed by the application.
-You may edit the settings at runtime.
+You may edit the settings at runtime. The settings are documented [here](VMPlex/UserSettings.cs).
 
 ### Debugger Launch Support
 
