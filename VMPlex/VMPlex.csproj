@@ -39,6 +39,7 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="ModernWpf.MessageBox" Version="0.5.2" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
+    <PackageReference Include="Devolutions.MsRdpEx" Version="2022.10.21.0" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">
@@ -58,13 +59,6 @@
       <LogicalName>HVIntegrate</LogicalName>
       <Visible>false</Visible>
     </EmbeddedResource>
-    <Reference Include="MSTSCLib">
-      <HintPath>..\MSTSCLib.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
-    <Compile Update="Rdp\AxMSTSCLib.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Update="Rdp\RdpClient.cs">
       <SubType>Component</SubType>
     </Compile>
