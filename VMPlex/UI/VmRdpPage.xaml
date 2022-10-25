@@ -61,7 +61,12 @@
                 <ui:AppBarSeparator IsCompact="True" DockPanel.Dock="Right" Visibility="Hidden"/>
             </DockPanel>
         </Grid>
-        <Grid Grid.Row="1" x:Name="rdpGrid" Background="Black">
+        <Grid Grid.Row="1" x:Name="rdpGrid">
+            <Grid.Background>
+                <ImageBrush Stretch="None" TileMode="Tile" Viewport="0,0,100,100" ViewportUnits="Absolute">
+                    <ImageBrush.ImageSource>pack://application:,,,/VMPlex;component/Resources/rdp_session_bg.png</ImageBrush.ImageSource>
+                </ImageBrush>
+            </Grid.Background>
             <WindowsFormsHost x:Name="rdpHost" Foreground="{x:Null}" Background="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden">
                 <local:RdpClient x:Name="rdp" Dock="Fill"/>
             </WindowsFormsHost>

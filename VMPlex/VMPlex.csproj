@@ -54,6 +54,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\rdp_session_bg.png" />
     <Resource Include="Resources\VMPlex.ico" />
     <EmbeddedResource Include="$(OutputPath)hvintegrate.exe">
       <LogicalName>HVIntegrate</LogicalName>
@@ -63,6 +64,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Remove="UI\UXThemeAccess.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Resources\rdp_session_bg.png" />
   </ItemGroup>
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
     <ItemGroup>
