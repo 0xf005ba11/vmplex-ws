@@ -231,7 +231,10 @@ namespace VMPlex
 
         private void NotifySettingsChanged()
         {
-            SettingsChanged(Get());
+            if (SettingsChanged != null)
+            {
+                SettingsChanged(Get());
+            }
         }
 
         private object Lock = new object();
