@@ -14,26 +14,75 @@ using System.Text.Json.Serialization;
 namespace VMPlex
 {
 
+    /// <summary>
+    /// Root of the user settings. Configured via vmplex-settings.json.
+    /// </summary>
     public class Settings 
     {
+        /// <summary>
+        /// If true portions of the interface are styled in a compact style. 
+        /// </summary>
         [JsonInclude]
-        public string Debugger = "";
+        public bool CompactMode = false;
+
+        /// <summary>
+        /// Optionally sets the font size for certain elements in the UI. 
+        /// </summary>
+        [JsonInclude]
+        public double? FontSize = null;
+
+        /// <summary>
+        /// Defines the debugger to use when launching one for a given virtual
+        /// machine. This is supplied as the file name starting the debugger
+        /// process.
+        /// </summary>
+        [JsonInclude]
+        public string Debugger = "windbgx";
+
+        /// <summary>
+        /// A list of virtual machines. VMPlex will populate this with known
+        /// virtual machines on the user's behalf.
+        /// </summary>
         [JsonInclude]
         public List<VmConfig> VirtualMachines = new List<VmConfig>();
     }
 
+    /// <summary>
+    /// User settings for a given virtual machine.
+    /// </summary>
     public class VmConfig
     {
+        /// <summary>
+        /// The GUID of the virtual machine at reported by Hyper-V. VMPlex will
+        /// populate this on the user's behalf.
+        /// </summary>
         [JsonInclude]
         public string Guid;
+
+        /// <summary>
+        /// The friendly name of the virtual machine as reported by Hyper-V.
+        /// VMPlex will populate this on this user's behalf.
+        /// </summary>
         [JsonInclude]
         public string Name;
+
+        /// <summary>
+        /// Arguments passed to the debugger when launching one for a given
+        /// virtual machine. As an example, when using windbg and debugging
+        /// the target virtual machine over the network this would be in a
+        /// form similar to "-k net:port=50000,key=1.2.3.4 -T WIN11X64".
+        /// References the documentation for your debugger. 
+        /// </summary>
         [JsonInclude]
         public string DebuggerArguments;
     }
+    
+    public delegate void SettingsChangedHandler(Settings Settings);
 
     public class SettingsManager
     {
+        public event SettingsChangedHandler SettingsChanged;
+
         public SettingsManager()
         {
             SettingsFileWatcher = new FileSystemWatcher()
@@ -94,13 +143,18 @@ namespace VMPlex
 
         public Settings Mutate(Func<Settings, Settings> Mutator)
         {
+            Settings newSettings;
+
             lock (Lock)
             {
-                var newSettings = Mutator(ActiveSettings);
+                newSettings = Mutator(ActiveSettings);
                 var json = JsonSerializer.Serialize(newSettings, JsonSerializeOpts);
                 File.WriteAllText(UserSettingsFile, json);
-                return newSettings;
             }
+
+            NotifySettingsChanged();
+
+            return newSettings;
         }
 
         private void Load()
@@ -151,7 +205,11 @@ namespace VMPlex
                 }
             }
 
-            if (exception != null)
+            if (exception == null)
+            {
+                NotifySettingsChanged();
+            }
+            else
             {
                 //
                 // Don't nag too often since the change notification can fire
@@ -169,6 +227,11 @@ namespace VMPlex
                     LastReloadErrorTime = DateTime.Now;
                 }
             }
+        }
+
+        private void NotifySettingsChanged()
+        {
+            SettingsChanged(Get());
         }
 
         private object Lock = new object();
