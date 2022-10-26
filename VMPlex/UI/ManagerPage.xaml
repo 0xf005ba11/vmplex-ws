@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:ui="http://schemas.modernwpf.com/2019"
+      xmlns:root="clr-namespace:VMPlex"
       xmlns:local="clr-namespace:VMPlex.UI"
       xmlns:util="clr-namespace:Wpf.Util"
       mc:Ignorable="d">
@@ -182,8 +183,17 @@
                 </ListView.View>
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
-                        <Setter Property="FontSize" Value="14" />
-                        <Setter Property="Padding" Value="10" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
+                                         Value="True">
+                                <Setter Property="Padding" Value="2" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
+                                         Value="False">
+                                <Setter Property="Padding" Value="10" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                        <Setter Property="FontSize" Value="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.FontSize, UpdateSourceTrigger=PropertyChanged}" />
                         <Setter Property="MinHeight" Value="2" />
                         <Setter Property="Template">
                             <Setter.Value>

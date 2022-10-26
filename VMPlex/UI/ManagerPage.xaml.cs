@@ -25,14 +25,12 @@ namespace VMPlex.UI
         public ManagerPage()
         {
             InitializeComponent();
-            SetUserDisplayPreferences(App.UserSettings.Get());
             vmList.DataContext = VMManager.Instance.VirtualMachines;
             vmGrid.DataContext = VMManager.Instance.VirtualMachines;
             VMManager.Instance.OnVmDeleted += VmDeleted;
             SetValue(TextOptions.TextFormattingModeProperty, TextFormattingMode.Display);
             SetValue(FontFamilyProperty, SystemFonts.MessageFontFamily);
             SetValue(FontSizeProperty, SystemFonts.MessageFontSize);
-            App.UserSettings.SettingsChanged += SettingsChanged;
         }
 
         private void OpenVmTab(VirtualMachine vm, TabControl tc)
@@ -286,37 +284,6 @@ namespace VMPlex.UI
                 }
                 vm.DeleteFromServer();
             }
-        }
-
-        private void SettingsChanged(Settings UserSettings)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                SetUserDisplayPreferences(UserSettings);
-            });
-        }
-
-        private void SetUserDisplayPreferences(Settings UserSettings)
-        {
-            var itemStyle = new Style
-            {
-                TargetType = typeof(ListViewItem),
-                BasedOn = vmList.ItemContainerStyle
-            };
-
-            if (UserSettings.FontSize != null)
-            {
-                itemStyle.Setters.Add(new Setter(ListViewItem.FontSizeProperty, UserSettings.FontSize));
-            }
-            else
-            {
-                itemStyle.Setters.Add(new Setter(ListViewItem.FontSizeProperty, 14.0));
-            }
-
-            var thicc = new Thickness(UserSettings.CompactMode ? 2.0 : 10.0);
-            itemStyle.Setters.Add(new Setter(ListViewItem.PaddingProperty, thicc));
-
-            vmList.ItemContainerStyle = itemStyle;
         }
     }
 

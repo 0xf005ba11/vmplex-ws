@@ -64,7 +64,7 @@ namespace VMPlex.UI
 
         private void OnUserSettings(object sender, RoutedEventArgs e)
         {
-            App.UserSettings.OpenInEditor();
+            UserSettings.Instance.OpenInEditor();
         }
 
         private void TabItem_PreviewMouseMove(object sender, MouseEventArgs e)
