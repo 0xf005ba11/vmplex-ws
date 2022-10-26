@@ -393,6 +393,90 @@ namespace VMPlex
                 return true;
             }
         }
+        public bool CanBeStarted {
+            get
+            {
+                switch(State)
+                {
+                    case Msvm_ComputerSystem.SystemState.Off:
+                    case Msvm_ComputerSystem.SystemState.Saved:
+                    case Msvm_ComputerSystem.SystemState.FastSaved:
+                    case Msvm_ComputerSystem.SystemState.Hibernated:
+                        return true;
+                }
+                return false;
+            }
+        }
+        public bool CanBeTurnedOff {
+            get
+            {
+                switch(State)
+                {
+                    case Msvm_ComputerSystem.SystemState.Running:
+                    case Msvm_ComputerSystem.SystemState.Paused:
+                        return true;
+                }
+                return true;
+            }
+        }
+        public bool CanBeShutDown {
+            get
+            {
+                switch(State)
+                {
+                    case Msvm_ComputerSystem.SystemState.Running:
+                        return true;
+                }
+                return true;
+            }
+        }
+        public bool CanBeSaved {
+            get
+            {
+                switch(State)
+                {
+                    case Msvm_ComputerSystem.SystemState.Running:
+                    case Msvm_ComputerSystem.SystemState.Paused:
+                        return false;
+                }
+                return true;
+            }
+        }
+        public bool CanBePaused {
+            get
+            {
+                switch(State)
+                {
+                    case Msvm_ComputerSystem.SystemState.Running:
+                        return false;
+                }
+                return true;
+            }
+        }
+        public bool CanBeResumed {
+            get
+            {
+                switch(State)
+                {
+                    case Msvm_ComputerSystem.SystemState.Paused:
+                        return false;
+                }
+                return true;
+            }
+        }
+        public bool CanBeReset {
+            get
+            {
+                switch(State)
+                {
+                    case Msvm_ComputerSystem.SystemState.Running:
+                    case Msvm_ComputerSystem.SystemState.Paused:
+                        return false;
+                }
+                return true;
+            }
+        }
+
         public Msvm_ComputerSystem.EnhancedSessionMode EnhancedSessionModeState { get; set; }
         public ushort NumberOfProcessors { get; set; }
         public BitmapSource Thumbnail { get; set; }

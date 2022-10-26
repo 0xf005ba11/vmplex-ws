@@ -79,6 +79,30 @@ namespace VMPlex.UI
             TabControl tc = (TabControl)(((TabItem)this.Parent).Parent);
             OpenVmTab(vm, tc);
         }
+        private void VmListView_ContextMenuOpening(object sender, ContextMenuEventArgs  e)
+        {
+            (sender as ListView).ContextMenu.DataContext = GetSelectedVm();
+        }
+
+        private void VmContextMenu_Connect(object sender, EventArgs e)
+        {
+            var vm = GetSelectedVm();
+            TabControl tc = (TabControl)(((TabItem)this.Parent).Parent);
+            OpenVmTab(vm, tc);
+        }
+
+        private void VmContextMenu_Settings(object sender, EventArgs e)
+        {
+            var vm = GetSelectedVm();
+            vm.OpenSettingsDialog();
+        }
+
+        private void VmContextMenu_StateChange(object sender, EventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            var vm = GetSelectedVm();
+            vm.RequestStateChange((VirtualMachine.StateChange)menuItem.Tag);
+        }
 
         private void VmDeleted(object sender, VirtualMachine vm)
         {

@@ -90,13 +90,16 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="500"/>
             </Grid.ColumnDefinitions>
-            <ListView Grid.Column="0" x:Name="vmList" ItemsSource="{Binding}" util:GridViewSort.AutoSort="True">
+            <ListView Grid.Column="0" x:Name="vmList" ItemsSource="{Binding}" util:GridViewSort.AutoSort="True" ContextMenuOpening="VmListView_ContextMenuOpening">
                 <ListView.Resources>
                     <DataTemplate x:Key="HeaderTempl">
                         <TextBlock HorizontalAlignment="Left" Text="{Binding}" Margin="5,0,0,0"/>
                     </DataTemplate>
-                    <Style x:Key="HeaderStyle" TargetType="GridViewColumnHeader">
-                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Style x:Key="ContextMenuItemStyle" TargetType="MenuItem">
+                        <Setter Property="FontSize" Value="14" />
+                        <Setter Property="Margin" Value="5,0,5,0" />
+                        <Setter Property="Padding" Value="2" />
+                        <Setter Property="MinHeight" Value="2" />
                     </Style>
                 </ListView.Resources>
                 <ListView.View>
@@ -133,6 +136,118 @@
                                         util:GridViewSort.PropertyName="ProcessID"/>
                     </GridView>
                 </ListView.View>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Connect" Click="VmContextMenu_Connect" Style="{StaticResource ContextMenuItemStyle}"></MenuItem> 
+                        <MenuItem Header="Settings" Click="VmContextMenu_Settings" Style="{StaticResource ContextMenuItemStyle}"></MenuItem>
+                        <Separator/>
+                        <MenuItem DataContext="{Binding Parent.DataContext, RelativeSource={RelativeSource Self}}"
+                                  Header="Start" Click="VmContextMenu_StateChange">
+                            <MenuItem.Style>
+                                <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CanBeStarted}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CanBeStarted}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </MenuItem.Style>
+                        </MenuItem>
+                        <MenuItem DataContext="{Binding Parent.DataContext, RelativeSource={RelativeSource Self}}"
+                                  Header="Turn off" Click="VmContextMenu_StateChange">
+                            <MenuItem.Style>
+                                <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CanBeTurnedOff}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CanBeTurnedOff}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </MenuItem.Style>
+                        </MenuItem>
+                        <MenuItem DataContext="{Binding Parent.DataContext, RelativeSource={RelativeSource Self}}"
+                                  Header="Shutdown" Click="VmContextMenu_StateChange">
+                            <MenuItem.Style>
+                                <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CanBeShutDown}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CanBeShutDown}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </MenuItem.Style>
+                        </MenuItem>
+                        <MenuItem DataContext="{Binding Parent.DataContext, RelativeSource={RelativeSource Self}}"
+                                  Header="Save" Click="VmContextMenu_StateChange">
+                            <MenuItem.Style>
+                                <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CanBeSaved}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CanBeSaved}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </MenuItem.Style>
+                        </MenuItem>
+                        <MenuItem DataContext="{Binding Parent.DataContext, RelativeSource={RelativeSource Self}}"
+                                  Header="Pause" Click="VmContextMenu_StateChange">
+                            <MenuItem.Style>
+                                <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CanBePaused}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CanBePaused}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </MenuItem.Style>
+                        </MenuItem>
+                        <MenuItem DataContext="{Binding Parent.DataContext, RelativeSource={RelativeSource Self}}"
+                                  Header="Resume" Click="VmContextMenu_StateChange">
+                            <MenuItem.Style>
+                                <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CanBeResumed}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CanBeResumed}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </MenuItem.Style>
+                        </MenuItem>
+                        <MenuItem DataContext="{Binding Parent.DataContext, RelativeSource={RelativeSource Self}}"
+                                  Header="Reset" Click="VmContextMenu_StateChange">
+                            <MenuItem.Style>
+                                <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CanBeReset}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CanBeReset}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </MenuItem.Style>
+                        </MenuItem>
+                    </ContextMenu>
+                </ListView.ContextMenu>
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
                         <Setter Property="FontSize" Value="14" />
