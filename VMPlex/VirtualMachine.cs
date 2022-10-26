@@ -393,6 +393,9 @@ namespace VMPlex
                 return true;
             }
         }
+        public bool IsPaused { get {  return State == Msvm_ComputerSystem.SystemState.Paused; } }
+        public bool IsSaved { get {  return State == Msvm_ComputerSystem.SystemState.Saved; } }
+        public bool IsPoweredOn { get { return IsRunning || IsPaused; } }
         public Msvm_ComputerSystem.EnhancedSessionMode EnhancedSessionModeState { get; set; }
         public ushort NumberOfProcessors { get; set; }
         public BitmapSource Thumbnail { get; set; }

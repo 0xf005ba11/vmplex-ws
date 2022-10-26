@@ -95,9 +95,56 @@
                     <DataTemplate x:Key="HeaderTempl">
                         <TextBlock HorizontalAlignment="Left" Text="{Binding}" Margin="5,0,0,0"/>
                     </DataTemplate>
-                    <Style x:Key="HeaderStyle" TargetType="GridViewColumnHeader">
-                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Style x:Key="ContextMenuItemStyle" TargetType="MenuItem">
+                        <Setter Property="FontSize" Value="14" />
+                        <Setter Property="Margin" Value="5,0,5,0" />
+                        <Setter Property="Padding" Value="2" />
+                        <Setter Property="MinHeight" Value="2" />
                     </Style>
+                    <ContextMenu x:Key="VmContextMenu">
+                        <MenuItem Header="Connect" Click="VmContextMenu_Connect" Style="{StaticResource ContextMenuItemStyle}"/>
+                        <MenuItem Header="Settings" Click="OnSettingsCommand" Style="{StaticResource ContextMenuItemStyle}"/>
+                        <Separator/>
+                        <MenuItem Click="OnPowerCommand">
+                            <MenuItem.Style>
+                                <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsPoweredOn}" Value="False">
+                                            <Setter Property="Header" Value="Power On"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsPoweredOn}" Value="True">
+                                            <Setter Property="Header" Value="Power Off"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsPaused}" Value="True">
+                                            <Setter Property="Header" Value="Resume"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsSaved}" Value="True">
+                                            <Setter Property="Header" Value="Resume"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </MenuItem.Style>
+                        </MenuItem>
+                        <MenuItem Header="Pause" Click="OnPauseCommand">
+                            <MenuItem.Style>
+                                <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsRunning}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </MenuItem.Style>
+                        </MenuItem>
+                        <MenuItem Header="Reset" Click="OnResetCommand" IsEnabled="{Binding IsPoweredOn}" Style="{StaticResource ContextMenuItemStyle}"/>
+                        <Separator/>
+                        <MenuItem Header="Save" Click="OnSaveCommand" IsEnabled="{Binding IsPoweredOn}" Style="{StaticResource ContextMenuItemStyle}"/>
+                        <MenuItem Header="Reboot" Click="OnRebootCommand" IsEnabled="{Binding IsRunning}" Style="{StaticResource ContextMenuItemStyle}"/>
+                        <MenuItem Header="Shutdown" Click="OnShutdownCommand" IsEnabled="{Binding IsRunning}" Style="{StaticResource ContextMenuItemStyle}"/>
+                    </ContextMenu>
                 </ListView.Resources>
                 <ListView.View>
                     <GridView>
@@ -172,6 +219,7 @@
                             </Setter.Value>
                         </Setter>
                         <EventSetter Event="MouseDoubleClick" Handler="VmListItem_MouseDoubleClick"/>
+                        <Setter Property="ContextMenu" Value="{StaticResource VmContextMenu}"/>
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>

@@ -80,6 +80,13 @@ namespace VMPlex.UI
             OpenVmTab(vm, tc);
         }
 
+        private void VmContextMenu_Connect(object sender, EventArgs e)
+        {
+            var vm = GetSelectedVm();
+            TabControl tc = (TabControl)(((TabItem)this.Parent).Parent);
+            OpenVmTab(vm, tc);
+        }
+
         private void VmDeleted(object sender, VirtualMachine vm)
         {
             Dispatcher.Invoke(() =>
