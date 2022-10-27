@@ -9,6 +9,7 @@ using System.Management;
 using System.Windows.Media.Imaging;
 using System.Diagnostics;
 using VMPlex.WMI;
+using ORMi;
 
 namespace VMPlex
 {
@@ -114,7 +115,7 @@ namespace VMPlex
             process.StartInfo = new ProcessStartInfo()
             {
                 FileName = settings.Debugger,
-                Arguments = vm.DebuggerArguments, 
+                Arguments = vm.DebuggerArguments,
                 UseShellExecute = true
             };
 
@@ -376,6 +377,7 @@ namespace VMPlex
         public string Guid { get; set; }
         public string Version { get; set; }
         public uint ProcessID { get; set; }
+        public Msvm_SecurityElement SecurityElement{ get { return Msvm.SecurityElement; } }
         public Msvm_ComputerSystem.SystemState State { get; set; }
         public bool IsRunning {
             get
