@@ -15,7 +15,6 @@ using System.Text.Json.Serialization;
 namespace VMPlex
 {
 
-#nullable enable 
     /// <summary>
     /// Root of the user settings. Configured via vmplex-settings.json.
     /// </summary>
@@ -82,7 +81,7 @@ namespace VMPlex
         /// Optional RDP settings used when connecting to this virtual machine.
         /// </summary>
         [JsonInclude]
-        public RdpSettings? RdpSettings { get; set; } = null;
+        public RdpSettings RdpSettings { get; set; } = new RdpSettings();
     }
 
     /// <summary>
@@ -92,17 +91,15 @@ namespace VMPlex
     {
         /// <summary>
         /// The default enhanced session state when connecting to a virtual machine.
-        /// This defaults to true.
         /// </summary>
         [JsonInclude]
-        public bool? DefaultEnhancedSession { get; set; } = null;
+        public bool DefaultEnhancedSession { get; set; } = true;
 
         /// <summary>
         /// Specifies if redirection of the clipboard is allowed.
-        /// This defaults to true.
         /// </summary>
         [JsonInclude]
-        public bool? RedirectClipboard { get; set; } = null;
+        public bool RedirectClipboard { get; set; } = true;
 
         /// <summary>
         /// Values for the audio redirection mode.
@@ -135,50 +132,45 @@ namespace VMPlex
         /// Sets different values for the audio redirection mode. 
         /// </summary>
         [JsonInclude]
-        public AudioRedirectionModeSetting? AudioRedirectionMode { get; set; } = null;
+        public AudioRedirectionModeSetting AudioRedirectionMode { get; set; } = AudioRedirectionModeSetting.Redirect;
 
         /// <summary>
         /// Specifies if the default audio input device is captured.
         /// </summary>
         [JsonInclude]
-        public bool? AudioCaptureRedirectionMode { get; set; } = null;
+        public bool AudioCaptureRedirectionMode { get; set; } = false;
 
         /// <summary>
         /// Specifies if redirection of disk drives is allowed.
-        /// This defaults to false.
         /// </summary>
         [JsonInclude]
-        public bool? RedirectDrives { get; set; } = null;
+        public bool RedirectDrives { get; set; } = false;
 
         /// <summary>
         /// Specifies if redirection of devices is allowed.
         /// This defaults to false.
         /// </summary>
         [JsonInclude]
-        public bool? RedirectDevices { get; set; } = null;
+        public bool RedirectDevices { get; set; } = false;
 
         /// <summary>
         /// Specifies if redirection of smart cards is allowed.
-        /// This defaults to false.
         /// </summary>
         [JsonInclude]
-        public bool? RedirectSmartCards { get; set; } = null;
+        public bool RedirectSmartCards { get; set; } = false;
 
         /// <summary>
         /// Specifies the initial remote desktop width, in pixels.
-        /// This defaults to 1024.
         /// </summary>
         [JsonInclude]
-        public int? DesktopWidth { get; set; } = null;
+        public int DesktopWidth { get; set; } = 1024;
 
         /// <summary>
         /// Specifies the initial remote desktop height, in pixels.
-        /// This defaults to 768.
         /// </summary>
         [JsonInclude]
-        public int? DesktopHeight { get; set; } = null;
+        public int DesktopHeight { get; set; } = 768;
     }
-#nullable restore 
 
     public class UserSettings : INotifyPropertyChanged
     {
