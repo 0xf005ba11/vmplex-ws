@@ -24,6 +24,11 @@ namespace VMPlex
             Connected
         }
 
+        public enum RdpError
+        {
+            BasicSessionWithShieldedVm
+        }
+
         public class DesktopResizedArgs : EventArgs
         {
             public System.Drawing.Size Size;
@@ -48,11 +53,13 @@ namespace VMPlex
         public delegate void OnConnectedHandler(object sender);
         public delegate void OnConnectingHandler(object sender);
         public delegate void OnDisconnectedHandler(object sender);
+        public delegate void OnRdpErrorHandler(object sender, RdpError error);
         public event EventHandler MouseActivate;
         public event EventHandler DesktopResized;
         public event OnConnectedHandler OnRdpConnected;
         public event OnConnectingHandler OnRdpConnecting;
         public event OnDisconnectedHandler OnRdpDisconnected;
+        public event OnRdpErrorHandler OnRdpError;
 
         // Methods
         public RdpClient()
@@ -219,6 +226,13 @@ namespace VMPlex
                     return;
                 }
 
+                Msvm_SecurityElement security = m_vm.SecurityElement;
+                if (!EnableEnhancedMode && security != null && security.Shielded)
+                {
+                    OnRdpError?.Invoke(this, RdpError.BasicSessionWithShieldedVm);
+                    return;
+                }
+
                 AdvancedSettings7.PCB = m_vm.Guid;
                 Enhanced = false;
                 if (EnableEnhancedMode)
@@ -232,6 +246,11 @@ namespace VMPlex
                     else
                     {
                         System.Diagnostics.Debug.Print("Enhanced requested but unavailable");
+                        if (security != null && security.Shielded)
+                        {
+                            System.Diagnostics.Debug.Print("Shielded vm but enhanced mode net yet allowed");
+                            return;
+                        }
                     }
                 }
 
@@ -452,6 +471,10 @@ namespace VMPlex
         public uint GetWindowScaleFactor()
         {
             // 96 = USER_DEFAULT_SCREEN_DPI
+            if (this.Handle == IntPtr.Zero)
+            {
+                return 100u;
+            }
             return (uint)(Utility.GetDpiForWindow(this.Handle) / 96.0 * 100.0);
         }
 
