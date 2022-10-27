@@ -50,7 +50,7 @@ namespace VMPlex.UI
             hdr.closeButton.Visibility = Visibility.Visible;
             hdr.closeButton.Click += new RoutedEventHandler(Tab_OnCloseClicked);
             tab.Header = hdr;
-            tab.Content = new VmRdpPage(vm, false);
+            tab.Content = new VmRdpPage(vm);
             tab.DataContext = vm;
 
             int index = tc.Items.Add(tab);

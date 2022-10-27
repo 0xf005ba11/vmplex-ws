@@ -91,7 +91,15 @@ namespace VMPlex
     public class RdpSettings
     {
         /// <summary>
+        /// The default enhanced session state when connecting to a virtual machine.
+        /// This defaults to true.
+        /// </summary>
+        [JsonInclude]
+        public bool? DefaultEnhancedSession { get; set; } = null;
+
+        /// <summary>
         /// Specifies if redirection of the clipboard is allowed.
+        /// This defaults to true.
         /// </summary>
         [JsonInclude]
         public bool? RedirectClipboard { get; set; } = null;
@@ -137,30 +145,35 @@ namespace VMPlex
 
         /// <summary>
         /// Specifies if redirection of disk drives is allowed.
+        /// This defaults to false.
         /// </summary>
         [JsonInclude]
         public bool? RedirectDrives { get; set; } = null;
 
         /// <summary>
         /// Specifies if redirection of devices is allowed.
+        /// This defaults to false.
         /// </summary>
         [JsonInclude]
         public bool? RedirectDevices { get; set; } = null;
 
         /// <summary>
         /// Specifies if redirection of smart cards is allowed.
+        /// This defaults to false.
         /// </summary>
         [JsonInclude]
         public bool? RedirectSmartCards { get; set; } = null;
 
         /// <summary>
         /// Specifies the initial remote desktop width, in pixels.
+        /// This defaults to 1024.
         /// </summary>
         [JsonInclude]
         public int? DesktopWidth { get; set; } = null;
 
         /// <summary>
         /// Specifies the initial remote desktop height, in pixels.
+        /// This defaults to 768.
         /// </summary>
         [JsonInclude]
         public int? DesktopHeight { get; set; } = null;
