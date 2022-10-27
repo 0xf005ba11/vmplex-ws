@@ -24,7 +24,15 @@ namespace VMPlex.UI
     {
         public ManagerPage()
         {
-            InitializeComponent();
+            try
+            {
+                InitializeComponent();
+            }
+            catch(Exception e)
+            {
+                // Unable to parse settings. Error already displayed. Quietly exit.
+                Environment.Exit(1);
+            }
             vmList.DataContext = VMManager.Instance.VirtualMachines;
             vmGrid.DataContext = VMManager.Instance.VirtualMachines;
             VMManager.Instance.OnVmDeleted += VmDeleted;
