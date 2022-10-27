@@ -23,6 +23,7 @@ namespace VMPlex.UI
         private Msvm_ComputerSystem.EnhancedSessionMode m_prevEnhancedState;
         private VirtualMachine m_vm;
         public string VmGuid {  get { return m_vm.Guid; } }
+        public string ErrorMessage { get; private set; }
 
         public enum StartupEnhanceState
         {
@@ -119,6 +120,7 @@ namespace VMPlex.UI
 
             vmEnhancedMode.Checked -= OnEnhancedChecked;
             vmEnhancedMode.Unchecked -= OnEnhancedUnchecked;
+
             if (startupEnhanceState == StartupEnhanceState.UserOptions)
             {
                 vmEnhancedMode.IsChecked = options.EnhancedSession;
@@ -128,13 +130,28 @@ namespace VMPlex.UI
                 options.EnhancedSession = startupEnhanceState == StartupEnhanceState.ForceOn;
                 vmEnhancedMode.IsChecked = options.EnhancedSession;
             }
-            offlineText.Visibility = System.Windows.Visibility.Visible;
-            if (m_vm.IsVideoAvailable())
+
+            if (m_vm.SecurityElement.Shielded && !options.EnhancedSession)
             {
-                rdp.Connect();
+                DisplayErrorMessage("Cannot connect to a shielded virtual machine with a basic session.\nPlease enable the Enhanced Mode option.");
+            }
+            else
+            {
+                offlineText.Visibility = System.Windows.Visibility.Visible;
+                if (m_vm.IsVideoAvailable())
+                {
+                    rdp.Connect();
+                }
             }
             vmEnhancedMode.Checked += OnEnhancedChecked;
             vmEnhancedMode.Unchecked += OnEnhancedUnchecked;
+        }
+
+        private void DisplayErrorMessage(string message)
+        {
+            ErrorMessage = message;
+            errorText.Visibility = Visibility.Visible;
+            rdpHost.Visibility = Visibility.Hidden;
         }
 
         private void OnEnhancedChecked(object sender, RoutedEventArgs e)

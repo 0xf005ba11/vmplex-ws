@@ -63,6 +63,28 @@ namespace VMPlex.WMI
 
         public EnhancedSessionMode EnhancedSessionModeState { get; set; }
 
+        [WMIIgnore]
+        public Msvm_SecurityElement SecurityElement
+        {
+            get {
+                ManagementObjectCollection securityElements = GetVm(Guid).GetRelated(
+                    "Msvm_SecurityElement",
+                    "Msvm_SystemComponent",
+                    null,
+                    null,
+                    null,
+                    null,
+                    false,
+                    null);
+
+                foreach (ManagementObject instance in securityElements)
+                {
+                    return (Msvm_SecurityElement)ORMi.Helpers.TypeHelper.LoadObject(instance, typeof(Msvm_SecurityElement));
+                }
+                return null;
+            }
+        }
+
         public uint RequestStateChange(ushort state)
         {
             ManagementObject mo = GetVm(Guid);
