@@ -15,6 +15,7 @@ using System.Text.Json.Serialization;
 namespace VMPlex
 {
 
+#nullable enable 
     /// <summary>
     /// Root of the user settings. Configured via vmplex-settings.json.
     /// </summary>
@@ -58,14 +59,14 @@ namespace VMPlex
         /// populate this on the user's behalf.
         /// </summary>
         [JsonInclude]
-        public string Guid { get; set; }
+        public string Guid { get; set; } = "";
 
         /// <summary>
         /// The friendly name of the virtual machine as reported by Hyper-V.
         /// VMPlex will populate this on this user's behalf.
         /// </summary>
         [JsonInclude]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         /// <summary>
         /// Arguments passed to the debugger when launching one for a given
@@ -75,8 +76,96 @@ namespace VMPlex
         /// References the documentation for your debugger. 
         /// </summary>
         [JsonInclude]
-        public string DebuggerArguments { get; set; }
+        public string DebuggerArguments { get; set; } = "";
+
+        /// <summary>
+        /// Optional RDP settings used when connecting to this virtual machine.
+        /// </summary>
+        [JsonInclude]
+        public RdpSettings? RdpSettings { get; set; } = null;
     }
+
+    /// <summary>
+    /// User settings for a RDP connections. 
+    /// </summary>
+    public class RdpSettings
+    {
+        /// <summary>
+        /// Specifies if redirection of the clipboard is allowed.
+        /// </summary>
+        [JsonInclude]
+        public bool? RedirectClipboard { get; set; } = null;
+
+        /// <summary>
+        /// Values for the audio redirection mode.
+        /// </summary>
+        public enum AudioRedirectionModeSetting
+        {
+            /// <summary>
+            /// Audio redirection is enabled and the option for redirection is
+            /// "Bring to this computer". This is the default mode.
+            /// </summary>
+            Redirect = 0,
+
+            /// <summary>
+            /// Audio redirection is enabled and the option is "Leave at
+            /// remote computer". The "Leave at remote computer" option is
+            /// supported only when connecting remotely to a host computer
+            /// that is running Windows Vista. If the connection is to a host
+            /// computer that is running Windows Server 2008, the option 
+            /// "Leave at remote computer" is changed to "Do not play".
+            /// </summary>
+            PlayOnServer = 1,
+
+            /// <summary>
+            /// Audio redirection is enabled and the mode is "Do not play".
+            /// </summary>
+            None = 2
+        }
+
+        /// <summary>
+        /// Sets different values for the audio redirection mode. 
+        /// </summary>
+        [JsonInclude]
+        public AudioRedirectionModeSetting? AudioRedirectionMode { get; set; } = null;
+
+        /// <summary>
+        /// Specifies if the default audio input device is captured.
+        /// </summary>
+        [JsonInclude]
+        public bool? AudioCaptureRedirectionMode { get; set; } = null;
+
+        /// <summary>
+        /// Specifies if redirection of disk drives is allowed.
+        /// </summary>
+        [JsonInclude]
+        public bool? RedirectDrives { get; set; } = null;
+
+        /// <summary>
+        /// Specifies if redirection of devices is allowed.
+        /// </summary>
+        [JsonInclude]
+        public bool? RedirectDevices { get; set; } = null;
+
+        /// <summary>
+        /// Specifies if redirection of smart cards is allowed.
+        /// </summary>
+        [JsonInclude]
+        public bool? RedirectSmartCards { get; set; } = null;
+
+        /// <summary>
+        /// Specifies the initial remote desktop width, in pixels.
+        /// </summary>
+        [JsonInclude]
+        public int? DesktopWidth { get; set; } = null;
+
+        /// <summary>
+        /// Specifies the initial remote desktop height, in pixels.
+        /// </summary>
+        [JsonInclude]
+        public int? DesktopHeight { get; set; } = null;
+    }
+#nullable restore 
 
     public class UserSettings : INotifyPropertyChanged
     {
@@ -184,7 +273,7 @@ namespace VMPlex
                 else
                 {
                     var json = File.ReadAllText(UserSettingsFile);
-                    ActiveSettings = JsonSerializer.Deserialize<Settings>(json);
+                    ActiveSettings = JsonSerializer.Deserialize<Settings>(json, JsonSerializeOpts);
                 }
             }
         }
@@ -255,7 +344,11 @@ namespace VMPlex
         private JsonSerializerOptions JsonSerializeOpts = new JsonSerializerOptions
         {
             WriteIndented = true,
-            IncludeFields = true
+            IncludeFields = true,
+            Converters =
+            {
+                new JsonStringEnumConverter()
+            }
         };
         private DateTime LastReloadErrorTime = DateTime.Now;
     }

@@ -99,9 +99,12 @@ namespace VMPlex
             AdvancedSettings6.RedirectPorts = m_options.RedirectPorts;
             AdvancedSettings6.RedirectSmartCards = m_options.RedirectSmartCards;
             AdvancedSettings6.RedirectPOSDevices = false;
+            AdvancedSettings6.AudioRedirectionMode = options.AudioRedirectionMode;
 
             AdvancedSettings7.AuthenticationServiceClass = "Microsoft Virtual Console Service";
             AdvancedSettings7.RelativeMouseMode = true;
+
+            AdvancedSettings8.AudioCaptureRedirectionMode = options.AudioCaptureRedirectionMode;
 
             SecuredSettings2.KeyboardHookMode = 1; // apply remotely (fixes windows key, alt-tab, etc)
 
