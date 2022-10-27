@@ -336,6 +336,7 @@ namespace VMPlex
         {
             lock(m_stateLock)
             {
+                EnhancedReady = false;
                 m_state = RdpState.Disconnected;
 
                 ExtendedDisconnectReasonCode code = ExtendedDisconnectReason;
@@ -369,7 +370,9 @@ namespace VMPlex
                     ConnectInternal(m_options.EnhancedSession);
                     return;
                 }
-                else if (e.discReason == 3 && code == ExtendedDisconnectReasonCode.exDiscReasonAPIInitiatedDisconnect)
+                else if (e.discReason == 3 &&
+                    (code == ExtendedDisconnectReasonCode.exDiscReasonAPIInitiatedDisconnect ||
+                     code == ExtendedDisconnectReasonCode.exDiscReasonReplacedByOtherConnection))
                 {
                     ConnectInternal(m_options.EnhancedSession);
                     return;
@@ -379,11 +382,12 @@ namespace VMPlex
                     ConnectInternal(m_options.EnhancedSession);
                     return;
                 }
-                //else if (e.discReason == 3 && code == ExtendedDisconnectReasonCode.exDiscReasonNoInfo)
-                //{
-                //    ConnectInternal(m_options.EnhancedSession);
-                //    return;
-                //}
+                else if (e.discReason == 267)
+                {
+                    // Occurs when there is a timeout after a VM has been halted in a kernel debugger. could possibly happen due to network timeout
+                    ConnectInternal(m_options.EnhancedSession);
+                    return;
+                }
                 OnRdpDisconnected?.Invoke(this);
             }
         }
