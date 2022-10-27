@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:root="clr-namespace:VMPlex"
              xmlns:local="clr-namespace:VMPlex.UI"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d">
@@ -14,7 +15,16 @@
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
                     <Setter Property="Focusable" Value="False"/>
-                    <Setter Property="Margin" Value="-4"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
+                                     Value="True">
+                            <Setter Property="Margin" Value="-8"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
+                                     Value="False">
+                            <Setter Property="Margin" Value="-4"/>
+                        </DataTrigger>
+                    </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>
             <ListViewItem>
@@ -51,7 +61,25 @@
                 </StackPanel>
             </ListViewItem>
         </ListView>
-        <Border BorderThickness="1" Margin="5,25,5,25" Width="318" Height="238" BorderBrush="{DynamicResource SystemControlPageTextBaseHighBrush}">
+        <Border BorderThickness="1" BorderBrush="{DynamicResource SystemControlPageTextBaseHighBrush}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
+                                     Value="True">
+                            <Setter Property="Width" Value="400" />
+                            <Setter Property="Height" Value="300" />
+                            <Setter Property="Margin" Value="0,5,0,5" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
+                                     Value="False">
+                            <Setter Property="Width" Value="400" />
+                            <Setter Property="Height" Value="300" />
+                            <Setter Property="Margin" Value="5,25,5,10" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <Image Grid.Row="0" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="{Binding Thumbnail}"/>
         </Border>
     </StackPanel>
