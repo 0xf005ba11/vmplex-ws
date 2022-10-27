@@ -72,7 +72,7 @@
             </WindowsFormsHost>
             <StackPanel VerticalAlignment="Center">
             <Label x:Name="offlineText" Content="{Binding State}" Foreground="LightGray" Background="Transparent" FontFamily="Segoe UI" FontSize="30" HorizontalAlignment="Center" Visibility="Visible"/>
-            <Label x:Name="connectingText" Content="{Binding Name}" ContentStringFormat="(Connecting to {0}...)" Foreground="LightGray" Background="Transparent" FontFamily="Segoe UI" FontSize="20" HorizontalAlignment="Center" Visibility="Collapsed"/>
+            <Label x:Name="connectingText" Content="{Binding Name}" ContentStringFormat="(Connecting to {0}...)" Foreground="LightGray" Background="Transparent" FontFamily="Segoe UI" FontSize="20" HorizontalAlignment="Center" Visibility="Hidden"/>
             </StackPanel>
         </Grid>
     </Grid>

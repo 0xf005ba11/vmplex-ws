@@ -226,7 +226,7 @@ namespace VMPlex.UI
         private void OnRdpConnected(object sender)
         {
             System.Diagnostics.Debug.Print("Rdp connected");
-            connectingText.Visibility = Visibility.Collapsed;
+            connectingText.Visibility = Visibility.Hidden;
             offlineText.Visibility = System.Windows.Visibility.Hidden;
             rdpHost.Visibility = System.Windows.Visibility.Visible;
             if (rdp.Enhanced)
@@ -240,7 +240,7 @@ namespace VMPlex.UI
             System.Diagnostics.Debug.Print("Rdp disconnected");
             this.Dispatcher.Invoke(() =>
             {
-                connectingText.Visibility = Visibility.Collapsed;
+                connectingText.Visibility = Visibility.Hidden;
                 rdpHost.Visibility = System.Windows.Visibility.Hidden;
                 offlineText.Visibility = System.Windows.Visibility.Visible;
             });
