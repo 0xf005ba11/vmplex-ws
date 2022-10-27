@@ -336,6 +336,7 @@ namespace VMPlex
         {
             lock(m_stateLock)
             {
+                EnhancedReady = false;
                 m_state = RdpState.Disconnected;
 
                 ExtendedDisconnectReasonCode code = ExtendedDisconnectReason;
