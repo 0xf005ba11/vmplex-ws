@@ -24,9 +24,6 @@ namespace VMPlex.UI
         private VirtualMachine m_vm;
         public string VmGuid {  get { return m_vm.Guid; } }
 
-        private double dpiScaleX = 1.0;
-        private double dpiScaleY = 1.0;
-
         public VmRdpPage(VirtualMachine vmModel, bool enhanced)
         {
             m_vm = vmModel;
@@ -42,10 +39,9 @@ namespace VMPlex.UI
 
             rdpHost.Height = rdp.Height;
             rdpHost.Width = rdp.Width;
-            rdpGrid.SizeChanged += OnSizeChanged;
-            rdpHost.SizeChanged += RdpHost_SizeChanged;
+            rdpGrid.SizeChanged += OnGridSizeChanged;
             rdpHost.DpiChanged += RdpHost_DpiChanged;
-            rdp.DesktopResized += OnRdpResized;
+            rdp.DesktopResized += OnRdpDesktopResized;
 
             RdpOptions options = new RdpOptions();
             options.EnhancedSession = enhanced;
@@ -169,6 +165,10 @@ namespace VMPlex.UI
             System.Diagnostics.Debug.Print("Rdp connected");
             offlineText.Visibility = System.Windows.Visibility.Hidden;
             rdpHost.Visibility = System.Windows.Visibility.Visible;
+            if (rdp.Enhanced)
+            {
+                StartResizeTimer();
+            }
         }
 
         private void OnRdpDisconnected(object sender)
@@ -176,6 +176,7 @@ namespace VMPlex.UI
             System.Diagnostics.Debug.Print("Rdp disconnected");
             rdpHost.Visibility = System.Windows.Visibility.Hidden;
             offlineText.Visibility = System.Windows.Visibility.Visible;
+            m_timer.Stop();
         }
 
         private void VmModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -195,30 +196,10 @@ namespace VMPlex.UI
             else
             {
                 // moving to enhanced
+                System.Diagnostics.Debug.Print("OnSizeChanged: VmModel_PropertyChanged");
                 StartResizeTimer();
             }
             m_prevEnhancedState = vm.EnhancedSessionModeState;
-        }
-
-        private void RdpHost_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (rdp.DesktopHeight == (int)rdpHost.ActualHeight && rdp.DesktopWidth == (int)rdpHost.ActualWidth)
-            {
-                return;
-            }
-
-            Debug.Print("rdp host resized {0} {1}", (int)rdpHost.ActualHeight, (int)rdpHost.ActualWidth);
-        }
-
-        private void RdpHost_DpiChanged(object sender, DpiChangedEventArgs e)
-        {
-            DpiScale dpi = e.NewDpi;
-
-            Debug.Print("RdpHost_DpiChanged: DpiScaleX: {0} DpiScaleY: {1}",
-                dpi.DpiScaleX, dpi.DpiScaleY);
-
-            this.dpiScaleX = dpi.DpiScaleX;
-            this.dpiScaleY = dpi.DpiScaleY;
         }
 
         public void Shutdown()
@@ -239,47 +220,64 @@ namespace VMPlex.UI
             }
         }
 
-        private void OnRdpResized(object sender, EventArgs e)
+        // Resize the WindowsFormsHost that contains the RDP ActiveX control taking into account available space
+        // and DPI scaling. This uses the current DesktopSize from the ActiveX control.
+        private void ResizeRdpHost(Size gridSize)
         {
-            var args = (RdpClient.DesktopResizedArgs)e;
-            System.Diagnostics.Debug.Print("Received desktop resized {0} {1}", args.Width, args.Height);
-
-            double scaleFactor = this.dpiScaleX;
-
-            if (rdpHost.Height != args.Height || rdpHost.Width != args.Width)
+            System.Windows.Size rdpSize = rdp.ScaledRdpDesktopSize();
+            double targetWidth = rdpSize.Width;
+            double targetHeight = rdpSize.Height;
+            targetWidth = Math.Min(targetWidth, gridSize.Width);
+            targetHeight = Math.Min(targetHeight, gridSize.Height);
+            if (rdp.EnhancedReady)
             {
-                rdpHost.Height = Math.Min(args.Height / scaleFactor, rdpGrid.ActualHeight);
-                rdpHost.Width = Math.Min(args.Width / scaleFactor, rdpGrid.ActualWidth);
             }
-
-            if (rdp.Enhanced && (rdpHost.Width != rdpGrid.ActualWidth || rdpHost.Height != rdpGrid.ActualHeight))
-            {
-                StartResizeTimer();
-            }
+            System.Diagnostics.Debug.Print("Resizing rdpHost to {0}, {1}", targetWidth, targetHeight);
+            rdpHost.Width = targetWidth;
+            rdpHost.Height = targetHeight;
         }
 
-        private void OnSizeChanged(object sender, EventArgs e)
+        // Fired when moving between monitors with different DPI scaling or if the monitor/system DPI scaling
+        // settings are changed
+        private void RdpHost_DpiChanged(object sender, DpiChangedEventArgs e)
         {
-            if (rdp.Enhanced)
+            DpiScale dpi = e.NewDpi;
+
+            Debug.Print("RdpHost_DpiChanged: DpiScaleX: {0} DpiScaleY: {1}",
+                dpi.DpiScaleX, dpi.DpiScaleY);
+
+            System.Diagnostics.Debug.Print("OnSizeChanged: RdpHost_DpiChanged");
+            ResizeRdpHost(new Size(rdpGrid.ActualWidth, rdpGrid.ActualHeight));
+        }
+
+        // Fired when the ActiveX RDP control notifies us the remote desktop size has changed
+        private void OnRdpDesktopResized(object sender, EventArgs e)
+        {
+            ResizeRdpHost(new Size(rdpGrid.ActualWidth, rdpGrid.ActualHeight));
+        }
+
+        // Fired when the grid containing the WindowsFormsHost (which then hosts the RDP ActiveX control) is resized.
+        // We need to check if the WindowsFormsHost needs to be resized to fit within the new available space.
+        private void OnGridSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            System.Diagnostics.Debug.Print("Rdp grid resized {0}, {1}", e.NewSize.Width, e.NewSize.Height);
+            if (!rdp.EnhancedReady)
             {
-                Debug.Print("on size changed");
-                if (rdp.TryResize((int)rdpHost.ActualWidth, (int)rdpHost.ActualHeight))
-                {
-                    return;
-                }
-                // start a timer to continually attempt to resize until it works while in enhanced mode (rdp activex control limitations)
+                ResizeRdpHost(new Size(e.NewSize.Width, e.NewSize.Height));
+            }
+            else
+            {
                 StartResizeTimer();
             }
-            double scaleFactor = this.dpiScaleX;
-            rdpHost.Height = Math.Min(rdp.DesktopHeight / scaleFactor, rdpGrid.ActualHeight);
-            rdpHost.Width = Math.Min(rdp.DesktopWidth / scaleFactor, rdpGrid.ActualWidth);
         }
 
         private void OnResizeTimer(object sender, EventArgs e)
         {
-            System.Diagnostics.Debug.Print("on resize timer {0} {1}", rdpGrid.ActualWidth, rdpGrid.ActualHeight);
-            if (rdp.IsVideoAvailable() == false || rdp.TryResize((int)rdpGrid.ActualWidth, (int)rdpGrid.ActualHeight))
+            System.Diagnostics.Debug.Print("Rdp resize timer {0} {1}", rdpGrid.ActualWidth, rdpGrid.ActualHeight);
+            if (rdp.IsVideoAvailable() == false || rdp.TryResize(rdpGrid.ActualWidth, rdpGrid.ActualHeight))
             {
+                rdpHost.Width = rdpGrid.ActualWidth;
+                rdpHost.Height = rdpGrid.ActualHeight;
                 m_timer.Stop();
                 System.Diagnostics.Debug.Print("rdp resize timer stopped in OnResizeTimer");
                 return;
@@ -288,9 +286,16 @@ namespace VMPlex.UI
 
         private void StartResizeTimer()
         {
+            int seconds = 1;
+            int milliseconds = 0;
+            if (rdp.EnhancedReady)
+            {
+                seconds = 0;
+                milliseconds = 200;
+            }
             System.Diagnostics.Debug.Print("Starting rdp resize timer");
             m_timer.Stop();
-            m_timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+            m_timer.Interval = new TimeSpan(0, 0, 0, seconds, milliseconds);
             m_timer.Start();
         }
     }
