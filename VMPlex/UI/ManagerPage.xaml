@@ -17,11 +17,31 @@
         <DataTemplate x:Key="VmTemplate">
             <Button MouseDoubleClick="VmTemplate_MouseDoubleClick" Background="{DynamicResource SystemControlBackgroundAltMediumLowBrush}">
                 <StackPanel Orientation="Vertical">
-                    <Border BorderThickness="1" Margin="5,25,5,10" Width="318" Height="238" BorderBrush="{DynamicResource SystemControlPageTextBaseHighBrush}">
+                    <Border BorderThickness="1" BorderBrush="{DynamicResource SystemControlPageTextBaseHighBrush}">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
+                                                 Value="True">
+                                        <Setter Property="Width" Value="160" />
+                                        <Setter Property="Height" Value="120" />
+                                        <Setter Property="Margin" Value="0,5,0,5" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
+                                                 Value="False">
+                                        <Setter Property="Width" Value="320" />
+                                        <Setter Property="Height" Value="240" />
+                                        <Setter Property="Margin" Value="5,25,5,10" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <Image Grid.Row="0" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="{Binding Thumbnail}"/>
                     </Border>
-                    <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" FontWeight="Bold" FontSize="13"/>
-                    <TextBlock Text="{Binding State}" HorizontalAlignment="Center" FontWeight="Normal" FontSize="11"/>
+                    <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" FontWeight="Bold" 
+                               FontSize="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.FontSize, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Text="{Binding State}" HorizontalAlignment="Center" FontWeight="Normal" 
+                               FontSize="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.FontSize, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
             </Button>
         </DataTemplate>
@@ -93,9 +113,6 @@
             </Grid.ColumnDefinitions>
             <ListView Grid.Column="0" x:Name="vmList" ItemsSource="{Binding}" util:GridViewSort.AutoSort="True">
                 <ListView.Resources>
-                    <DataTemplate x:Key="HeaderTempl">
-                        <TextBlock HorizontalAlignment="Left" Text="{Binding}" Margin="5,0,0,0"/>
-                    </DataTemplate>
                     <Style x:Key="ContextMenuItemStyle" TargetType="MenuItem">
                         <Setter Property="FontSize" Value="14" />
                         <Setter Property="Margin" Value="5,0,5,0" />
@@ -149,34 +166,38 @@
                 </ListView.Resources>
                 <ListView.View>
                     <GridView>
+                        <GridView.ColumnHeaderContainerStyle>
+                            <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
+                                <Setter Property="FontSize" Value="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.FontSize, UpdateSourceTrigger=PropertyChanged}" />
+                            </Style>
+                        </GridView.ColumnHeaderContainerStyle>
+                        <GridView.ColumnHeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock HorizontalAlignment="Left" Text="{Binding}" Margin="5,0,0,0"/>
+                            </DataTemplate>
+                        </GridView.ColumnHeaderTemplate>
                         <GridViewColumn Header="Name"
                                         DisplayMemberBinding="{Binding Name}"
-                                        HeaderTemplate="{StaticResource HeaderTempl}"
                                         Width="170"
                                         util:GridViewSort.PropertyName="Name"/>
                         <GridViewColumn Header="Status"
                                         DisplayMemberBinding="{Binding State}"
-                                        HeaderTemplate="{StaticResource HeaderTempl}"
                                         Width="75"
                                         util:GridViewSort.PropertyName="State"/>
                         <GridViewColumn Header="Cpu Usage (Host)"
                                         DisplayMemberBinding="{Binding Self, Converter={StaticResource VMCpuUsageConverter}}"
-                                        HeaderTemplate="{StaticResource HeaderTempl}"
                                         Width="148"
                                         util:GridViewSort.PropertyName="ProcessorLoad"/>
                         <GridViewColumn Header="Assigned Memory"
                                         DisplayMemberBinding="{Binding Self, Converter={StaticResource VMMemoryConverter}}"
-                                        HeaderTemplate="{StaticResource HeaderTempl}"
                                         Width="150"
                                         util:GridViewSort.PropertyName="MemoryUsage"/>
                         <GridViewColumn Header="Uptime"
                                         DisplayMemberBinding="{Binding Self, Converter={StaticResource VMUptimeConverter}}"
-                                        HeaderTemplate="{StaticResource HeaderTempl}"
                                         Width="83"
                                         util:GridViewSort.PropertyName="UpTime"/>
                         <GridViewColumn Header="Process ID"
                                         DisplayMemberBinding="{Binding ProcessID, Converter={StaticResource VMPidConverter}}"
-                                        HeaderTemplate="{StaticResource HeaderTempl}"
                                         Width="94"
                                         util:GridViewSort.PropertyName="ProcessID"/>
                     </GridView>
