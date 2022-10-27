@@ -51,55 +51,16 @@ namespace VMPlex.UI
         {
             var options = new RdpOptions();
             var userOpts = m_vm.GetVmUserSettings().RdpSettings;
-            if (userOpts == null)
-            {
-                return options;
-            }
 
-            if (userOpts.DefaultEnhancedSession != null)
-            {
-                options.EnhancedSession = (bool)userOpts.DefaultEnhancedSession;
-            }
-
-            if (userOpts.RedirectClipboard != null)
-            {
-                options.RedirectClipboard = (bool)userOpts.RedirectClipboard;
-            }
-
-            if (userOpts.AudioRedirectionMode != null)
-            {
-                options.AudioRedirectionMode = (uint)userOpts.AudioRedirectionMode;
-            }
-
-            if (userOpts.AudioCaptureRedirectionMode != null)
-            {
-                options.AudioCaptureRedirectionMode = (bool)userOpts.AudioCaptureRedirectionMode;
-            }
-
-            if (userOpts.RedirectDrives != null)
-            {
-                options.RedirectDrives = (bool)userOpts.RedirectDrives;
-            }
-
-            if (userOpts.RedirectDevices != null)
-            {
-                options.RedirectDevices = (bool)userOpts.RedirectDevices;
-            }
-
-            if (userOpts.RedirectSmartCards != null)
-            {
-                options.RedirectSmartCards = (bool)userOpts.RedirectSmartCards;
-            }
-
-            if (userOpts.DesktopWidth != null)
-            {
-                options.DesktopWidth = (int)userOpts.DesktopWidth;
-            }
-
-            if (userOpts.DesktopHeight != null)
-            {
-                options.DesktopHeight = (int)userOpts.DesktopHeight;
-            }
+            options.EnhancedSession = userOpts.DefaultEnhancedSession;
+            options.RedirectClipboard = userOpts.RedirectClipboard;
+            options.AudioRedirectionMode = (uint)userOpts.AudioRedirectionMode;
+            options.AudioCaptureRedirectionMode = userOpts.AudioCaptureRedirectionMode;
+            options.RedirectDrives = userOpts.RedirectDrives;
+            options.RedirectDevices = userOpts.RedirectDevices;
+            options.RedirectSmartCards = userOpts.RedirectSmartCards;
+            options.DesktopWidth = userOpts.DesktopWidth;
+            options.DesktopHeight = userOpts.DesktopHeight;
 
             return options;
         }
