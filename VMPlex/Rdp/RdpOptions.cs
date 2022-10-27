@@ -31,6 +31,8 @@ namespace VMPlex
             RedirectDevices = false;
             RedirectPorts = false;
             RedirectSmartCards = false;
+            AudioRedirectionMode = 0;
+            AudioCaptureRedirectionMode = false;
         }
 
         public string Server { get; set; }
@@ -52,5 +54,7 @@ namespace VMPlex
         public bool RedirectDevices { get; set; }
         public bool RedirectPorts { get; set; }
         public bool RedirectSmartCards { get; set; }
+        public uint AudioRedirectionMode { get; set; }
+        public bool AudioCaptureRedirectionMode { get; set; }
     }
 }
