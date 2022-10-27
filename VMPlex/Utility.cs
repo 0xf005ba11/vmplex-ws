@@ -108,6 +108,9 @@ namespace VMPlex
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         static public extern bool SetInformationJobObject(IntPtr hJob, JOBOBJECTINFOCLASS infoClass, IntPtr jobObjectInfo, uint size);
 
+        [DllImport("user32.dll")]
+        static public extern uint GetDpiForWindow(IntPtr hwnd);
+
         static public void ErrorPopup(string message)
         {
             ModernWpf.MessageBox.Show(message, "Error", MessageBoxButton.OK, ModernWpf.SymbolGlyph.Error);

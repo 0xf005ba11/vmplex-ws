@@ -26,8 +26,7 @@ namespace VMPlex
 
         public class DesktopResizedArgs : EventArgs
         {
-            public int Width { get; set; }
-            public int Height { get; set; }
+            public System.Drawing.Size Size;
         }
 
         // Members
@@ -42,6 +41,8 @@ namespace VMPlex
         private RdpOptions m_options;
 
         public bool Enhanced { get; private set; }
+        public bool EnhancedReady { get; private set; }
+        public System.Drawing.Size DesktopSize { get { return new System.Drawing.Size(DesktopWidth, DesktopHeight); } }
 
         // Events
         public delegate void OnConnectedHandler(object sender);
@@ -104,7 +105,7 @@ namespace VMPlex
 
             SecuredSettings2.KeyboardHookMode = 1; // apply remotely (fixes windows key, alt-tab, etc)
 
-            SetExtendedProperty("DesktopScaleFactor", 100u);
+            SetExtendedProperty("DesktopScaleFactor", GetWindowScaleFactor());
             SetExtendedProperty("DeviceScaleFactor", 100u);
 
             if (options.HardwareAssist)
@@ -181,6 +182,7 @@ namespace VMPlex
         public override void Disconnect()
         {
             System.Diagnostics.Debug.Print("Explicit disconnect");
+            OnRdpDisconnected?.Invoke(this);
             try
             {
                 base.Disconnect();
@@ -237,22 +239,12 @@ namespace VMPlex
             }
         }
 
-        public bool TryResize(int width, int height)
+        public bool TryResize(double width, double height)
         {
-            if (!m_eventsInitialized)
-            { 
-                return false; 
-            }
-            if (Enhanced)
-            {
-                if (EnhancedModeUpdateScreen() == false)
-                {
-                    return false;
-                }
-                this.Size = new System.Drawing.Size(width, height);
-                return true;
-            }
-            return false;
+            double scaleFactor = GetWindowScaleFactor() / 100.0;
+            width *= scaleFactor;
+            height *= scaleFactor;
+            return Enhanced && EnhancedModeUpdateScreen((uint)width, (uint)height);
         }
 
         private void OnVmPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -334,7 +326,7 @@ namespace VMPlex
                 }
                 else
                 {
-                    EmitDesktopResized(DesktopWidth, DesktopHeight);
+                    EmitDesktopResized(DesktopSize);
                     OnRdpConnected?.Invoke(this);
                 }
             }
@@ -401,8 +393,7 @@ namespace VMPlex
             if (Enhanced == false)
             {
                 System.Diagnostics.Debug.Print("Desktop size changed W: {0} H: {1}", e.width, e.height);
-                this.ClientSize = new System.Drawing.Size(DesktopWidth, DesktopHeight);
-                EmitDesktopResized(e.width, e.height);
+                EmitDesktopResized(DesktopSize);
             }
         }
 
@@ -451,37 +442,28 @@ namespace VMPlex
             return false;
         }
 
-        public uint GetDesktopScaleFactor()
+        public uint GetWindowScaleFactor()
         {
-            using (var graphics = System.Drawing.Graphics.FromHwnd(this.Handle))
-            {
-                return (uint)(graphics.DpiX / 96.0 * 100.0);
-            }
+            // 96 = USER_DEFAULT_SCREEN_DPI
+            return (uint)(Utility.GetDpiForWindow(this.Handle) / 96.0 * 100.0);
         }
 
-        protected override void OnResize(EventArgs e)
+        public System.Windows.Size ScaledRdpDesktopSize()
         {
-            base.OnResize(e);
-
-            if (m_ocx == null || Connected != 1 || Enhanced == false)
+            System.Windows.Size scaledSize = new System.Windows.Size();
+            scaledSize.Width = (double)DesktopWidth;
+            scaledSize.Height = (double)DesktopHeight;
+            if (!EnhancedReady)
             {
-                return;
+                double scaleFactor = Utility.GetDpiForWindow(this.Handle) / 96.0;
+                scaledSize.Width /= scaleFactor;
+                scaledSize.Height /= scaleFactor;
             }
 
-            //if (Enhanced)
-            //{
-            //    // This can happen during logon or during logoff
-
-            //    // User logged out or did something that resized the screen which shouldn't happen in normal enhanced
-            //    System.Diagnostics.Debug.Print("User logged out. Resize in enhanced mode");
-            //    Disconnect();
-            //    return;
-            //}
-
-            EnhancedModeUpdateScreen();
+            return scaledSize;
         }
 
-        private bool EnhancedModeUpdateScreen()
+        private bool EnhancedModeUpdateScreen(double width = double.NaN, double height = double.NaN)
         {
             if (FullScreen)
             {
@@ -496,11 +478,18 @@ namespace VMPlex
                 }
             }
 
-            uint desktopScaleFactor = GetDesktopScaleFactor();
-            uint width = (uint)ClientRectangle.Width;
-            uint height = (uint)ClientRectangle.Height;
-            double physW = (double)width / desktopScaleFactor * 25.4;
-            double physH = (double)height / desktopScaleFactor * 25.4;
+            if (width == double.NaN)
+            {
+                width = (double)ClientRectangle.Width;
+            }
+            if (height == double.NaN)
+            {
+                height = (double)ClientRectangle.Height;
+            }
+
+            uint desktopScaleFactor = GetWindowScaleFactor();
+            double physW = width / desktopScaleFactor * 25.4;
+            double physH = height / desktopScaleFactor * 25.4;
 
             System.Diagnostics.Debug.WriteLine("EnhancedModeUpdateScreen {0} {1} {2} {3}", width, height, physW, physH);
 
@@ -508,14 +497,14 @@ namespace VMPlex
             {
                 // Only works in enhanced mode (EnhancedMode=1) and when logged in
                 m_ocx.UpdateSessionDisplaySettings(
-                    width,
-                    height,
+                    (uint)width,
+                    (uint)height,
                     (uint)physW,
                     (uint)physH,
                     0,
                     desktopScaleFactor,
-                    100);
-                EmitDesktopResized((int)width, (int)height);
+                    100u);
+                EnhancedReady = true;
                 return true;
             }
             catch(Exception)
@@ -525,12 +514,11 @@ namespace VMPlex
             return false;
         }
 
-        private void EmitDesktopResized(int width, int height)
+        private void EmitDesktopResized(System.Drawing.Size newSize)
         {
             DesktopResizedArgs args = new DesktopResizedArgs();
-            args.Width = width;
-            args.Height = height;
-            DesktopResized(this, args);
+            args.Size = newSize;
+            DesktopResized?.Invoke(this, args);
         }
 
         private void SetExtendedProperty<T>(string property, T value)
