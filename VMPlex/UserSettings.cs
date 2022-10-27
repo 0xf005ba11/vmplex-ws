@@ -183,6 +183,7 @@ namespace VMPlex
     public class UserSettings : INotifyPropertyChanged
     {
         public Settings Settings { get { lock (Lock) { return ActiveSettings; } } }
+        public string UserSettingsFile { get; private set; } = Path.GetFullPath("vmplex-settings.json");
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void NotifyChange(string Name = null)
@@ -221,20 +222,6 @@ namespace VMPlex
             SettingsFileWatcher.Deleted += OnChanged;
             SettingsFileWatcher.Created += OnChanged;
             SettingsFileWatcher.Renamed += OnRenamed;
-
-            try
-            {
-                Load();
-            }
-            catch (Exception exc)
-            {
-                MessageBox.Show(
-                    $"Failed to load settings file \"{UserSettingsFile}\"\n{exc.Message}",
-                    "VMPlex Fatal Settings Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                throw exc;
-            }
         }
 
         public void OpenInEditor()
@@ -275,7 +262,7 @@ namespace VMPlex
             return settings;
         }
 
-        private void Load()
+        public void Load()
         {
             lock (Lock)
             {
@@ -353,7 +340,6 @@ namespace VMPlex
         private object Lock = new object();
         private Settings ActiveSettings = new Settings();
         private FileSystemWatcher SettingsFileWatcher; 
-        private string UserSettingsFile = Path.GetFullPath("vmplex-settings.json");
         private JsonSerializerOptions JsonSerializeOpts = new JsonSerializerOptions
         {
             WriteIndented = true,

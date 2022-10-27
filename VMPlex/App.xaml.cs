@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
 namespace VMPlex
 {
@@ -9,9 +10,30 @@ namespace VMPlex
     {
         protected override void OnStartup(StartupEventArgs e)
         {
+            LoadUserSettings();
             Utility.TryExtractHVIntegrate();
             base.OnStartup(e);
             Utility.CreateSelfJob();
+        }
+
+        private void LoadUserSettings()
+        {
+            try
+            {
+                UserSettings.Instance.Load();
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(
+                    $"Failed to load settings file \"{UserSettings.Instance.UserSettingsFile}\"\n{exc.Message}",
+                    "VMPlex Fatal Settings Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                //
+                // Unable to parse settings. Error already displayed. Quietly exit.
+                //
+                Environment.Exit(1);
+            }
         }
     }
 }
