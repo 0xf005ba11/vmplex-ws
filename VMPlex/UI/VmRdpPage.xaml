@@ -70,7 +70,10 @@
             <WindowsFormsHost x:Name="rdpHost" Foreground="{x:Null}" Background="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden">
                 <local:RdpClient x:Name="rdp" Dock="Fill"/>
             </WindowsFormsHost>
-            <Label x:Name="offlineText" Content="{Binding State}" Foreground="LightGray" Background="Transparent" FontFamily="Segoe UI" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Visible"/>
+            <StackPanel VerticalAlignment="Center">
+            <Label x:Name="offlineText" Content="{Binding State}" Foreground="LightGray" Background="Transparent" FontFamily="Segoe UI" FontSize="30" HorizontalAlignment="Center" Visibility="Visible"/>
+            <Label x:Name="connectingText" Content="{Binding Name}" ContentStringFormat="(Connecting to {0}...)" Foreground="LightGray" Background="Transparent" FontFamily="Segoe UI" FontSize="20" HorizontalAlignment="Center" Visibility="Collapsed"/>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

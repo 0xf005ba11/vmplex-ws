@@ -49,20 +49,20 @@ namespace VMPlex.UI
 
             m_vm.PropertyChanged += VmModel_PropertyChanged;
             m_timer.Tick += OnResizeTimer;
+            rdp.OnRdpConnecting += OnRdpConnecting;
             rdp.OnRdpConnected += OnRdpConnected;
             rdp.OnRdpDisconnected += OnRdpDisconnected;
 
             vmEnhancedMode.Checked -= OnEnhancedChecked;
             vmEnhancedMode.Unchecked -= OnEnhancedUnchecked;
+            offlineText.Visibility = System.Windows.Visibility.Visible;
             if (vmModel.IsVideoAvailable())
             {
                 rdp.Connect();
-                rdpHost.Visibility = System.Windows.Visibility.Visible;
                 vmEnhancedMode.IsChecked = enhanced && vmModel.EnhancedSessionModeState != Msvm_ComputerSystem.EnhancedSessionMode.NotAllowed;
             }
             else
             {
-                offlineText.Visibility = System.Windows.Visibility.Visible;
                 vmEnhancedMode.IsChecked = false;
             }
             vmEnhancedMode.Checked += OnEnhancedChecked;
@@ -160,9 +160,17 @@ namespace VMPlex.UI
             m_vm.OpenSettingsDialog();
         }
 
+        private void OnRdpConnecting(object sender)
+        {
+            offlineText.Visibility = System.Windows.Visibility.Visible;
+            connectingText.Visibility = Visibility.Visible;
+            rdpHost.Visibility = Visibility.Hidden;
+        }
+
         private void OnRdpConnected(object sender)
         {
             System.Diagnostics.Debug.Print("Rdp connected");
+            connectingText.Visibility = Visibility.Collapsed;
             offlineText.Visibility = System.Windows.Visibility.Hidden;
             rdpHost.Visibility = System.Windows.Visibility.Visible;
             if (rdp.Enhanced)
@@ -174,6 +182,7 @@ namespace VMPlex.UI
         private void OnRdpDisconnected(object sender)
         {
             System.Diagnostics.Debug.Print("Rdp disconnected");
+            connectingText.Visibility = Visibility.Collapsed;
             rdpHost.Visibility = System.Windows.Visibility.Hidden;
             offlineText.Visibility = System.Windows.Visibility.Visible;
             m_timer.Stop();
