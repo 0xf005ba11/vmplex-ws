@@ -24,12 +24,19 @@ namespace VMPlex.UI
         private VirtualMachine m_vm;
         public string VmGuid {  get { return m_vm.Guid; } }
 
-        public VmRdpPage(VirtualMachine vmModel, bool enhanced)
+        public enum StartupEnhanceState
+        {
+            UserOptions,
+            ForceOn,
+            ForceOff
+        }
+
+        public VmRdpPage(VirtualMachine vmModel, StartupEnhanceState startupEnhanceState = StartupEnhanceState.UserOptions)
         {
             m_vm = vmModel;
 
             InitializeComponent();
-            Connect(enhanced);
+            Connect(startupEnhanceState);
         }
 
         private RdpOptions MakeRdpOptions()
@@ -39,6 +46,11 @@ namespace VMPlex.UI
             if (userOpts == null)
             {
                 return options;
+            }
+
+            if (userOpts.DefaultEnhancedSession != null)
+            {
+                options.EnhancedSession = (bool)userOpts.DefaultEnhancedSession;
             }
 
             if (userOpts.RedirectClipboard != null)
@@ -84,7 +96,7 @@ namespace VMPlex.UI
             return options;
         }
 
-        private void Connect(bool enhanced)
+        private void Connect(StartupEnhanceState startupEnhanceState)
         {
             m_prevVideoAvail = m_vm.IsVideoAvailable();
             m_prevEnhancedState = m_vm.EnhancedSessionModeState;
@@ -96,7 +108,6 @@ namespace VMPlex.UI
             rdp.DesktopResized += OnRdpDesktopResized;
 
             RdpOptions options = MakeRdpOptions();
-            options.EnhancedSession = enhanced;
 
             rdp.InitializeForLocalVmConnection(m_vm, options);
 
@@ -108,15 +119,19 @@ namespace VMPlex.UI
 
             vmEnhancedMode.Checked -= OnEnhancedChecked;
             vmEnhancedMode.Unchecked -= OnEnhancedUnchecked;
+            if (startupEnhanceState == StartupEnhanceState.UserOptions)
+            {
+                vmEnhancedMode.IsChecked = options.EnhancedSession;
+            }
+            else
+            {
+                options.EnhancedSession = startupEnhanceState == StartupEnhanceState.ForceOn;
+                vmEnhancedMode.IsChecked = options.EnhancedSession;
+            }
             offlineText.Visibility = System.Windows.Visibility.Visible;
             if (m_vm.IsVideoAvailable())
             {
                 rdp.Connect();
-                vmEnhancedMode.IsChecked = enhanced && m_vm.EnhancedSessionModeState != Msvm_ComputerSystem.EnhancedSessionMode.NotAllowed;
-            }
-            else
-            {
-                vmEnhancedMode.IsChecked = false;
             }
             vmEnhancedMode.Checked += OnEnhancedChecked;
             vmEnhancedMode.Unchecked += OnEnhancedUnchecked;
@@ -127,7 +142,7 @@ namespace VMPlex.UI
             if (Parent != null)
             {
                 rdp.Shutdown();
-                ((TabItem)Parent).Content = new VmRdpPage(m_vm, true);
+                ((TabItem)Parent).Content = new VmRdpPage(m_vm, StartupEnhanceState.ForceOn);
             }
         }
 
@@ -136,7 +151,7 @@ namespace VMPlex.UI
             if (Parent != null)
             {
                 rdp.Shutdown();
-                ((TabItem)Parent).Content = new VmRdpPage(m_vm, false);
+                ((TabItem)Parent).Content = new VmRdpPage(m_vm, StartupEnhanceState.ForceOff);
             }
         }
 
