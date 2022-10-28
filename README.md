@@ -36,9 +36,31 @@ Here is an example configuration:
   "Debugger": "windbgx",
   "VirtualMachines": [
     {
-      "Guid": "00000000-0000-0000-0000-000000000000",
-      "Name": "WIN11X64",
-      "DebuggerArguments": "-k net:port=50000,key=1.2.3.4 -T WIN11X64"
+      "Guid": "ECD89D3D-77C7-4AFC-B0B5-ACAAF1F83EE0",
+      "Name": "Win10",
+      "DebuggerArguments": "-k net:port=50001,key=1.2.3.4 -T win10",
+      "RdpSettings": {
+        "DefaultEnhancedSession": false,
+        "AudioRedirectionMode": "None",
+        "DesktopWidth": 1600,
+        "DesktopHeight": 1200
+      }
+    },
+    {
+      "Guid": "17B91C63-0F95-4B07-996C-24F5DCF7E46A",
+      "Name": "Win11",
+      "DebuggerArguments": "",
+      "RdpSettings": {
+        "DefaultEnhancedSession": true,
+        "RedirectClipboard": true,
+        "AudioRedirectionMode": "Redirect",
+        "AudioCaptureRedirectionMode": false,
+        "RedirectDrives": false,
+        "RedirectDevices": false,
+        "RedirectSmartCards": false,
+        "DesktopWidth": 1024,
+        "DesktopHeight": 768
+      }
     }
   ]
 }
