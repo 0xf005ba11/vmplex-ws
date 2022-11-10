@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.ComponentModel;
 using System.Management;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Diagnostics;
 using VMPlex.WMI;
@@ -102,11 +103,12 @@ namespace VMPlex
             if (settings.Debugger.Length == 0 ||
                 vm.DebuggerArguments.Length == 0)
             {
-                Utility.ErrorPopup(
-                    "Debugger settings are incomplete. Please specify the " +
-                    "debugger and arguments for the virtual machine in the " +
-                    "user settings. The settings file will be opened when " +
-                    "you close this dialog.");
+                UI.MessageBox.Show(
+                   MessageBoxImage.Information,
+                    "Debugger settings are incomplete.",
+                    "Please specify the debugger and arguments for the " +
+                    "virtual machine in the user settings. The settings " +
+                    "file will be opened when you close this dialog.");
                 UserSettings.Instance.OpenInEditor();
                 return;
             }
@@ -125,7 +127,10 @@ namespace VMPlex
             }
             catch (Exception exc)
             {
-                Utility.ErrorPopup($"Failed to start debugger.\n{exc.Message}");
+                UI.MessageBox.Show(
+                    MessageBoxImage.Error,
+                    "Failed to start debugger.",
+                    exc.Message);
             }
         }
 
@@ -367,7 +372,10 @@ namespace VMPlex
             }
             catch (Exception exc)
             {
-                Utility.ErrorPopup($"Failed to start Hyper-V Integration\n{exc.Message}");
+                UI.MessageBox.Show(
+                    System.Windows.MessageBoxImage.Error,
+                    "Failed to start Hyper-V Integration",
+                    exc.Message);
             }
         }
 

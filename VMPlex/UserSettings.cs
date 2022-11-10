@@ -230,11 +230,10 @@ namespace VMPlex
             }
             catch (Exception exc)
             {
-                MessageBox.Show(
-                    $"Failed to open settings file \"{UserSettingsFile}\"\n{exc.Message}",
+                UI.MessageBox.Show(
+                    MessageBoxImage.Error,
                     "VMPlex Settings Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    $"Failed to open settings file \"{UserSettingsFile}\"\n{exc.Message}");
             }
         }
 
@@ -316,11 +315,10 @@ namespace VMPlex
                 //
                 if ((DateTime.Now - LastReloadErrorTime).Seconds > 3)
                 {
-                    MessageBox.Show(
-                        $"Failed to load settings file \"{UserSettingsFile}\"\n{exception.Message}",
-                        "VMPlex Settings Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
+                    UI.MessageBox.Show(
+                         MessageBoxImage.Error,
+                         "VMPlex Settings Error",
+                         $"Failed to load settings file \"{UserSettingsFile}\"\n{exception.Message}");
                     LastReloadErrorTime = DateTime.Now;
                 }
             }

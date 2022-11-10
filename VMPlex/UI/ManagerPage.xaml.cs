@@ -2,7 +2,6 @@
  * Copyright (c) 2022 Ira Strawser. All rights reserved.
  */
 
-using ABI.Windows.ApplicationModel.Activation;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -270,10 +269,17 @@ namespace VMPlex.UI
             }
             if (vm.State != WMI.Msvm_ComputerSystem.SystemState.Off)
             {
-                Utility.ErrorPopup("Virtual Machine must be off.");
+                UI.MessageBox.Show(
+                    MessageBoxImage.Information,
+                    "Virtual Machine must be off.");
                 return;
             }
-            MessageBoxResult? res = ModernWpf.MessageBox.Show("Are you sure you want to delete " + vm.Name + "?", "Delete VM", MessageBoxButton.YesNo);
+            var res = UI.MessageBox.Show(
+                MessageBoxImage.Question,
+                $"Are you sure you want to delete {vm.Name}?", 
+                "Deleting the virtual machine will remove it from the server. " +
+                "This can not be undone.", 
+                MessageBoxButton.YesNo);
             if (res == MessageBoxResult.Yes)
             {
                 TabControl tc = (TabControl)(((TabItem)this.Parent).Parent);

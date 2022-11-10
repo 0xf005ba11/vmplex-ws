@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.IO;
-using Windows.Storage.Streams;
 
 namespace VMPlex
 {
@@ -110,11 +109,6 @@ namespace VMPlex
 
         [DllImport("user32.dll")]
         static public extern uint GetDpiForWindow(IntPtr hwnd);
-
-        static public void ErrorPopup(string message)
-        {
-            ModernWpf.MessageBox.Show(message, "Error", MessageBoxButton.OK, ModernWpf.SymbolGlyph.Error);
-        }
 
         static public void CreateSelfJob()
         {
