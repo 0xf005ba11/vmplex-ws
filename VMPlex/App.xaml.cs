@@ -24,11 +24,10 @@ namespace VMPlex
             }
             catch (Exception exc)
             {
-                MessageBox.Show(
-                    $"Failed to load settings file \"{UserSettings.Instance.UserSettingsFile}\"\n{exc.Message}",
-                    "VMPlex Fatal Settings Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                UI.MessageBox.Show(
+                    MessageBoxImage.Error,
+                     "VMPlex Fatal Settings Error",
+                     $"Failed to load settings file \"{UserSettings.Instance.UserSettingsFile}\"\n{exc.Message}");
                 //
                 // Unable to parse settings. Error already displayed. Quietly exit.
                 //
