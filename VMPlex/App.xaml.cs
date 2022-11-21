@@ -21,6 +21,7 @@ namespace VMPlex
             try
             {
                 UserSettings.Instance.Load();
+                UserSettings.Instance.Save();
             }
             catch (Exception exc)
             {

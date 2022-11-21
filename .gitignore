@@ -2,6 +2,7 @@
 *.pubxml.user
 
 .vs/
+.vscode/
 bin/
 VMPlex/obj/
 hvintegrate/obj/

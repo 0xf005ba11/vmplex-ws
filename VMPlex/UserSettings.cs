@@ -20,6 +20,9 @@ namespace VMPlex
     /// </summary>
     public class Settings
     {
+        [JsonInclude, JsonPropertyOrder(-1), JsonPropertyName("$schema")]
+        public string _schema = "https://raw.githubusercontent.com/0xf005ba11/vmplex-ws/main/VMPlex/UserSettingsSchema.json";
+
         /// <summary>
         /// If true portions of the interface are styled in a compact style. 
         /// </summary>
@@ -54,7 +57,7 @@ namespace VMPlex
     public class VmConfig
     {
         /// <summary>
-        /// The GUID of the virtual machine at reported by Hyper-V. VMPlex will
+        /// The GUID of the virtual machine as reported by Hyper-V. VMPlex will
         /// populate this on the user's behalf.
         /// </summary>
         [JsonInclude]
@@ -68,7 +71,7 @@ namespace VMPlex
         public string Name { get; set; } = "";
 
         /// <summary>
-        /// Arguments passed to the debugger when launching one for a given
+        /// Arguments passed to the debugger when launching one for this 
         /// virtual machine. As an example, when using windbg and debugging
         /// the target virtual machine over the network this would be in a
         /// form similar to "-k net:port=50000,key=1.2.3.4 -T WIN11X64".
@@ -265,7 +268,17 @@ namespace VMPlex
                 {
                     var json = File.ReadAllText(UserSettingsFile);
                     ActiveSettings = JsonSerializer.Deserialize<Settings>(json, JsonSerializeOpts);
+                    ActiveSettings._schema = (new Settings())._schema;
                 }
+            }
+        }
+
+        public void Save()
+        {
+            lock (Lock)
+            {
+                var json = JsonSerializer.Serialize(ActiveSettings, JsonSerializeOpts);
+                File.WriteAllText(UserSettingsFile, json);
             }
         }
 

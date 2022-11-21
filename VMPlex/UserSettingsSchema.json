@@ -1,0 +1,104 @@
+{
+    "$id": "https://raw.githubusercontent.com/0xf005ba11/vmplex-ws/main/VMPlex/UserSettingsSchema.json",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "VMPlex Workstation User Settings",
+    "type": "object",
+    "properties": {
+        "CompactMode": {
+            "type": "boolean",
+            "default": "false",
+            "description": "If true portions of the interface are styled in a compact style."
+        },
+        "FontSize": {
+            "type": "number",
+            "default": 14,
+            "description": "Optionally sets the font size for certain elements of the UI."
+        },
+        "Debugger": {
+            "type": "string",
+            "default": "windbgx",
+            "description": "Defines the debugger to use when launching one for a given virtual machine."
+        },
+        "VirtualMachines": {
+            "type": "array",
+            "description": "A list of virtual machines.",
+            "items": {
+                "type": "object",
+                "description": "User settings for a given virtual machine.",
+                "properties": {
+                    "Guid": {
+                        "type": "string",
+                        "default": "",
+                        "description": "The GUID of the virtual machine as reported by Hyper-V."
+                    },
+                    "Name": {
+                        "type": "string",
+                        "default": "",
+                        "description": "The friendly name of the virtual machine as reported by Hyper-V."
+                    },
+                    "DebuggerArguments": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Arguments passed to the debugger when launching one for this virtual machine."
+                    },
+                    "RdpSettings": {
+                        "type": "object",
+                        "description": "Optional RDP settings used when connecting to this virtual machine.",
+                        "properties": {
+                            "DefaultEnhancedSession": {
+                                "type": "boolean",
+                                "default": true,
+                                "description": "The default enhanced session state when connecting to a virtual machine."
+                            },
+                            "RedirectClipboard": {
+                                "type": "boolean",
+                                "default": true,
+                                "description": "Specifies if redirection of the clipboard is allowed."
+                            },
+                            "AudioRedirectionMode": {
+                                "type": "string",
+                                "enum": [
+                                    "Redirect",
+                                    "PlayOnServer",
+                                    "None"
+                                ],
+                                "default": "Redirect",
+                                "description": "Specifies the auto redirection mode."
+                            },
+                            "AudioCaptureRedirectionMode": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Specifies if the default audio input device is captured."
+                            },
+                            "RedirectDrives": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Specifies if redirection of disk drives is allowed."
+                            },
+                            "RedirectDevices": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Specifies if redirection of devices is allowed."
+                            },
+                            "RedirectSmartCards": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Specifies if redirection of smart cards is allowed."
+                            },
+                            "DesktopWidth": {
+                                "type": "integer",
+                                "default": 1024,
+                                "description": "Specifies the initial remote desktop width, in pixels."
+                            },
+                            "DesktopHeight": {
+                                "type": "integer",
+                                "default": 768,
+                                "description": "Specifies the initial remote desktop height, in pixels."
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
