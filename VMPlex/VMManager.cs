@@ -40,6 +40,13 @@ namespace VMPlex
             scope = new WmiScope(@"root\virtualization\v2");
 
             vsms = scope.GetInstance<IMsvm_VirtualSystemManagementService>();
+            if (vsms == null)
+            {
+                UI.MessageBox.Show(
+                   System.Windows.MessageBoxImage.Information,
+                    "Unable to acquire the virtual system management service.",
+                    "Please run as administrator or add your user to the Hyper-V Administrators group.");
+            }
 
             creationWatcher = scope.Subscribe<IMsvm_ComputerSystem>("__InstanceCreationEvent", 1);
             modificationWatcher = scope.Subscribe<IMsvm_ComputerSystem>("__InstanceModificationEvent", 1);

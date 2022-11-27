@@ -17,9 +17,9 @@ namespace EasyWMI
             Scope.Connect();
         }
 
-        public T GetInstance<T>()
+        public T? GetInstance<T>()
         {
-            return GetInstances<T>().First<T>();
+            return GetInstances<T>().FirstOrDefault<T>();
         }
 
         public IEnumerable<T> GetInstances<T>()
