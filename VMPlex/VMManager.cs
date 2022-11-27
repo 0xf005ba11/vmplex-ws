@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.Threading;
 
-using EasyCIM;
+using EasyWMI;
 using HyperV;
 
 namespace VMPlex
@@ -17,20 +17,19 @@ namespace VMPlex
     class VMManager
     {
         //private static WMIHelper helper = new WMIHelper(Namespace);
-        private static CimAssembly assembly;
-        private static CimServer server;
+        private static WmiScope scope;
 
         private static string GuidSelector(string guid) => "SELECT * FROM Msvm_ComputerSystem WHERE Name='" + guid + "'";
         private static string NameSelector(string name) => "SELECT * FROM Msvm_ComputerSystem WHERE ElementName='" + name + "'";
 
         public static IMsvm_ComputerSystem GetVM(string name) =>
-            server.QueryInstances<IMsvm_ComputerSystem>(NameSelector(name)).FirstOrDefault();
+            scope.QueryInstances<IMsvm_ComputerSystem>(NameSelector(name)).FirstOrDefault();
 
         public static IMsvm_ComputerSystem GetVMByGuid(string guid) =>
-            server.QueryInstances<IMsvm_ComputerSystem>(GuidSelector(guid)).FirstOrDefault();
+            scope.QueryInstances<IMsvm_ComputerSystem>(GuidSelector(guid)).FirstOrDefault();
 
-        public static CimSubscription<IMsvm_ComputerSystem> CreateMsvmWatcher(string guid) =>
-            server.Subscribe<IMsvm_ComputerSystem>(@"root\virtualization\v2", "SELECT * FROM __InstanceModificationEvent WITHIN 1 WHERE TargetInstance ISA 'Msvm_ComputerSystem' AND TargetInstance.Name = '" + guid + "'");
+        public static WmiSubscription<IMsvm_ComputerSystem> CreateMsvmWatcher(string guid) =>
+            scope.Subscribe<IMsvm_ComputerSystem>("SELECT * FROM __InstanceModificationEvent WITHIN 1 WHERE TargetInstance ISA 'Msvm_ComputerSystem' AND TargetInstance.Name = '" + guid + "'");
 
         // Implement singleton
         private static readonly Lazy<VMManager> lazy = new Lazy<VMManager>(() => new VMManager());
@@ -38,14 +37,13 @@ namespace VMPlex
 
         private VMManager()
         {
-            assembly = new CimAssembly();
-            server = new CimServer(assembly);
+            scope = new WmiScope(@"root\virtualization\v2");
 
-            vsms = server.GetInstance<IMsvm_VirtualSystemManagementService>();
+            vsms = scope.GetInstance<IMsvm_VirtualSystemManagementService>();
 
-            creationWatcher = server.Subscribe<IMsvm_ComputerSystem>("__InstanceCreationEvent", 1);
-            modificationWatcher = server.Subscribe<IMsvm_ComputerSystem>("__InstanceModificationEvent", 1);
-            deletionWatcher = server.Subscribe<IMsvm_ComputerSystem>("__InstanceDeletionEvent", 1);
+            creationWatcher = scope.Subscribe<IMsvm_ComputerSystem>("__InstanceCreationEvent", 1);
+            modificationWatcher = scope.Subscribe<IMsvm_ComputerSystem>("__InstanceModificationEvent", 1);
+            deletionWatcher = scope.Subscribe<IMsvm_ComputerSystem>("__InstanceDeletionEvent", 1);
 
             // Initialize list of VMs
             VirtualMachines = new ObservableCollection<VirtualMachine>(GetVMs());
@@ -69,7 +67,7 @@ namespace VMPlex
         }
 
         // singleton funcs
-        private void OnCreateInstance(object sender, CimEvent<IMsvm_ComputerSystem> e)
+        private void OnCreateInstance(object sender, WmiEvent<IMsvm_ComputerSystem> e)
         {
             IMsvm_ComputerSystem target = e.TargetInstance;
             VirtualMachines.Add(new VirtualMachine(target));
@@ -77,7 +75,7 @@ namespace VMPlex
             //OnVmCreated(this, target);
         }
 
-        private void OnDeleteInstance(object sender, CimEvent<IMsvm_ComputerSystem> e)
+        private void OnDeleteInstance(object sender, WmiEvent<IMsvm_ComputerSystem> e)
         {
             IMsvm_ComputerSystem target = e.TargetInstance;
 
@@ -106,7 +104,7 @@ namespace VMPlex
             }
         }
 
-        private void OnModifyInstance(object sender, CimEvent<IMsvm_ComputerSystem> e)
+        private void OnModifyInstance(object sender, WmiEvent<IMsvm_ComputerSystem> e)
         {
             IMsvm_ComputerSystem target = e.TargetInstance;
             IMsvm_ComputerSystem previous = e.PreviousInstance;
@@ -127,14 +125,14 @@ namespace VMPlex
 
         private IMsvm_VirtualSystemSettingData[] CreateSettingsArray()
         {
-            return (from vm in server.GetInstances<IMsvm_ComputerSystem>() where vm.Caption == "Virtual Machine"
+            return (from vm in scope.GetInstances<IMsvm_ComputerSystem>() where vm.Caption == "Virtual Machine"
                     from settings in vm.GetAssociated<IMsvm_VirtualSystemSettingData>("Msvm_SettingsDefineState")
                     select settings).ToArray();
         }
 
         private IEnumerable<VirtualMachine> GetVMs()
         {
-            return from vm in server.GetInstances<IMsvm_ComputerSystem>() where vm.Caption == "Virtual Machine" select new VirtualMachine(vm);
+            return from vm in scope.GetInstances<IMsvm_ComputerSystem>() where vm.Caption == "Virtual Machine" select new VirtualMachine(vm);
         }
 
         private void UpdateSummaryInformation()
@@ -150,7 +148,6 @@ namespace VMPlex
                     103, // MemoryUsage
                     104, // Heartbeat
                     105, // Uptime
-                    107, // Snapshots
                     112 // MemoryAvailable
                 };
                 uint err = vsms.GetSummaryInformation(infoRequest, CreateSettingsArray(), out IMsvm_SummaryInformation[]? summary);
@@ -186,9 +183,9 @@ namespace VMPlex
         public delegate void VmDeleteHandler(object sender, VirtualMachine target);
         public delegate void VmModifyHandler(object sender, IMsvm_ComputerSystem previous, IMsvm_ComputerSystem target);
         private IMsvm_VirtualSystemManagementService vsms;
-        private CimSubscription<IMsvm_ComputerSystem> creationWatcher;
-        private CimSubscription<IMsvm_ComputerSystem> modificationWatcher;
-        private CimSubscription<IMsvm_ComputerSystem> deletionWatcher;
+        private WmiSubscription<IMsvm_ComputerSystem> creationWatcher;
+        private WmiSubscription<IMsvm_ComputerSystem> modificationWatcher;
+        private WmiSubscription<IMsvm_ComputerSystem> deletionWatcher;
         private object vmListLock = new object();
     }
 }

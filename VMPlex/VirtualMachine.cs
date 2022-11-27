@@ -156,7 +156,7 @@ namespace VMPlex
 
         public uint RequestStateChange(StateChange state)
         {
-            return Msvm.RequestStateChange((ushort)state, out ICIM_ConcreteJob? job);
+            return Msvm.RequestStateChange((ushort)state, out IMsvm_ConcreteJob? job);
         }
 
         public void TypeText(string text)
@@ -180,7 +180,7 @@ namespace VMPlex
 
         public void UpdateMainInformation(IMsvm_ComputerSystem vm)
         {
-            Msvm = vm;
+            Msvm = VMManager.GetVMByGuid(vm.Name);
             EnhancedSessionModeState = vm.EnhancedSessionModeState ?? IMsvm_ComputerSystem.EnhancedSessionMode.NotAllowed;
             State = vm.EnabledState ?? IMsvm_ComputerSystem.SystemState.Unknown;
             Name = vm.ElementName;
@@ -255,11 +255,6 @@ namespace VMPlex
             {
                 ThumbnailHeight = summary.ThumbnailImageHeight.Value;
                 notify = true;
-            }
-
-            if (summary.Snapshots != null )
-            {
-                Snapshots = summary.Snapshots;
             }
 
             if (summary.ThumbnailImage != null)

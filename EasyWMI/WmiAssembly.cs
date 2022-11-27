@@ -5,19 +5,19 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace EasyCIM
+namespace EasyWMI
 {
-    public class CimAssembly
+    public class WmiAssembly
     {
         public AssemblyName AssemblyName { get; }
         public AssemblyBuilder AssemblyBuilder { get; }
         public ModuleBuilder ModuleBuilder { get; }
 
-        public CimAssembly()
+        public WmiAssembly()
         {
             AssemblyName = new AssemblyName(Guid.NewGuid().ToString());
             AssemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(AssemblyName, AssemblyBuilderAccess.Run);
-            ModuleBuilder = AssemblyBuilder.DefineDynamicModule("CimGen");
+            ModuleBuilder = AssemblyBuilder.DefineDynamicModule("WmiGen");
         }
     }
 }

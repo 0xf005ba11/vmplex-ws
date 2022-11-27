@@ -10,7 +10,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VMPlex", "VMPlex\VMPlex.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hvintegrate", "hvintegrate\hvintegrate.csproj", "{FDDD2BF0-12B3-4E6A-A346-922C4C82A999}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyCIM", "EasyCIM\EasyCIM.csproj", "{800BEA9C-C93D-47D3-BC6F-8B1F79ADAED4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyWMI", "EasyWMI\EasyWMI.csproj", "{025DE6E0-ED82-4926-8321-B3C28F14F486}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,10 +26,10 @@ Global
 		{FDDD2BF0-12B3-4E6A-A346-922C4C82A999}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDDD2BF0-12B3-4E6A-A346-922C4C82A999}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDDD2BF0-12B3-4E6A-A346-922C4C82A999}.Release|Any CPU.Build.0 = Release|Any CPU
-		{800BEA9C-C93D-47D3-BC6F-8B1F79ADAED4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{800BEA9C-C93D-47D3-BC6F-8B1F79ADAED4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{800BEA9C-C93D-47D3-BC6F-8B1F79ADAED4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{800BEA9C-C93D-47D3-BC6F-8B1F79ADAED4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{025DE6E0-ED82-4926-8321-B3C28F14F486}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{025DE6E0-ED82-4926-8321-B3C28F14F486}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{025DE6E0-ED82-4926-8321-B3C28F14F486}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{025DE6E0-ED82-4926-8321-B3C28F14F486}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

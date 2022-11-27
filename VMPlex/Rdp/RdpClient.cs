@@ -10,7 +10,7 @@ using AxMSTSCLib;
 using MSTSCLib;
 
 using HyperV;
-using EasyCIM;
+using EasyWMI;
 
 namespace VMPlex
 {
@@ -40,7 +40,7 @@ namespace VMPlex
         private bool m_eventsInitialized = false;
         private object m_stateLock = new object();
 
-        private CimSubscription<IMsvm_ComputerSystem> m_watcher;
+        private WmiSubscription<IMsvm_ComputerSystem> m_watcher;
         private VirtualMachine m_vm;
         private RdpOptions m_options;
 
@@ -177,7 +177,7 @@ namespace VMPlex
             OnEnterFullScreenMode -= OnEnteredFullScreenMode;
             OnLeaveFullScreenMode -= OnLeftFullScreenMode;
 
-            m_watcher.Dispose();
+            m_watcher.Stop();
             m_watcher = null;
             m_vm.PropertyChanged -= OnVmPropertyChanged;
         }
@@ -271,9 +271,9 @@ namespace VMPlex
         {
         }
 
-        protected void OnVMInstanceChange(object sender, CimEvent<IMsvm_ComputerSystem> e)
+        protected void OnVMInstanceChange(object sender, WmiEvent<IMsvm_ComputerSystem> e)
         {
-            IMsvm_ComputerSystem vm = e.TargetInstance;
+            IMsvm_ComputerSystem vm = VMManager.GetVMByGuid(e.TargetInstance.Name);
 
             if (vm.EnabledState == m_vm.State && vm.EnhancedSessionModeState == m_vm.EnhancedSessionModeState)
             {
