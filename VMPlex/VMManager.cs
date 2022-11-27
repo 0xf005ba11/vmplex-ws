@@ -43,9 +43,10 @@ namespace VMPlex
             if (vsms == null)
             {
                 UI.MessageBox.Show(
-                   System.Windows.MessageBoxImage.Information,
-                    "Unable to acquire the virtual system management service.",
-                    "Please run as administrator or add your user to the Hyper-V Administrators group.");
+                   System.Windows.MessageBoxImage.Error,
+                    "Vrtual System Management",
+                    "VMPlex is unable to interact with the Virtual Machine Management Service. Please run as administrator or add your user to the Hyper-V Administrators group.");
+                Environment.Exit(0xdead);
             }
 
             creationWatcher = scope.Subscribe<IMsvm_ComputerSystem>("__InstanceCreationEvent", 1);
