@@ -3,19 +3,13 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
-using VMPlex.WMI;
+using HyperV;
 
 namespace VMPlex.UI
 {
@@ -141,9 +135,9 @@ namespace VMPlex.UI
             {
                 return;
             }
-            if (vm.State == Msvm_ComputerSystem.SystemState.Off || 
-                vm.State == Msvm_ComputerSystem.SystemState.Saved || 
-                vm.State == Msvm_ComputerSystem.SystemState.Paused)
+            if (vm.State == IMsvm_ComputerSystem.SystemState.Off || 
+                vm.State == IMsvm_ComputerSystem.SystemState.Saved || 
+                vm.State == IMsvm_ComputerSystem.SystemState.Paused)
             {
                 vm.RequestStateChange(VirtualMachine.StateChange.Enabled);
             }
@@ -160,9 +154,9 @@ namespace VMPlex.UI
             {
                 return;
             }
-            if (vm.State != Msvm_ComputerSystem.SystemState.Off)
+            if (vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
-                if (vm.State == Msvm_ComputerSystem.SystemState.Paused)
+                if (vm.State == IMsvm_ComputerSystem.SystemState.Paused)
                 {
                     vm.RequestStateChange(VirtualMachine.StateChange.Enabled);
                 }
@@ -180,7 +174,7 @@ namespace VMPlex.UI
             {
                 return;
             }
-            if (vm.State != Msvm_ComputerSystem.SystemState.Off)
+            if (vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
                 vm.RequestStateChange(VirtualMachine.StateChange.Reset);
             }
@@ -203,7 +197,7 @@ namespace VMPlex.UI
             {
                 return;
             }
-            if (vm.State != Msvm_ComputerSystem.SystemState.Off)
+            if (vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
                 vm.RequestStateChange(VirtualMachine.StateChange.Shutdown);
             }
@@ -216,7 +210,7 @@ namespace VMPlex.UI
             {
                 return;
             }
-            if (vm.State != Msvm_ComputerSystem.SystemState.Off)
+            if (vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
                 vm.RequestStateChange(VirtualMachine.StateChange.Reboot);
             }
@@ -267,7 +261,7 @@ namespace VMPlex.UI
             {
                 return;
             }
-            if (vm.State != WMI.Msvm_ComputerSystem.SystemState.Off)
+            if (vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
                 UI.MessageBox.Show(
                     MessageBoxImage.Information,

@@ -1,0 +1,8 @@
+[
+    {
+        "path": "HyperV.cs",
+        "namespace": "HyperV",
+        "cim_namespace": "root\\virtualization\\v2",
+        "classes": [ "Msvm_*" ]
+    }
+]

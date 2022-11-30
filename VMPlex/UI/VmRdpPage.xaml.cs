@@ -7,9 +7,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using System.Diagnostics;
-using System.IO;
-using VMPlex.WMI;
 using System.ComponentModel;
+
+using HyperV;
 
 namespace VMPlex.UI
 {
@@ -21,7 +21,7 @@ namespace VMPlex.UI
         private readonly DispatcherTimer m_timer = new DispatcherTimer();
         //private Msvm_ComputerSystem.SystemState m_vmPrevState;
         private bool m_prevVideoAvail;
-        private Msvm_ComputerSystem.EnhancedSessionMode m_prevEnhancedState;
+        private IMsvm_ComputerSystem.EnhancedSessionMode m_prevEnhancedState;
         private VirtualMachine m_vm;
         public string VmGuid {  get { return m_vm.Guid; } }
         public string ErrorMessage { get; private set; }
@@ -144,9 +144,9 @@ namespace VMPlex.UI
 
         private void OnPowerCommand(object sender, RoutedEventArgs e)
         {
-            if (m_vm.State == Msvm_ComputerSystem.SystemState.Off || 
-                m_vm.State == Msvm_ComputerSystem.SystemState.Saved || 
-                m_vm.State == Msvm_ComputerSystem.SystemState.Paused)
+            if (m_vm.State == IMsvm_ComputerSystem.SystemState.Off || 
+                m_vm.State == IMsvm_ComputerSystem.SystemState.Saved || 
+                m_vm.State == IMsvm_ComputerSystem.SystemState.Paused)
             {
                 m_vm.RequestStateChange(VirtualMachine.StateChange.Enabled);
             }
@@ -158,9 +158,9 @@ namespace VMPlex.UI
 
         private void OnPauseCommand(object sender, RoutedEventArgs e)
         {
-            if (m_vm.State != Msvm_ComputerSystem.SystemState.Off)
+            if (m_vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
-                if (m_vm.State == Msvm_ComputerSystem.SystemState.Paused)
+                if (m_vm.State == IMsvm_ComputerSystem.SystemState.Paused)
                 {
                     m_vm.RequestStateChange(VirtualMachine.StateChange.Enabled);
                 }
@@ -173,7 +173,7 @@ namespace VMPlex.UI
 
         private void OnResetCommand(object sender, RoutedEventArgs e)
         {
-            if (m_vm.State != Msvm_ComputerSystem.SystemState.Off)
+            if (m_vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
                 m_vm.RequestStateChange(VirtualMachine.StateChange.Reset);
             }
@@ -186,7 +186,7 @@ namespace VMPlex.UI
 
         private void OnShutdownCommand(object sender, RoutedEventArgs e)
         {
-            if (m_vm.State != Msvm_ComputerSystem.SystemState.Off)
+            if (m_vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
                 m_vm.RequestStateChange(VirtualMachine.StateChange.Shutdown);
             }
@@ -194,7 +194,7 @@ namespace VMPlex.UI
 
         private void OnRebootCommand(object sender, RoutedEventArgs e)
         {
-            if (m_vm.State != Msvm_ComputerSystem.SystemState.Off)
+            if (m_vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
                 m_vm.RequestStateChange(VirtualMachine.StateChange.Reboot);
             }
@@ -271,7 +271,7 @@ namespace VMPlex.UI
                 return;
             }
 
-            if (m_prevEnhancedState == Msvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
+            if (m_prevEnhancedState == IMsvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
             {
                 // moving from enhanced to normal
                 m_timer.Stop();

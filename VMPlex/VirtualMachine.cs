@@ -5,12 +5,11 @@
 using System;
 using System.Linq;
 using System.ComponentModel;
-using System.Management;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Diagnostics;
-using VMPlex.WMI;
-using ORMi;
+
+using HyperV;
 
 namespace VMPlex
 {
@@ -19,6 +18,7 @@ namespace VMPlex
     {
         public enum HeartbeatState
         {
+            Off = 0,
             Ok = 2,
             Error = 6,
             NoContact = 12,
@@ -41,14 +41,14 @@ namespace VMPlex
             Reset = 11, // Power reset
         }
 
-        public VirtualMachine(Msvm_ComputerSystem vm)
+        public VirtualMachine(IMsvm_ComputerSystem vm)
         {
             Msvm = vm;
-            Name = vm.Name;
-            Guid = vm.Guid;
-            State = vm.State;
-            ProcessID = vm.ProcessID;
-            EnhancedSessionModeState = vm.EnhancedSessionModeState;
+            Name = vm.ElementName;
+            Guid = vm.Name;
+            State = vm.EnabledState ?? IMsvm_ComputerSystem.SystemState.Unknown;
+            ProcessID = vm.ProcessID ?? 0;
+            EnhancedSessionModeState = vm.EnhancedSessionModeState ?? IMsvm_ComputerSystem.EnhancedSessionMode.NotAllowed;
 
             //
             // Generates user settings if they don't exist.
@@ -156,155 +156,110 @@ namespace VMPlex
 
         public uint RequestStateChange(StateChange state)
         {
-            return Msvm.RequestStateChange((ushort)state);
+            return Msvm.RequestStateChange((ushort)state, out IMsvm_ConcreteJob? job);
         }
 
         public void TypeText(string text)
         {
-            Msvm.TypeText(text);
+            Keyboard.TypeText(text);
         }
 
         public bool IsVideoAvailable()
         {
             switch (State)
             {
-            case Msvm_ComputerSystem.SystemState.Running:
-            case Msvm_ComputerSystem.SystemState.Paused:
-            case Msvm_ComputerSystem.SystemState.Pausing:
-            case Msvm_ComputerSystem.SystemState.Stopping:
-            case Msvm_ComputerSystem.SystemState.Saving:
+            case IMsvm_ComputerSystem.SystemState.Running:
+            case IMsvm_ComputerSystem.SystemState.Paused:
+            case IMsvm_ComputerSystem.SystemState.Pausing:
+            case IMsvm_ComputerSystem.SystemState.Stopping:
+            case IMsvm_ComputerSystem.SystemState.Saving:
                 return true;
             }
             return false;
         }
 
-        public void UpdateMainInformation(Msvm_ComputerSystem vm)
+        public void UpdateMainInformation(IMsvm_ComputerSystem vm)
         {
-            Msvm = vm;
-            EnhancedSessionModeState = vm.EnhancedSessionModeState;
-            State = vm.State;
-            Name = vm.Name;
-            ProcessID = vm.ProcessID;
+            Msvm = VMManager.GetVMByGuid(vm.Name);
+            EnhancedSessionModeState = vm.EnhancedSessionModeState ?? IMsvm_ComputerSystem.EnhancedSessionMode.NotAllowed;
+            State = vm.EnabledState ?? IMsvm_ComputerSystem.SystemState.Unknown;
+            Name = vm.ElementName;
+            ProcessID = vm.ProcessID ?? 0;
             NotifyChange(null);
         }
 
-        public void UpdateSummaryInformation(ManagementBaseObject summary)
+        public void UpdateSummaryInformation(IMsvm_SummaryInformation summary)
         {
             bool notify = false;
 
             bool loadreceived = false;
             byte[] thumbnail = null;
-            foreach (PropertyData pdata in summary.Properties)
+
+            if (summary.Version != null && Version != summary.Version)
             {
-                if (pdata.Value == null)
+                Version = summary.Version;
+                notify = true;
+            }
+
+            if (summary.NumberOfProcessors != null && NumberOfProcessors != summary.NumberOfProcessors)
+            {
+                NumberOfProcessors = summary.NumberOfProcessors.Value;
+                notify = true;
+            }
+
+            if (summary.MemoryAvailable != null && MemoryAvailable != summary.MemoryAvailable)
+            {
+                MemoryAvailable = summary.MemoryAvailable.Value;
+                notify = true;
+            }
+
+            if (summary.UpTime != null)
+            {
+                ulong uptime = (ulong)summary.UpTime.Value / 1000;
+                UpTime = new TimeSpan((long)uptime * 10000000);
+            }
+
+            if (summary.ProcessorLoad != null)
+            {
+                loadreceived = true;
+                if (summary.ProcessorLoad != ProcessorLoad)
                 {
-                    continue;
+                    ProcessorLoad = summary.ProcessorLoad.Value;
+                    notify = true;
                 }
+            }
 
-                switch (pdata.Name)
+            if (summary.MemoryUsage != null && MemoryUsage != summary.MemoryUsage.Value)
+            {
+                MemoryUsage = summary.MemoryUsage.Value;
+                notify = true;
+            }
+
+            if (summary.Heartbeat != null)
+            {
+                HeartbeatState hbstate = (HeartbeatState)summary.Heartbeat.Value;
+                if (hbstate != Heartbeat)
                 {
-                case "Version":
-                    {
-                        string version = (string)pdata.Value;
-                        if (version != Version)
-                        {
-                            Version = version;
-                            notify = true;
-                        }
-                    }
-                    break;
-
-                case "NumberOfProcessors":
-                    {
-                        ushort numprocs = (ushort)pdata.Value;
-                        if (numprocs != NumberOfProcessors)
-                        {
-                            NumberOfProcessors = numprocs;
-                            notify = true;
-                        }
-                    }
-                    break;
-
-                case "MemoryAvailable":
-                    {
-                        int memavail = (int)pdata.Value;
-                        if (memavail != MemoryAvailable)
-                        {
-                            MemoryAvailable = memavail;
-                            notify = true;
-                        }
-                    }
-                    break;
-
-                case "UpTime":
-                    {
-                        ulong uptime = (ulong)pdata.Value / 1000;
-                        UpTime = new TimeSpan((long)uptime * 10000000);
-                    }
-                    break;
-
-                case "ProcessorLoad":
-                    {
-                        loadreceived = true;
-                        ushort procload = (ushort)pdata.Value;
-                        if (procload != ProcessorLoad)
-                        {
-                            ProcessorLoad = procload;
-                            notify = true;
-                        }
-                    }
-                    break;
-
-                case "MemoryUsage":
-                    {
-                        ulong memusage = (ulong)pdata.Value;
-                        if (memusage != MemoryUsage)
-                        {
-                            MemoryUsage = memusage;
-                            notify = true;
-                        }
-                    }
-                    break;
-
-                case "Heartbeat":
-                    {
-                        HeartbeatState hbstate = (HeartbeatState)(ushort)pdata.Value;
-                        if (hbstate != Heartbeat)
-                        {
-                            Heartbeat = hbstate;
-                            notify = true;
-                        }
-                    }
-                    break;
-
-                case "ThumbnailImageWidth":
-                    {
-                        ushort width = (ushort)pdata.Value;
-                        if (width != ThumbnailWidth)
-                        {
-                            ThumbnailWidth = width;
-                            notify = true;
-                        }
-                    }
-                    break;
-
-                case "ThumbnailImageHeight":
-                    {
-                        ushort height = (ushort)pdata.Value;
-                        if (height != ThumbnailHeight)
-                        {
-                            ThumbnailHeight = height;
-                            notify = true;
-                        }
-                    }
-                    break;
-
-                case "ThumbnailImage":
-                    {
-                        thumbnail = (byte[])pdata.Value;
-                    }
-                    break;
+                    Heartbeat = hbstate;
+                    notify = true;
                 }
+            }
+
+            if (summary.ThumbnailImageWidth != null && ThumbnailWidth != summary.ThumbnailImageWidth)
+            {
+                ThumbnailWidth= summary.ThumbnailImageWidth.Value;
+                notify = true;
+            }
+
+            if (summary.ThumbnailImageHeight != null && ThumbnailHeight != summary.ThumbnailImageHeight)
+            {
+                ThumbnailHeight = summary.ThumbnailImageHeight.Value;
+                notify = true;
+            }
+
+            if (summary.ThumbnailImage != null)
+            {
+                thumbnail = summary.ThumbnailImage;
             }
 
             if (!loadreceived)
@@ -379,34 +334,36 @@ namespace VMPlex
             }
         }
 
-        private Msvm_ComputerSystem Msvm { get; set; }
+        private IMsvm_ComputerSystem Msvm { get; set; }
         public VirtualMachine Self { get { return this; } }
         public string Name { get; set; }
         public string Guid { get; set; }
         public string Version { get; set; }
         public uint ProcessID { get; set; }
-        public Msvm_SecurityElement SecurityElement{ get { return Msvm.SecurityElement; } }
-        public Msvm_ComputerSystem.SystemState State { get; set; }
+        public IMsvm_VirtualSystemSettingData[] Snapshots { get; set; }
+        public IMsvm_SecurityElement? SecurityElement { get => Msvm.GetAssociated<IMsvm_SecurityElement>(null).FirstOrDefault(); }
+        public IMsvm_Keyboard Keyboard { get => Msvm.GetAssociated<IMsvm_Keyboard>("Msvm_SystemDevice").FirstOrDefault(); }
+        public IMsvm_ComputerSystem.SystemState State { get; set; }
         public bool IsRunning {
             get
             {
                 switch(State)
                 {
-                    case Msvm_ComputerSystem.SystemState.Unknown:
-                    case Msvm_ComputerSystem.SystemState.Off:
-                    case Msvm_ComputerSystem.SystemState.Saved:
-                    case Msvm_ComputerSystem.SystemState.Paused:
-                    case Msvm_ComputerSystem.SystemState.FastSaved:
-                    case Msvm_ComputerSystem.SystemState.Hibernated:
+                    case IMsvm_ComputerSystem.SystemState.Unknown:
+                    case IMsvm_ComputerSystem.SystemState.Off:
+                    case IMsvm_ComputerSystem.SystemState.Saved:
+                    case IMsvm_ComputerSystem.SystemState.Paused:
+                    case IMsvm_ComputerSystem.SystemState.FastSaved:
+                    case IMsvm_ComputerSystem.SystemState.Hibernated:
                         return false;
                 }
                 return true;
             }
         }
-        public bool IsPaused { get {  return State == Msvm_ComputerSystem.SystemState.Paused; } }
-        public bool IsSaved { get {  return State == Msvm_ComputerSystem.SystemState.Saved; } }
+        public bool IsPaused { get {  return State == IMsvm_ComputerSystem.SystemState.Paused; } }
+        public bool IsSaved { get {  return State == IMsvm_ComputerSystem.SystemState.Saved; } }
         public bool IsPoweredOn { get { return IsRunning || IsPaused; } }
-        public Msvm_ComputerSystem.EnhancedSessionMode EnhancedSessionModeState { get; set; }
+        public IMsvm_ComputerSystem.EnhancedSessionMode EnhancedSessionModeState { get; set; }
         public ushort NumberOfProcessors { get; set; }
         public BitmapSource Thumbnail { get; set; }
         public ushort ThumbnailWidth { get; set; }

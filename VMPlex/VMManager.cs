@@ -7,32 +7,29 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
-using System.Management;
 using System.Threading;
 
-using ORMi;
-using VMPlex.WMI;
+using EasyWMI;
+using HyperV;
 
 namespace VMPlex
 {
     class VMManager
     {
-        // Static helpers
-        private const string Namespace = @"root\Virtualization\V2";
-        private ManagementScope Scope;
-
-        private static WMIHelper helper = new WMIHelper(Namespace);
+        //private static WMIHelper helper = new WMIHelper(Namespace);
+        private static WmiScope scope;
 
         private static string GuidSelector(string guid) => "SELECT * FROM Msvm_ComputerSystem WHERE Name='" + guid + "'";
+        private static string NameSelector(string name) => "SELECT * FROM Msvm_ComputerSystem WHERE ElementName='" + name + "'";
 
-        public static Msvm_ComputerSystem GetVM(string name) =>
-            helper.QueryFirstOrDefault<Msvm_ComputerSystem>("SELECT * FROM Msvm_ComputerSystem WHERE ElementName='" + name + "'");
+        public static IMsvm_ComputerSystem GetVM(string name) =>
+            scope.QueryInstances<IMsvm_ComputerSystem>(NameSelector(name)).FirstOrDefault();
 
-        public static Msvm_ComputerSystem GetVMByGuid(string guid) =>
-            helper.QueryFirstOrDefault<Msvm_ComputerSystem>(GuidSelector(guid));
+        public static IMsvm_ComputerSystem GetVMByGuid(string guid) =>
+            scope.QueryInstances<IMsvm_ComputerSystem>(GuidSelector(guid)).FirstOrDefault();
 
-        public static WMIWatcher CreateMsvmWatcher(string guid) =>
-            new WMIWatcher(Namespace, "SELECT * FROM __InstanceModificationEvent WITHIN 1 WHERE TargetInstance ISA 'Msvm_ComputerSystem' AND TargetInstance.Name = '" + guid + "'", typeof(ModificationEvent));
+        public static WmiSubscription<IMsvm_ComputerSystem> CreateMsvmWatcher(string guid) =>
+            scope.Subscribe<IMsvm_ComputerSystem>("SELECT * FROM __InstanceModificationEvent WITHIN 1 WHERE TargetInstance ISA 'Msvm_ComputerSystem' AND TargetInstance.Name = '" + guid + "'");
 
         // Implement singleton
         private static readonly Lazy<VMManager> lazy = new Lazy<VMManager>(() => new VMManager());
@@ -40,21 +37,30 @@ namespace VMPlex
 
         private VMManager()
         {
-            Scope = new ManagementScope(Namespace, null);
-            vsms = helper.QueryFirstOrDefault<Msvm_VirtualSystemManagementService>();
+            scope = new WmiScope(@"root\virtualization\v2");
 
-            creationWatcher = new WMIWatcher(Namespace, "SELECT * FROM __InstanceCreationEvent WITHIN 1 WHERE TargetInstance ISA 'Msvm_computerSystem'");
-            modificationWatcher = new WMIWatcher(Namespace, "SELECT * FROM __InstanceModificationEvent WITHIN 1 WHERE TargetInstance ISA 'Msvm_ComputerSystem'");
-            deletionWatcher = new WMIWatcher(Namespace, "SELECT * FROM __InstanceDeletionEvent WITHIN 1 WHERE TargetInstance ISA 'Msvm_ComputerSystem'");
+            vsms = scope.GetInstance<IMsvm_VirtualSystemManagementService>();
+            if (vsms == null)
+            {
+                UI.MessageBox.Show(
+                   System.Windows.MessageBoxImage.Error,
+                    "Vrtual System Management",
+                    "VMPlex is unable to interact with the Virtual Machine Management Service. Please run as administrator or add your user to the Hyper-V Administrators group.");
+                Environment.Exit(0xdead);
+            }
+
+            creationWatcher = scope.Subscribe<IMsvm_ComputerSystem>("__InstanceCreationEvent", 1);
+            modificationWatcher = scope.Subscribe<IMsvm_ComputerSystem>("__InstanceModificationEvent", 1);
+            deletionWatcher = scope.Subscribe<IMsvm_ComputerSystem>("__InstanceDeletionEvent", 1);
 
             // Initialize list of VMs
             VirtualMachines = new ObservableCollection<VirtualMachine>(GetVMs());
             BindingOperations.EnableCollectionSynchronization(VirtualMachines, vmListLock);
-            //UpdateSummaryInformation();
+            UpdateSummaryInformation();
 
-            creationWatcher.WMIEventArrived += OnWmiCreateInstance;
-            deletionWatcher.WMIEventArrived += OnWmiDeleteInstance;
-            modificationWatcher.WMIEventArrived += OnWmiModifyInstance;
+            creationWatcher.EventArrived += OnCreateInstance;
+            deletionWatcher.EventArrived += OnDeleteInstance;
+            modificationWatcher.EventArrived += OnModifyInstance;
 
             new Thread(() => UpdateDataThread()) { IsBackground = true }.Start();
         }
@@ -69,24 +75,24 @@ namespace VMPlex
         }
 
         // singleton funcs
-        private void OnWmiCreateInstance(object sender, WMIEventArgs e)
+        private void OnCreateInstance(object sender, WmiEvent<IMsvm_ComputerSystem> e)
         {
-            var target = (Msvm_ComputerSystem)ORMi.Helpers.TypeHelper.LoadObject(((dynamic)e.Object).TargetInstance, typeof(Msvm_ComputerSystem));
+            IMsvm_ComputerSystem target = e.TargetInstance;
             VirtualMachines.Add(new VirtualMachine(target));
             UpdateSummaryInformation();
             //OnVmCreated(this, target);
         }
 
-        private void OnWmiDeleteInstance(object sender, WMIEventArgs e)
+        private void OnDeleteInstance(object sender, WmiEvent<IMsvm_ComputerSystem> e)
         {
-            var target = (Msvm_ComputerSystem)ORMi.Helpers.TypeHelper.LoadObject(((dynamic)e.Object).TargetInstance, typeof(Msvm_ComputerSystem));
+            IMsvm_ComputerSystem target = e.TargetInstance;
 
             VirtualMachine removed = null;
             {
                 lock(vmListLock)
                 for (int i = 0; i < VirtualMachines.Count; ++i)
                 {
-                    if (VirtualMachines[i].Guid == target.Guid)
+                    if (VirtualMachines[i].Guid == target.Name)
                     {
                         removed = VirtualMachines[i];
                         VirtualMachines.RemoveAt(i);
@@ -106,17 +112,17 @@ namespace VMPlex
             }
         }
 
-        private void OnWmiModifyInstance(object sender, WMIEventArgs e)
+        private void OnModifyInstance(object sender, WmiEvent<IMsvm_ComputerSystem> e)
         {
-            Msvm_ComputerSystem target = (Msvm_ComputerSystem)ORMi.Helpers.TypeHelper.LoadObject(((dynamic)e.Object).TargetInstance, typeof(Msvm_ComputerSystem));
-            Msvm_ComputerSystem previous = (Msvm_ComputerSystem)ORMi.Helpers.TypeHelper.LoadObject(((dynamic)e.Object).PreviousInstance, typeof(Msvm_ComputerSystem));
+            IMsvm_ComputerSystem target = e.TargetInstance;
+            IMsvm_ComputerSystem previous = e.PreviousInstance;
             //OnVmModified(this, previous, target);
 
             lock (vmListLock)
             {
                 foreach (VirtualMachine vm in VirtualMachines)
                 {
-                    if (vm.Guid == target.Guid)
+                    if (vm.Guid == target.Name)
                     {
                         vm.UpdateMainInformation(target);
                         break;
@@ -125,41 +131,22 @@ namespace VMPlex
             }
         }
 
-        private IEnumerable<VirtualMachine> GetVMs()
+        private IMsvm_VirtualSystemSettingData[] CreateSettingsArray()
         {
-            return from vm in helper.Query<Msvm_ComputerSystem>() where vm.Caption == "Virtual Machine" select new VirtualMachine(vm);
+            return (from vm in scope.GetInstances<IMsvm_ComputerSystem>() where vm.Caption == "Virtual Machine"
+                    from settings in vm.GetAssociated<IMsvm_VirtualSystemSettingData>("Msvm_SettingsDefineState")
+                    select settings).ToArray();
         }
 
-        private ManagementObject[] CreateSettingsArray()
+        private IEnumerable<VirtualMachine> GetVMs()
         {
-            ManagementObject[] vms = helper.QueryRaw("Msvm_ComputerSystem", Scope);
-            List<ManagementObject> ret = new List<ManagementObject>();
-
-            foreach (var vm in vms)
-            {
-                var settings = vm.GetRelated(
-                    "Msvm_VirtualSystemSettingData",
-                    "Msvm_SettingsDefineState",
-                    null,
-                    null,
-                    "SettingData",
-                    "ManagedElement",
-                    false,
-                    null);
-                foreach (var instance in settings)
-                {
-                    ret.Add((ManagementObject)instance);
-                }
-            }
-
-            return ret.ToArray();
+            return from vm in scope.GetInstances<IMsvm_ComputerSystem>() where vm.Caption == "Virtual Machine" select new VirtualMachine(vm);
         }
 
         private void UpdateSummaryInformation()
         {
-            lock(vmListLock)
+            lock (vmListLock)
             {
-                ManagementObject[] settings = CreateSettingsArray();
                 uint[] infoRequest = new uint[] {
                     0, // Name (Guid)
                     4, // NumberOfProcessors
@@ -171,37 +158,17 @@ namespace VMPlex
                     105, // Uptime
                     112 // MemoryAvailable
                 };
-                ManagementBaseObject result;
-                try
-                {
-                    result = vsms.GetSummaryInformation(settings, infoRequest);
-                    if (result == null)
-                    {
-                        return;
-                    }
-                }
-                catch (Exception)
+                uint err = vsms.GetSummaryInformation(infoRequest, CreateSettingsArray(), out IMsvm_SummaryInformation[]? summary);
+                if (err != 0)
                 {
                     return;
                 }
 
-                uint returnValue = (uint)result["ReturnValue"];
-                if (returnValue != 0)
-                {
-                    return;
-                }
-
-                ManagementBaseObject[] summary = (ManagementBaseObject[])result["SummaryInformation"];
-                if (summary is null)
-                {
-                    return;
-                }
-
-                foreach (ManagementBaseObject info in summary)
+                foreach (IMsvm_SummaryInformation info in summary)
                 {
                     foreach (VirtualMachine vm in VirtualMachines)
                     {
-                        if (vm.Guid == (string)info["Name"])
+                        if (vm.Guid == info.Name)
                         {
                             vm.UpdateSummaryInformation(info);
                             break;
@@ -220,14 +187,13 @@ namespace VMPlex
         public ObservableCollection<VirtualMachine> VirtualMachines;
 
         // singleton vars
-        public delegate void VmCreateHandler(object sender, Msvm_ComputerSystem target);
+        public delegate void VmCreateHandler(object sender, IMsvm_ComputerSystem target);
         public delegate void VmDeleteHandler(object sender, VirtualMachine target);
-        public delegate void VmModifyHandler(object sender, Msvm_ComputerSystem previous, Msvm_ComputerSystem target);
-        private Msvm_VirtualSystemManagementService vsms;
-        private WMIWatcher creationWatcher;
-        private WMIWatcher modificationWatcher;
-        private WMIWatcher deletionWatcher;
-        //private Timer updateTimer;
+        public delegate void VmModifyHandler(object sender, IMsvm_ComputerSystem previous, IMsvm_ComputerSystem target);
+        private IMsvm_VirtualSystemManagementService vsms;
+        private WmiSubscription<IMsvm_ComputerSystem> creationWatcher;
+        private WmiSubscription<IMsvm_ComputerSystem> modificationWatcher;
+        private WmiSubscription<IMsvm_ComputerSystem> deletionWatcher;
         private object vmListLock = new object();
     }
 }

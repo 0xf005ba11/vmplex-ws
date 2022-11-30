@@ -3,15 +3,14 @@
  */
 
 using System;
-using System.Windows;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
 using AxMSTSCLib;
 using MSTSCLib;
 
-using ORMi;
-using VMPlex.WMI;
+using HyperV;
+using EasyWMI;
 
 namespace VMPlex
 {
@@ -41,8 +40,8 @@ namespace VMPlex
         private bool m_eventsInitialized = false;
         private object m_stateLock = new object();
 
-        private WMIWatcher m_watcher;
-        private Msvm_ComputerSystem m_vm;
+        private WmiSubscription<IMsvm_ComputerSystem> m_watcher;
+        private VirtualMachine m_vm;
         private RdpOptions m_options;
 
         public bool Enhanced { get; private set; }
@@ -71,7 +70,7 @@ namespace VMPlex
         {
             AttachInterfaces();
             m_ocx = (IMsRdpClient9)GetOcx();
-            m_vm = VMManager.GetVMByGuid(vm.Guid);
+            m_vm = vm;
             m_options = options;
 
             Server = options.Server;
@@ -159,7 +158,7 @@ namespace VMPlex
             OnLeaveFullScreenMode += OnLeftFullScreenMode;
 
             m_watcher = VMManager.CreateMsvmWatcher(m_vm.Guid);
-            m_watcher.WMIEventArrived += OnWmiVMInstanceChange;
+            m_watcher.EventArrived += OnVMInstanceChange;
             m_vm.PropertyChanged += OnVmPropertyChanged;
 
             m_eventsInitialized = true;
@@ -179,7 +178,6 @@ namespace VMPlex
             OnLeaveFullScreenMode -= OnLeftFullScreenMode;
 
             m_watcher.Stop();
-            m_watcher.WMIEventArrived -= OnWmiVMInstanceChange;
             m_watcher = null;
             m_vm.PropertyChanged -= OnVmPropertyChanged;
         }
@@ -226,8 +224,8 @@ namespace VMPlex
                     return;
                 }
 
-                Msvm_SecurityElement security = m_vm.SecurityElement;
-                if (!EnableEnhancedMode && security != null && security.Shielded)
+                IMsvm_SecurityElement? security = m_vm.SecurityElement;
+                if (!EnableEnhancedMode && security != null && security.Shielded != null && security.Shielded.Value)
                 {
                     OnRdpError?.Invoke(this, RdpError.BasicSessionWithShieldedVm);
                     return;
@@ -237,7 +235,7 @@ namespace VMPlex
                 Enhanced = false;
                 if (EnableEnhancedMode)
                 {
-                    if (m_vm.EnhancedSessionModeState == Msvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
+                    if (m_vm.EnhancedSessionModeState == IMsvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
                     {
                         Enhanced = true;
                         AdvancedSettings7.PCB += ";EnhancedMode=1";
@@ -246,7 +244,7 @@ namespace VMPlex
                     else
                     {
                         System.Diagnostics.Debug.Print("Enhanced requested but unavailable");
-                        if (security != null && security.Shielded)
+                        if (security != null && security.Shielded != null && security.Shielded.Value)
                         {
                             System.Diagnostics.Debug.Print("Shielded vm but enhanced mode net yet allowed");
                             return;
@@ -273,36 +271,36 @@ namespace VMPlex
         {
         }
 
-        protected void OnWmiVMInstanceChange(object sender, WMIEventArgs e)
+        protected void OnVMInstanceChange(object sender, WmiEvent<IMsvm_ComputerSystem> e)
         {
-            var vm = (Msvm_ComputerSystem)ORMi.Helpers.TypeHelper.LoadObject(((ModificationEvent)e.Object).TargetInstance, typeof(Msvm_ComputerSystem));
+            IMsvm_ComputerSystem vm = VMManager.GetVMByGuid(e.TargetInstance.Name);
 
-            if (vm.State == m_vm.State && vm.EnhancedSessionModeState == m_vm.EnhancedSessionModeState)
+            if (vm.EnabledState == m_vm.State && vm.EnhancedSessionModeState == m_vm.EnhancedSessionModeState)
             {
                 // no change we care about here, but update the object
-                m_vm = vm;
+                m_vm = new VirtualMachine(vm);
                 return;
             }
-            System.Diagnostics.Debug.Print("VM Event. State = {0}, EnhancedSessionModeState = {1}", vm.State, vm.EnhancedSessionModeState);
+            System.Diagnostics.Debug.Print("VM Event. State = {0}, EnhancedSessionModeState = {1}", vm.EnabledState, vm.EnhancedSessionModeState);
 
             // VM Event. State = Other, EnhancedSessionModeState = NotAllowed  <-- Pausing
             // VM Event. State = Paused, EnhancedSessionModeState = NotAllowed <-- Paused
 
-            m_vm = vm;
-            if (!IsVideoAvailable(vm))
+            m_vm = new VirtualMachine(vm);
+            if (!IsVideoAvailable(m_vm))
             {
-                if (vm.EnhancedSessionModeState == Msvm_ComputerSystem.EnhancedSessionMode.NotAllowed)
+                if (m_vm.EnhancedSessionModeState == IMsvm_ComputerSystem.EnhancedSessionMode.NotAllowed)
                 {
-                    if (vm.State == Msvm_ComputerSystem.SystemState.Other)
+                    if (m_vm.State == IMsvm_ComputerSystem.SystemState.Other)
                     {
                         return;
                     }
-                    else if (vm.State == Msvm_ComputerSystem.SystemState.Paused)
+                    else if (m_vm.State == IMsvm_ComputerSystem.SystemState.Paused)
                     {
                         System.Diagnostics.Debug.Print("VM paused");
                         return;
                     }
-                    else if (vm.State == Msvm_ComputerSystem.SystemState.Saved)
+                    else if (m_vm.State == IMsvm_ComputerSystem.SystemState.Saved)
                     {
                         System.Diagnostics.Debug.Print("VM saved");
                         return;
@@ -324,7 +322,7 @@ namespace VMPlex
                 if (m_state == RdpState.Connected &&
                     m_options.EnhancedSession &&
                     !Enhanced &&
-                    m_vm.EnhancedSessionModeState == Msvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
+                    m_vm.EnhancedSessionModeState == IMsvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
                 {
                     // reconnect in enhanced
                     System.Diagnostics.Debug.Print("Should reconnect in enhanced mode now");
@@ -342,7 +340,7 @@ namespace VMPlex
             {
                 m_state = RdpState.Connected;
 
-                if (m_options.EnhancedSession && !Enhanced && m_vm.EnhancedSessionModeState == Msvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
+                if (m_options.EnhancedSession && !Enhanced && m_vm.EnhancedSessionModeState == IMsvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
                 {
                     // reconnect in an enhanced session
                 }
@@ -399,7 +397,7 @@ namespace VMPlex
                     ConnectInternal(m_options.EnhancedSession);
                     return;
                 }
-                else if (e.discReason == 4 && code == ExtendedDisconnectReasonCode.exDiscReasonNoInfo && m_vm.State == Msvm_ComputerSystem.SystemState.Paused)
+                else if (e.discReason == 4 && code == ExtendedDisconnectReasonCode.exDiscReasonNoInfo && m_vm.State == IMsvm_ComputerSystem.SystemState.Paused)
                 {
                     ConnectInternal(m_options.EnhancedSession);
                     return;
@@ -449,20 +447,20 @@ namespace VMPlex
             }
         }
 
-        public bool IsVideoAvailable(Msvm_ComputerSystem wmivm = null)
+        public bool IsVideoAvailable(VirtualMachine wmivm = null)
         {
-            Msvm_ComputerSystem.SystemState state = m_vm.State;
+            IMsvm_ComputerSystem.SystemState state = m_vm.State;
             if (wmivm != null)
             {
                 state = wmivm.State;
             }
             switch (state)
             {
-                case Msvm_ComputerSystem.SystemState.Running:
-                case Msvm_ComputerSystem.SystemState.Paused:
-                case Msvm_ComputerSystem.SystemState.Pausing:
-                case Msvm_ComputerSystem.SystemState.Stopping:
-                case Msvm_ComputerSystem.SystemState.Saving:
+                case IMsvm_ComputerSystem.SystemState.Running:
+                case IMsvm_ComputerSystem.SystemState.Paused:
+                case IMsvm_ComputerSystem.SystemState.Pausing:
+                case IMsvm_ComputerSystem.SystemState.Stopping:
+                case IMsvm_ComputerSystem.SystemState.Saving:
                     return true;
             }
             return false;
