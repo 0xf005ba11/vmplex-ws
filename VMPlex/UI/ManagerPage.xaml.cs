@@ -8,13 +8,17 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Collections.Generic;
 
 using HyperV;
+using System.Linq;
 
 namespace VMPlex.UI
 {
     public partial class ManagerPage : UserControl
     {
+        private bool m_InitialLoad = false;
+
         public ManagerPage()
         {
             InitializeComponent();
@@ -24,6 +28,51 @@ namespace VMPlex.UI
             SetValue(TextOptions.TextFormattingModeProperty, TextFormattingMode.Display);
             SetValue(FontFamilyProperty, SystemFonts.MessageFontFamily);
             SetValue(FontSizeProperty, SystemFonts.MessageFontSize);
+            Loaded += ManagerPage_Loaded;
+        }
+
+        private void ManagerPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (m_InitialLoad)
+            {
+                return;
+            }
+
+            m_InitialLoad = true;
+
+            //
+            // Restore any previously opened virtual machine tabs.
+            //
+            if (UserSettings.Instance.Settings.RememberTabs)
+            {
+                var tabs = new List<TabItem>();
+                foreach (var vm in VMManager.Instance.VirtualMachines)
+                {
+                    int index = vm.GetVmUserSettings().TabIndex;
+
+                    if (index < 0)
+                    {
+                        continue;
+                    }
+
+                    while (tabs.Count <= index)
+                    {
+                        tabs.Add(null);
+                    }
+
+                    tabs[index] = CreateVmTab(vm);
+                }
+
+                TabControl tc = (TabControl)(((TabItem)this.Parent).Parent);
+
+                foreach (TabItem tab in tabs)
+                {
+                    if (tab != null)
+                    {
+                        tc.Items.Add(tab);
+                    }
+                }
+            }
         }
 
         private void OpenVmTab(VirtualMachine vm, TabControl tc)
@@ -35,6 +84,19 @@ namespace VMPlex.UI
                 return;
             }
 
+            int index = tc.Items.Add(CreateVmTab(vm));
+
+            vm.MutateVmUserSettings(s =>
+            {
+                s.TabIndex = index;
+                return s;
+            });
+
+            Dispatcher.BeginInvoke((Action)(() => tc.SelectedIndex = index));
+        }
+
+        private TabItem CreateVmTab(VirtualMachine vm)
+        {
             TabItem tab = new TabItem();
             CloseableHeader hdr = new CloseableHeader();
             hdr.DataContext = vm;
@@ -42,13 +104,12 @@ namespace VMPlex.UI
             hdr.Title.SetBinding(Label.ContentProperty, new Binding("Name"));
             hdr.closeButton.Visibility = Visibility.Visible;
             hdr.closeButton.Click += new RoutedEventHandler(Tab_OnCloseClicked);
+            hdr.closeButton.Tag = tab;
             tab.Header = hdr;
             tab.Content = new VmRdpPage(vm);
             tab.DataContext = vm;
 
-            int index = tc.Items.Add(tab);
-            hdr.closeButton.Tag = tab;
-            Dispatcher.BeginInvoke((Action)(() => tc.SelectedIndex = index));
+            return tab;
         }
 
         private void VmListItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -95,7 +156,14 @@ namespace VMPlex.UI
         {
             Button button = (Button)sender;
             TabItem tab = (TabItem)button.Tag;
+            VirtualMachine vm = (VirtualMachine)tab.DataContext;
             button.Tag = null;
+
+            vm.MutateVmUserSettings(s =>
+            {
+                s.TabIndex = -1;
+                return s;
+            });
 
             TabControl tc = (TabControl)(((TabItem)this.Parent).Parent);
             if (tab.Content != null && tab.Content is VmRdpPage)

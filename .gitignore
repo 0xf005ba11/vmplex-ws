@@ -4,8 +4,7 @@
 .vs/
 .vscode/
 bin/
-VMPlex/obj/
-hvintegrate/obj/
+**/obj/
 
 vmplex-settings.json
 

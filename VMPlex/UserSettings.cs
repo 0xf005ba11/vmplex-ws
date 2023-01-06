@@ -30,6 +30,12 @@ namespace VMPlex
         public bool CompactMode { get; set; } = false;
 
         /// <summary>
+        /// When starting VMPlex will remember and reopen previously opened tabs.
+        /// </summary>
+        [JsonInclude]
+        public bool RememberTabs { get; set; } = true;
+
+        /// <summary>
         /// Optionally sets the font size for certain elements in the UI. 
         /// </summary>
         [JsonInclude]
@@ -79,6 +85,14 @@ namespace VMPlex
         /// </summary>
         [JsonInclude]
         public string DebuggerArguments { get; set; } = "";
+
+
+        /// <summary>
+        /// Indicates if the virtual machine tab is open and at what index.
+        /// Used in conjunction with RememberTabs.
+        /// </summary>
+        [JsonInclude]
+        public int TabIndex { get; set; } = -1;
 
         /// <summary>
         /// Optional RDP settings used when connecting to this virtual machine.
