@@ -95,6 +95,33 @@ namespace VMPlex
             return settings.VirtualMachines.FirstOrDefault(v => v.Guid == Guid);
         }
 
+        public VmConfig MutateVmUserSettings(Func<VmConfig, VmConfig> Mutator)
+        {
+            return UserSettings.Instance.Mutate(s =>
+            {
+                var index = s.VirtualMachines.FindIndex(v => v.Guid == Guid);
+                if (index == -1)
+                {
+                    //
+                    // Create a new entry for this VM.
+                    //
+                    s.VirtualMachines.Add(
+                        new VmConfig
+                        {
+                            Guid = Guid,
+                            Name = Name,
+                            DebuggerArguments = ""
+                        });
+                    index = s.VirtualMachines.FindIndex(v => v.Guid == Guid);
+                }
+
+                s.VirtualMachines[index] = Mutator(s.VirtualMachines[index]);
+
+                return s;
+
+            }).VirtualMachines.First(v => v.Guid == Guid);
+        }
+
         public void OpenDebugger()
         {
             var settings = UserSettings.Instance.Settings;

@@ -98,6 +98,25 @@ namespace VMPlex.UI
 
         private void TabItem_Drop(object sender, DragEventArgs e)
         {
+            //
+            // Update the indexes after drag and drop.
+            //
+            if (draggedTab != null && draggedTab.Parent is TabControl tabControl)
+            {
+                for (int i = 0; i < tabControl.Items.Count; i++)
+                {
+                    if (tabControl.Items[i] is TabItem tab &&
+                        tab.DataContext is VirtualMachine vm)
+                    {
+                        vm.MutateVmUserSettings(s =>
+                        {
+                            s.TabIndex = i;
+                            return s;
+                        });
+                    }
+                }
+            }
+
             draggedTab = null;
         }
     }

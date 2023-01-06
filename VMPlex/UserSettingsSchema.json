@@ -14,6 +14,11 @@
             "default": 14,
             "description": "Optionally sets the font size for certain elements of the UI."
         },
+        "RememberTabs": {
+            "type": "boolean",
+            "default": "true",
+            "description": "When starting VMPlex will remember and reopen previously opened tabs."
+        }
         "Debugger": {
             "type": "string",
             "default": "windbgx",
@@ -40,6 +45,11 @@
                         "type": "string",
                         "default": "",
                         "description": "Arguments passed to the debugger when launching one for this virtual machine."
+                    },
+                    "TabIndex": {
+                        "type": "integer",
+                        "default": false,
+                        "description": "Indicates if the virtual machine tab is open and at what index. Used in conjunction with RememberTabs."
                     },
                     "RdpSettings": {
                         "type": "object",
