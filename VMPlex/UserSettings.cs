@@ -30,16 +30,24 @@ namespace VMPlex
         public bool CompactMode { get; set; } = false;
 
         /// <summary>
+        /// Optionally sets the font size for certain elements in the UI. 
+        /// </summary>
+        [JsonInclude]
+        public double FontSize { get; set; } = 14;
+
+        /// <summary>
         /// When starting VMPlex will remember and reopen previously opened tabs.
         /// </summary>
         [JsonInclude]
         public bool RememberTabs { get; set; } = true;
 
         /// <summary>
-        /// Optionally sets the font size for certain elements in the UI. 
+        /// When true certain tool bar actions will prompt for confirmation
+        /// before executing. Like rebooting, shutting down, resetting virtual
+        /// machines.
         /// </summary>
         [JsonInclude]
-        public double FontSize { get; set; } = 14;
+        public bool ConfirmToolBarActions { get; set; } = true;
 
         /// <summary>
         /// Defines the debugger to use when launching one for a given virtual
@@ -55,6 +63,13 @@ namespace VMPlex
         /// </summary>
         [JsonInclude]
         public List<VmConfig> VirtualMachines { get; set; } = new List<VmConfig>();
+
+        /// <summary>
+        /// Window settings, generally users don't need to edit this. Used to
+        /// persist state of the window.
+        /// </summary>
+        [JsonInclude]
+        public WindowSettings MainWindow { get; set; } = new WindowSettings();
     }
 
     /// <summary>
@@ -187,6 +202,27 @@ namespace VMPlex
         /// </summary>
         [JsonInclude]
         public int DesktopHeight { get; set; } = 768;
+    }
+
+    /// <summary>
+    /// Window settings. 
+    /// </summary>
+    public class WindowSettings
+    {
+        [JsonInclude]
+        public double Width { get; set; } = 1200;
+
+        [JsonInclude]
+        public double Height { get; set; } = 900;
+
+        [JsonInclude]
+        public double Top { get; set; } = -1;
+
+        [JsonInclude]
+        public double Left { get; set; } = -1;
+
+        [JsonInclude]
+        public WindowState State { get; set; } = WindowState.Normal;
     }
 
     public class UserSettings : INotifyPropertyChanged

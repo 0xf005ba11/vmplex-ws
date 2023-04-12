@@ -196,6 +196,26 @@ namespace VMPlex.UI
             return (VirtualMachine)vmList.SelectedItem;
         }
 
+        private bool ConfirmToolBarAction(object Sender, VirtualMachine VM,  string Action)
+        {
+            if (Sender.GetType() != typeof(ModernWpf.Controls.AppBarButton))
+            {
+                return true;
+            }
+
+            if (!UserSettings.Instance.Settings.ConfirmToolBarActions)
+            {
+                return true;
+            }
+
+            var res = UI.MessageBox.Show(
+                MessageBoxImage.Warning,
+                $"{Action} {VM.Name}?",
+                MessageBoxButton.YesNo);
+
+            return res == MessageBoxResult.Yes;
+        }
+
         private void OnPowerCommand(object sender, RoutedEventArgs e)
         {
             VirtualMachine vm = GetSelectedVm();
@@ -211,7 +231,10 @@ namespace VMPlex.UI
             }
             else
             {
-                vm.RequestStateChange(VirtualMachine.StateChange.Disabled);
+                if (ConfirmToolBarAction(sender, vm, "Turn off"))
+                {
+                    vm.RequestStateChange(VirtualMachine.StateChange.Disabled);
+                }
             }
         }
 
@@ -244,7 +267,10 @@ namespace VMPlex.UI
             }
             if (vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
-                vm.RequestStateChange(VirtualMachine.StateChange.Reset);
+                if (ConfirmToolBarAction(sender, vm, "Reset"))
+                {
+                    vm.RequestStateChange(VirtualMachine.StateChange.Reset);
+                }
             }
         }
 
@@ -267,7 +293,10 @@ namespace VMPlex.UI
             }
             if (vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
-                vm.RequestStateChange(VirtualMachine.StateChange.Shutdown);
+                if (ConfirmToolBarAction(sender, vm, "Shut down"))
+                {
+                    vm.RequestStateChange(VirtualMachine.StateChange.Shutdown);
+                }
             }
         }
 
@@ -280,7 +309,10 @@ namespace VMPlex.UI
             }
             if (vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
-                vm.RequestStateChange(VirtualMachine.StateChange.Reboot);
+                if (ConfirmToolBarAction(sender, vm, "Reboot"))
+                {
+                    vm.RequestStateChange(VirtualMachine.StateChange.Reboot);
+                }
             }
         }
 

@@ -4,13 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.modernwpf.com/2019"
-        xmlns:local="clr-namespace:VMPlex"
+        xmlns:root="clr-namespace:VMPlex"
         mc:Ignorable="d"
         ui:ThemeManager.IsThemeAware="True"
         ui:WindowHelper.UseModernWindowStyle="True"
         ui:TitleBar.ExtendViewIntoTitleBar="True"
         Title="VMPlex Workstation"
-        Height="700" Width="900" MinWidth="1075" MinHeight="650">
+        Width="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.MainWindow.Width, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+        Height="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.MainWindow.Height, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+        MinWidth="1200"
+        MinHeight="900"
+        >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="32"/>
