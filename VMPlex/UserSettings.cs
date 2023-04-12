@@ -63,6 +63,13 @@ namespace VMPlex
         /// </summary>
         [JsonInclude]
         public List<VmConfig> VirtualMachines { get; set; } = new List<VmConfig>();
+
+        /// <summary>
+        /// Window settings, generally users don't need to edit this. Used to
+        /// persist state of the window.
+        /// </summary>
+        [JsonInclude]
+        public WindowSettings MainWindow { get; set; } = new WindowSettings();
     }
 
     /// <summary>
@@ -195,6 +202,27 @@ namespace VMPlex
         /// </summary>
         [JsonInclude]
         public int DesktopHeight { get; set; } = 768;
+    }
+
+    /// <summary>
+    /// Window settings. 
+    /// </summary>
+    public class WindowSettings
+    {
+        [JsonInclude]
+        public double Width { get; set; } = 1200;
+
+        [JsonInclude]
+        public double Height { get; set; } = 900;
+
+        [JsonInclude]
+        public double Top { get; set; } = -1;
+
+        [JsonInclude]
+        public double Left { get; set; } = -1;
+
+        [JsonInclude]
+        public WindowState State { get; set; } = WindowState.Normal;
     }
 
     public class UserSettings : INotifyPropertyChanged
