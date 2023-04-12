@@ -124,6 +124,21 @@ namespace VMPlex.UI
             NotifyChange("ErrorMessage");
         }
 
+        private bool ConfirmToolBarAction(string Action)
+        {
+            if (!UserSettings.Instance.Settings.ConfirmToolBarActions)
+            {
+                return true;
+            }
+
+            var res = UI.MessageBox.Show(
+                MessageBoxImage.Warning,
+                $"{Action} {m_vm.Name}?",
+                MessageBoxButton.YesNo);
+
+            return res == MessageBoxResult.Yes;
+        }
+
         private void OnEnhancedChecked(object sender, RoutedEventArgs e)
         {
             if (Parent != null)
@@ -152,7 +167,10 @@ namespace VMPlex.UI
             }
             else
             {
-                m_vm.RequestStateChange(VirtualMachine.StateChange.Disabled);
+                if (ConfirmToolBarAction("Turn off"))
+                {
+                    m_vm.RequestStateChange(VirtualMachine.StateChange.Disabled);
+                }
             }
         }
 
@@ -175,7 +193,10 @@ namespace VMPlex.UI
         {
             if (m_vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
-                m_vm.RequestStateChange(VirtualMachine.StateChange.Reset);
+                if (ConfirmToolBarAction("Reset"))
+                {
+                    m_vm.RequestStateChange(VirtualMachine.StateChange.Reset);
+                }
             }
         }
 
@@ -188,7 +209,10 @@ namespace VMPlex.UI
         {
             if (m_vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
-                m_vm.RequestStateChange(VirtualMachine.StateChange.Shutdown);
+                if (ConfirmToolBarAction("Shut down"))
+                {
+                    m_vm.RequestStateChange(VirtualMachine.StateChange.Shutdown);
+                }
             }
         }
 
@@ -196,7 +220,10 @@ namespace VMPlex.UI
         {
             if (m_vm.State != IMsvm_ComputerSystem.SystemState.Off)
             {
-                m_vm.RequestStateChange(VirtualMachine.StateChange.Reboot);
+                if (ConfirmToolBarAction("Reboot"))
+                {
+                    m_vm.RequestStateChange(VirtualMachine.StateChange.Reboot);
+                }
             }
         }
 
