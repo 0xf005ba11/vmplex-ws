@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.DirectoryServices.ActiveDirectory;
 using System.Text;
 
 namespace VMPlex
@@ -14,6 +15,7 @@ namespace VMPlex
         {
             // sensible defaults
 
+            Domain = "";
             Server = "localhost";
             Port = 2179;
             DesktopWidth = 1024;
@@ -35,6 +37,7 @@ namespace VMPlex
             AudioCaptureRedirectionMode = false;
         }
 
+        public string Domain { get; set; }
         public string Server { get; set; }
         public int Port { get; set; }
         public int DesktopWidth { get; set; }

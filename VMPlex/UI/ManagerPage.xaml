@@ -104,6 +104,12 @@
                 <ui:AppBarSeparator IsCompact="True"/>
                 <ui:AppBarButton x:Name="vmAdd" Icon="Add" ToolTip="Create VM" Click="OnAddCommand" IsTabStop="False" IsCompact="True"/>
                 <ui:AppBarButton x:Name="vmDelete" Icon="Delete" ToolTip="Delete VM" Click="OnDeleteCommand" IsTabStop="False" IsCompact="True"/>
+                <ui:AppBarSeparator IsCompact="True"/>
+                <ui:AppBarButton x:Name="rdpConnect" ToolTip="Remote Desktop Connection" Click="OnRdpConnect" IsTabStop="False" IsCompact="True">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8AF;"/>
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
             </DockPanel>
         </Grid>
         <Grid Grid.Row="1">

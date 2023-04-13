@@ -112,6 +112,21 @@ namespace VMPlex.UI
             return tab;
         }
 
+        private TabItem CreateRdpTab(RdpSettings settings)
+        {
+            TabItem tab = new TabItem();
+            CloseableHeader hdr = new CloseableHeader();
+            hdr.Icon.Content = "\xE8AF";
+            hdr.Title.SetValue(Label.ContentProperty, settings.Server);
+            hdr.closeButton.Visibility = Visibility.Visible;
+            hdr.closeButton.Click += new RoutedEventHandler(Tab_OnCloseClicked);
+            hdr.closeButton.Tag = tab;
+            tab.Header = hdr;
+            tab.Content = new RdpPage(settings);
+
+            return tab;
+        }
+
         private void VmListItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             VirtualMachine vm = (VirtualMachine)((e.Source as ListViewItem).DataContext);
@@ -156,6 +171,16 @@ namespace VMPlex.UI
         {
             Button button = (Button)sender;
             TabItem tab = (TabItem)button.Tag;
+            TabControl tc = (TabControl)(((TabItem)this.Parent).Parent);
+
+            if (tab.Content is RdpPage)
+            {
+                RdpPage rdp = (RdpPage)tab.Content;
+                rdp.Shutdown();
+                tc.Items.Remove(tab);
+                return;
+            }
+
             VirtualMachine vm = (VirtualMachine)tab.DataContext;
             button.Tag = null;
 
@@ -165,7 +190,6 @@ namespace VMPlex.UI
                 return s;
             });
 
-            TabControl tc = (TabControl)(((TabItem)this.Parent).Parent);
             if (tab.Content != null && tab.Content is VmRdpPage)
             {
                 VmRdpPage rdp = (VmRdpPage)tab.Content;
@@ -384,6 +408,58 @@ namespace VMPlex.UI
                 }
                 vm.DeleteFromServer();
             }
+        }
+
+        private void OnRdpConnect(object sender, RoutedEventArgs e)
+        {
+            var settings = RdpConnectWindow.Show();
+            if (settings == null)
+            {
+                return;
+            }
+
+            if (settings.Server.Length == 0)
+            {
+                MessageBox.Show(
+                    MessageBoxImage.Error,
+                    "Remote Desktop Connection Failed",
+                    "Please provide server to connect to.",
+                    MessageBoxButton.OK);
+                return;
+            }
+
+            TabItem tab;
+            try
+            {
+                tab = CreateRdpTab(settings);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    MessageBoxImage.Error,
+                    "Remote Desktop Connection Failed",
+                    ex.Message,
+                    MessageBoxButton.OK);
+                return;
+            }
+
+            TabControl tc = (TabControl)(((TabItem)this.Parent).Parent);
+            int index = tc.Items.Add(tab);
+            Dispatcher.BeginInvoke((Action)(() => tc.SelectedIndex = index));
+
+            //
+            // Store the RDP connection for later.
+            //
+            UserSettings.Instance.Mutate(s =>
+            {
+                if (s.RdpConnections.Find(
+                    c => (c.Domain == settings.Domain && c.Server == settings.Server)
+                    ) == null)
+                {
+                    s.RdpConnections.Add(settings);
+                }
+                return s;
+            });
         }
     }
 

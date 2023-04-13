@@ -57,61 +57,83 @@
                         "description": "Indicates if the virtual machine tab is open and at what index. Used in conjunction with RememberTabs."
                     },
                     "RdpSettings": {
-                        "type": "object",
-                        "description": "Optional RDP settings used when connecting to this virtual machine.",
-                        "properties": {
-                            "DefaultEnhancedSession": {
-                                "type": "boolean",
-                                "default": true,
-                                "description": "The default enhanced session state when connecting to a virtual machine."
-                            },
-                            "RedirectClipboard": {
-                                "type": "boolean",
-                                "default": true,
-                                "description": "Specifies if redirection of the clipboard is allowed."
-                            },
-                            "AudioRedirectionMode": {
-                                "type": "string",
-                                "enum": [
-                                    "Redirect",
-                                    "PlayOnServer",
-                                    "None"
-                                ],
-                                "default": "Redirect",
-                                "description": "Specifies the auto redirection mode."
-                            },
-                            "AudioCaptureRedirectionMode": {
-                                "type": "boolean",
-                                "default": false,
-                                "description": "Specifies if the default audio input device is captured."
-                            },
-                            "RedirectDrives": {
-                                "type": "boolean",
-                                "default": false,
-                                "description": "Specifies if redirection of disk drives is allowed."
-                            },
-                            "RedirectDevices": {
-                                "type": "boolean",
-                                "default": false,
-                                "description": "Specifies if redirection of devices is allowed."
-                            },
-                            "RedirectSmartCards": {
-                                "type": "boolean",
-                                "default": false,
-                                "description": "Specifies if redirection of smart cards is allowed."
-                            },
-                            "DesktopWidth": {
-                                "type": "integer",
-                                "default": 1024,
-                                "description": "Specifies the initial remote desktop width, in pixels."
-                            },
-                            "DesktopHeight": {
-                                "type": "integer",
-                                "default": 768,
-                                "description": "Specifies the initial remote desktop height, in pixels."
-                            }
-                        }
+                        "$ref": "#/$defs/RdpSettings"
                     }
+                }
+            }
+        },
+        "RdpConnections": {
+            "type": "array",
+            "description": "A list of remote desktop connection settings for connecting to machines that aren't Hyper-V managed virtual machines.",
+            "items": {
+                "$ref": "#/$defs/RdpSettings"
+            }
+        }
+    },
+    "$defs": {
+        "RdpSettings": {
+            "type": "object",
+            "description": "Optional RDP settings used when connecting to this virtual machine.",
+            "properties": {
+                "Domain": {
+                    "type": "string",
+                    "default": "",
+                    "description": "The domain to use when connecting, ignored for virtual machines."
+                },
+                "Server": {
+                    "type": "string",
+                    "default": "localhost",
+                    "description": "The the server to connect to, ignored for virtual machines."
+                },
+                "DefaultEnhancedSession": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "The default enhanced session state when connecting."
+                },
+                "RedirectClipboard": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Specifies if redirection of the clipboard is allowed."
+                },
+                "AudioRedirectionMode": {
+                    "type": "string",
+                    "enum": [
+                        "Redirect",
+                        "PlayOnServer",
+                        "None"
+                    ],
+                    "default": "Redirect",
+                    "description": "Specifies the auto redirection mode."
+                },
+                "AudioCaptureRedirectionMode": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies if the default audio input device is captured."
+                },
+                "RedirectDrives": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies if redirection of disk drives is allowed."
+                },
+                "RedirectDevices": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies if redirection of devices is allowed."
+                },
+                "RedirectSmartCards": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Specifies if redirection of smart cards is allowed."
+                },
+                "DesktopWidth": {
+                    "type": "integer",
+                    "default": 1024,
+                    "description": "Specifies the initial remote desktop width, in pixels."
+                },
+                "DesktopHeight": {
+                    "type": "integer",
+                    "default": 768,
+                    "description": "Specifies the initial remote desktop height, in pixels."
                 }
             }
         }
