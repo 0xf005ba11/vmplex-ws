@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="VMPlex.UI.RdpPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:VMPlex"
+      mc:Ignorable="d">
+
+    <Grid x:Name="contentGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" x:Name="rdpGrid">
+            <Grid.Background>
+                <ImageBrush Stretch="None" TileMode="Tile" Viewport="0,0,100,100" ViewportUnits="Absolute">
+                    <ImageBrush.ImageSource>pack://application:,,,/VMPlex;component/Resources/rdp_session_bg.png</ImageBrush.ImageSource>
+                </ImageBrush>
+            </Grid.Background>
+            <WindowsFormsHost x:Name="rdpHost" Foreground="{x:Null}" Background="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden">
+                <local:RdpClient x:Name="rdp" Dock="Fill"/>
+            </WindowsFormsHost>
+            <StackPanel VerticalAlignment="Center">
+            <Label x:Name="connectingText" Content="{Binding PageName}" ContentStringFormat="Connecting to {0}..." Foreground="LightGray" Background="Transparent" FontFamily="Segoe UI" FontSize="18" HorizontalAlignment="Center" Visibility="Hidden"/>
+            <TextBlock x:Name="errorText"
+                   Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:UI.RdpPage}}, Path=ErrorMessage}"
+                   TextAlignment="Center"
+                   Foreground="LightGray"
+                   Background="Transparent"
+                   FontFamily="Segoe UI"
+                   FontSize="18"
+                   Visibility="Hidden"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

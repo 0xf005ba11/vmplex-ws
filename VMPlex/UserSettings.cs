@@ -65,6 +65,13 @@ namespace VMPlex
         public List<VmConfig> VirtualMachines { get; set; } = new List<VmConfig>();
 
         /// <summary>
+        /// List of remote desktop connection settings for connecting to machines
+        /// that aren't Hyper-V managed virtual machines.
+        /// </summary>
+        [JsonInclude]
+        public List<RdpSettings> RdpConnections { get; set; } = new List<RdpSettings>();
+
+        /// <summary>
         /// Window settings, generally users don't need to edit this. Used to
         /// persist state of the window.
         /// </summary>
@@ -122,7 +129,19 @@ namespace VMPlex
     public class RdpSettings
     {
         /// <summary>
-        /// The default enhanced session state when connecting to a virtual machine.
+        /// Domain for the RDP connection.
+        /// </summary>
+        [JsonInclude]
+        public string Domain { get; set; } = "";
+
+        /// <summary>
+        /// Server for the RDP connection.
+        /// </summary>
+        [JsonInclude]
+        public string Server { get; set; } = "localhost";
+
+        /// <summary>
+        /// The default enhanced session state when connecting.
         /// </summary>
         [JsonInclude]
         public bool DefaultEnhancedSession { get; set; } = true;

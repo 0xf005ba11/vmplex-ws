@@ -11,6 +11,7 @@ using MSTSCLib;
 
 using HyperV;
 using EasyWMI;
+using System.Diagnostics;
 
 namespace VMPlex
 {
@@ -139,6 +140,79 @@ namespace VMPlex
             InitEvents();
         }
 
+        public void InitializeForRemoteDesktopConnection(RdpOptions options)
+        {
+            AttachInterfaces();
+            m_ocx = (IMsRdpClient9)GetOcx();
+            m_options = options;
+
+            Domain = options.Domain;
+            Server = options.Server;
+            AdvancedSettings2.RDPPort = options.Port;
+            AdvancedSettings8.EnableCredSspSupport = true;
+
+            ColorDepth = m_options.ColorDepth;
+            DesktopWidth = options.DesktopWidth;
+            DesktopHeight = options.DesktopHeight;
+
+            int perfflags = 0;
+            if (options.EnhancedGraphics)
+            {
+                perfflags |= 0x10; // TF_PERF_ENABLE_ENHANCED_GRAPHICS
+            }
+            if (options.FontSmoothing)
+            {
+                perfflags |= 0x80; // TF_PERF_ENABLE_FONT_SMOOTHING
+            }
+            if (options.DesktopComposition)
+            {
+                perfflags |= 0x100; // TF_PERF_ENABLE_DESKTOP_COMPOSITION
+            }
+            AdvancedSettings2.PerformanceFlags = perfflags;
+            AdvancedSettings2.GrabFocusOnConnect = false;
+            AdvancedSettings2.minInputSendInterval = 20; // mouse input sent every 20 ms
+
+            AdvancedSettings3.EnableAutoReconnect = false;
+
+            AdvancedSettings6.SmartSizing = false;
+            AdvancedSettings6.RedirectClipboard = m_options.RedirectClipboard;
+            AdvancedSettings6.RedirectDrives = m_options.RedirectDrives;
+            AdvancedSettings6.RedirectDevices = m_options.RedirectDevices;
+            AdvancedSettings6.RedirectPorts = m_options.RedirectPorts;
+            AdvancedSettings6.RedirectSmartCards = m_options.RedirectSmartCards;
+            AdvancedSettings6.RedirectPOSDevices = false;
+            AdvancedSettings6.AudioRedirectionMode = options.AudioRedirectionMode;
+
+            AdvancedSettings7.RelativeMouseMode = true;
+
+            AdvancedSettings8.AudioCaptureRedirectionMode = options.AudioCaptureRedirectionMode;
+
+            SecuredSettings2.KeyboardHookMode = 1; // apply remotely (fixes windows key, alt-tab, etc)
+
+            SetExtendedProperty("DesktopScaleFactor", GetWindowScaleFactor());
+            SetExtendedProperty("DeviceScaleFactor", 100u);
+
+            if (options.HardwareAssist)
+            {
+                SetExtendedProperty("EnableHardwareMode", true);
+            }
+
+            DisableConnectionBar();
+            SetMaximumNetworkThroughput();
+
+            if (options.FrameBufferRedirection)
+            {
+                EnableFrameBufferRedirection();
+            }
+
+            if (options.MultiMonitor)
+            {
+                EnableMultiMon();
+            }
+
+            InitEvents();
+        }
+
         public bool IsReady()
         {
             return m_eventsInitialized;
@@ -157,9 +231,12 @@ namespace VMPlex
             OnEnterFullScreenMode += OnEnteredFullScreenMode;
             OnLeaveFullScreenMode += OnLeftFullScreenMode;
 
-            m_watcher = VMManager.CreateMsvmWatcher(m_vm.Guid);
-            m_watcher.EventArrived += OnVMInstanceChange;
-            m_vm.PropertyChanged += OnVmPropertyChanged;
+            if (m_vm != null)
+            {
+                m_watcher = VMManager.CreateMsvmWatcher(m_vm.Guid);
+                m_watcher.EventArrived += OnVMInstanceChange;
+                m_vm.PropertyChanged += OnVmPropertyChanged;
+            }
 
             m_eventsInitialized = true;
         }
@@ -177,9 +254,12 @@ namespace VMPlex
             OnEnterFullScreenMode -= OnEnteredFullScreenMode;
             OnLeaveFullScreenMode -= OnLeftFullScreenMode;
 
-            m_watcher.Stop();
-            m_watcher = null;
-            m_vm.PropertyChanged -= OnVmPropertyChanged;
+            if (m_vm != null)
+            {
+                m_watcher.Stop();
+                m_watcher = null;
+                m_vm.PropertyChanged -= OnVmPropertyChanged;
+            }
         }
 
         public override void Connect()
@@ -224,32 +304,39 @@ namespace VMPlex
                     return;
                 }
 
-                IMsvm_SecurityElement? security = m_vm.SecurityElement;
-                if (!EnableEnhancedMode && security != null && security.Shielded != null && security.Shielded.Value)
+                if (m_vm != null)
                 {
-                    OnRdpError?.Invoke(this, RdpError.BasicSessionWithShieldedVm);
-                    return;
-                }
-
-                AdvancedSettings7.PCB = m_vm.Guid;
-                Enhanced = false;
-                if (EnableEnhancedMode)
-                {
-                    if (m_vm.EnhancedSessionModeState == IMsvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
+                    IMsvm_SecurityElement? security = m_vm.SecurityElement;
+                    if (!EnableEnhancedMode && security != null && security.Shielded != null && security.Shielded.Value)
                     {
-                        Enhanced = true;
-                        AdvancedSettings7.PCB += ";EnhancedMode=1";
-                        System.Diagnostics.Debug.Print("Enhanced mode set");
+                        OnRdpError?.Invoke(this, RdpError.BasicSessionWithShieldedVm);
+                        return;
                     }
-                    else
+
+                    AdvancedSettings7.PCB = m_vm.Guid;
+                    Enhanced = false;
+                    if (EnableEnhancedMode)
                     {
-                        System.Diagnostics.Debug.Print("Enhanced requested but unavailable");
-                        if (security != null && security.Shielded != null && security.Shielded.Value)
+                        if (m_vm.EnhancedSessionModeState == IMsvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
                         {
-                            System.Diagnostics.Debug.Print("Shielded vm but enhanced mode net yet allowed");
-                            return;
+                            Enhanced = true;
+                            AdvancedSettings7.PCB += ";EnhancedMode=1";
+                            System.Diagnostics.Debug.Print("Enhanced mode set");
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.Print("Enhanced requested but unavailable");
+                            if (security != null && security.Shielded != null && security.Shielded.Value)
+                            {
+                                System.Diagnostics.Debug.Print("Shielded vm but enhanced mode net yet allowed");
+                                return;
+                            }
                         }
                     }
+                }
+                else
+                {
+                    Enhanced = EnableEnhancedMode;
                 }
 
                 System.Diagnostics.Debug.Print("Connecting");
@@ -273,6 +360,8 @@ namespace VMPlex
 
         protected void OnVMInstanceChange(object sender, WmiEvent<IMsvm_ComputerSystem> e)
         {
+            Debug.Assert(m_vm != null);
+
             IMsvm_ComputerSystem vm = VMManager.GetVMByGuid(e.TargetInstance.Name);
 
             if (vm.EnabledState == m_vm.State && vm.EnhancedSessionModeState == m_vm.EnhancedSessionModeState)
@@ -340,7 +429,8 @@ namespace VMPlex
             {
                 m_state = RdpState.Connected;
 
-                if (m_options.EnhancedSession && !Enhanced && m_vm.EnhancedSessionModeState == IMsvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
+                if (m_options.EnhancedSession && !Enhanced && 
+                    (m_vm == null || m_vm.EnhancedSessionModeState == IMsvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable))
                 {
                     // reconnect in an enhanced session
                 }
@@ -397,7 +487,8 @@ namespace VMPlex
                     ConnectInternal(m_options.EnhancedSession);
                     return;
                 }
-                else if (e.discReason == 4 && code == ExtendedDisconnectReasonCode.exDiscReasonNoInfo && m_vm.State == IMsvm_ComputerSystem.SystemState.Paused)
+                else if (e.discReason == 4 && code == ExtendedDisconnectReasonCode.exDiscReasonNoInfo && 
+                    (m_vm == null || m_vm.State == IMsvm_ComputerSystem.SystemState.Paused))
                 {
                     ConnectInternal(m_options.EnhancedSession);
                     return;
@@ -449,6 +540,11 @@ namespace VMPlex
 
         public bool IsVideoAvailable(VirtualMachine wmivm = null)
         {
+            if (m_vm == null)
+            {
+                return true;
+            }
+
             IMsvm_ComputerSystem.SystemState state = m_vm.State;
             if (wmivm != null)
             {
