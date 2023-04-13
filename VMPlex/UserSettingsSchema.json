@@ -6,7 +6,7 @@
     "properties": {
         "CompactMode": {
             "type": "boolean",
-            "default": "false",
+            "default": false,
             "description": "If true portions of the interface are styled in a compact style."
         },
         "FontSize": {
@@ -16,12 +16,12 @@
         },
         "RememberTabs": {
             "type": "boolean",
-            "default": "true",
+            "default": true,
             "description": "When starting VMPlex will remember and reopen previously opened tabs."
         },
         "ConfirmToolBarActions": {
             "type": "boolean",
-            "default": "true",
+            "default": true,
             "description": "When true certain tool bar actions will prompt for confirmation. Like rebooting, shutting down, and resetting virtual machines."
         },
         "Debugger": {
