@@ -9,6 +9,11 @@
              mc:Ignorable="d">
     <StackPanel CanVerticallyScroll="True" Margin="10">
         <TreeView x:Name="vmCheckpoints" ItemsSource="{Binding Snapshots}">
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource DefaultTreeViewItemStyle}">
+                    <Setter Property="IsExpanded" Value="True"/>
+                </Style>
+            </TreeView.ItemContainerStyle>
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type root:Snapshot}" ItemsSource="{Binding Children}">
                     <TextBlock Text="{Binding SettingData.ElementName}"/>
