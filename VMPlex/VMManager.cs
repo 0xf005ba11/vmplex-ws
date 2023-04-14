@@ -11,7 +11,6 @@ using System.Threading;
 
 using EasyWMI;
 using HyperV;
-using System.Diagnostics;
 
 namespace VMPlex
 {
@@ -132,52 +131,36 @@ namespace VMPlex
             }
         }
 
-        static private bool IsRelevantComputerSystem(IMsvm_ComputerSystem s)
-        {
-            //
-            // N.B. Previously, `s.Caption == "Virtual Machine"` was used, but
-            // this poses a problem on localized systems where the caption and
-            // descriptions may not be in English.
-            //
-            // The goal here is to filter out the host machine. The host is 
-            // captioned as "Hosting Computer System" and has a similar
-            // description. Some observations of the data here indicate that
-            // the host machine's dates are all `1/1/0001 12:00:00 AM` but
-            // also the host machine `EnhancedSessionModeState` appears to be
-            // an erroneous and undocumented value. While the other virtual
-            // machines appear to always state one of the documented values.
-            //
-            // Specifically the host machine's `EnhancedSessionModeState` is `0`
-            // but we will check for known/documented values for posterity.
-            //
-            switch (s.EnhancedSessionModeState)
-            {
-                case IMsvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable:
-                case IMsvm_ComputerSystem.EnhancedSessionMode.NotAllowed:
-                case IMsvm_ComputerSystem.EnhancedSessionMode.AllowedButUnavailable:
-                {
-                    break;
-                }
-                default:
-                {
-                    Debug.Print($"{s.Name} is irrelevant due to erroneous enhanced session mode ({s.EnhancedSessionModeState})");
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         private IMsvm_VirtualSystemSettingData[] CreateSettingsArray()
         {
-            return (from vm in scope.GetInstances<IMsvm_ComputerSystem>() where IsRelevantComputerSystem(vm)
-                    from settings in vm.GetAssociated<IMsvm_VirtualSystemSettingData>("Msvm_SettingsDefineState")
-                    select settings).ToArray();
+            uint err = vsms.GetSummaryInformation(new uint[] { 0 /* Guid */ }, null, out IMsvm_SummaryInformation[]? summary);
+            if (err != 0 || summary == null)
+            {
+                return Array.Empty<IMsvm_VirtualSystemSettingData>();
+            }
+
+            IEnumerable<IMsvm_ComputerSystem> systems = from system in scope.GetInstances<IMsvm_ComputerSystem>()
+                                                        from sm in summary
+                                                            where system.Name == sm.Name
+                                                        select system;
+
+            return (from system in systems
+                    from data in system.GetAssociated<IMsvm_VirtualSystemSettingData>("Msvm_SettingsDefineState")
+                    select data).ToArray();
         }
 
         private IEnumerable<VirtualMachine> GetVMs()
         {
-            return from vm in scope.GetInstances<IMsvm_ComputerSystem>() where IsRelevantComputerSystem(vm) select new VirtualMachine(vm);
+            uint err = vsms.GetSummaryInformation(new uint[] { 0 /* Guid */ }, null, out IMsvm_SummaryInformation[]? summary);
+            if (err != 0 || summary == null)
+            {
+                return Array.Empty<VirtualMachine>();
+            }
+
+            return from system in scope.GetInstances<IMsvm_ComputerSystem>()
+                   from sm in summary
+                       where system.Name == sm.Name
+                   select new VirtualMachine(system);
         }
 
         private void UpdateSummaryInformation()
