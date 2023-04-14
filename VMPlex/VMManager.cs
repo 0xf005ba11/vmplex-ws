@@ -133,14 +133,34 @@ namespace VMPlex
 
         private IMsvm_VirtualSystemSettingData[] CreateSettingsArray()
         {
-            return (from vm in scope.GetInstances<IMsvm_ComputerSystem>() where vm.Caption == "Virtual Machine"
-                    from settings in vm.GetAssociated<IMsvm_VirtualSystemSettingData>("Msvm_SettingsDefineState")
-                    select settings).ToArray();
+            uint err = vsms.GetSummaryInformation(new uint[] { 0 /* Guid */ }, null, out IMsvm_SummaryInformation[]? summary);
+            if (err != 0 || summary == null)
+            {
+                return Array.Empty<IMsvm_VirtualSystemSettingData>();
+            }
+
+            IEnumerable<IMsvm_ComputerSystem> systems = from system in scope.GetInstances<IMsvm_ComputerSystem>()
+                                                        from sm in summary
+                                                            where system.Name == sm.Name
+                                                        select system;
+
+            return (from system in systems
+                    from data in system.GetAssociated<IMsvm_VirtualSystemSettingData>("Msvm_SettingsDefineState")
+                    select data).ToArray();
         }
 
         private IEnumerable<VirtualMachine> GetVMs()
         {
-            return from vm in scope.GetInstances<IMsvm_ComputerSystem>() where vm.Caption == "Virtual Machine" select new VirtualMachine(vm);
+            uint err = vsms.GetSummaryInformation(new uint[] { 0 /* Guid */ }, null, out IMsvm_SummaryInformation[]? summary);
+            if (err != 0 || summary == null)
+            {
+                return Array.Empty<VirtualMachine>();
+            }
+
+            return from system in scope.GetInstances<IMsvm_ComputerSystem>()
+                   from sm in summary
+                       where system.Name == sm.Name
+                   select new VirtualMachine(system);
         }
 
         private void UpdateSummaryInformation()
