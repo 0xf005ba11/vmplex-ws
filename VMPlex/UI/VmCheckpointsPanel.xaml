@@ -7,8 +7,8 @@
              xmlns:local="clr-namespace:VMPlex.UI"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d">
-    <StackPanel CanVerticallyScroll="True" Margin="10">
-        <TreeView x:Name="vmCheckpoints" ItemsSource="{Binding Snapshots}">
+    <Grid Margin="10">
+        <TreeView Grid.Row="1" x:Name="vmCheckpoints" ItemsSource="{Binding Snapshots}">
             <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource DefaultTreeViewItemStyle}">
                     <Setter Property="IsExpanded" Value="True"/>
@@ -20,5 +20,5 @@
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
-    </StackPanel>
+    </Grid>
 </UserControl>
