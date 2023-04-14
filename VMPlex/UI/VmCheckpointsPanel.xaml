@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ui="http://schemas.modernwpf.com/2019"
              xmlns:root="clr-namespace:VMPlex"
              xmlns:local="clr-namespace:VMPlex.UI"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
@@ -16,7 +17,10 @@
             </TreeView.ItemContainerStyle>
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type root:Snapshot}" ItemsSource="{Binding Children}">
-                    <TextBlock Text="{Binding SettingData.ElementName}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="{Binding TextIcon}" FontSize="12"/>
+                        <Label Content="{Binding ElementName}" Margin="10,0,0,0"/>
+                    </StackPanel>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>

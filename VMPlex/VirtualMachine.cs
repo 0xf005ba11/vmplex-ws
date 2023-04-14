@@ -277,9 +277,11 @@ namespace VMPlex
 
             if (summary.Snapshots != null && summary.Snapshots.Length != 0)
             {
+                IMsvm_VirtualSystemSettingData mostCurrent = Msvm.GetAssociated<IMsvm_VirtualSystemSettingData>("Msvm_MostCurrentSnapshotInBranch").FirstOrDefault();
                 Snapshots = SnapshotHierarchy.BuildFrom(
+                                mostCurrent,
                                 (from snapshot in summary.Snapshots select
-                                WmiClassGenerator.CreateInstance<IMsvm_VirtualSystemSettingData>(snapshot)).ToArray());
+                                 WmiClassGenerator.CreateInstance<IMsvm_VirtualSystemSettingData>(snapshot)).ToArray());
             }
 
             if (summary.ThumbnailImageWidth != null && ThumbnailWidth != summary.ThumbnailImageWidth)
