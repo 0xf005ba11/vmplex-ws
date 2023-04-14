@@ -159,8 +159,12 @@ namespace VMPlex
                     107, // Snapshots
                     112 // MemoryAvailable
                 };
+
+                //
+                // N.B. In some circumstances this API can return no error and null output.
+                //
                 uint err = vsms.GetSummaryInformation(infoRequest, CreateSettingsArray(), out IMsvm_SummaryInformation[]? summary);
-                if (err != 0)
+                if (err != 0 || summary == null)
                 {
                     return;
                 }
