@@ -263,12 +263,19 @@
             <local:VmInfoPanel Grid.Column="1" DataContext="{Binding ElementName=vmList, Path=SelectedItem}"/>
         </Grid>
         <GridSplitter Grid.Row="2" Height="3" HorizontalAlignment="Stretch"/>
-        <ScrollViewer Grid.Row="3" Margin="20,0,0,0">
-            <ui:ItemsRepeater x:Name="vmGrid" ItemsSource="{Binding}" ItemTemplate="{StaticResource VmTemplate}">
-                <ui:ItemsRepeater.Layout>
-                    <ui:UniformGridLayout/>
-                </ui:ItemsRepeater.Layout>
-            </ui:ItemsRepeater>
-        </ScrollViewer>
+        <TabControl Grid.Row="3" TabStripPlacement="Top">
+            <TabItem Header="Checkpoints">
+                <local:VmCheckpointsPanel DataContext="{Binding ElementName=vmList, Path=SelectedItem}"/>
+            </TabItem>
+            <TabItem Header="Thumbnails">
+                <ScrollViewer Grid.Row="3" Margin="20,0,0,0">
+                    <ui:ItemsRepeater x:Name="vmGrid" ItemsSource="{Binding}" ItemTemplate="{StaticResource VmTemplate}">
+                        <ui:ItemsRepeater.Layout>
+                            <ui:UniformGridLayout/>
+                        </ui:ItemsRepeater.Layout>
+                    </ui:ItemsRepeater>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>

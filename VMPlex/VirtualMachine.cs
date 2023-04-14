@@ -3,6 +3,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
 using System.Windows;
@@ -10,6 +11,7 @@ using System.Windows.Media.Imaging;
 using System.Diagnostics;
 
 using HyperV;
+using EasyWMI;
 
 namespace VMPlex
 {
@@ -49,6 +51,7 @@ namespace VMPlex
             State = vm.EnabledState ?? IMsvm_ComputerSystem.SystemState.Unknown;
             ProcessID = vm.ProcessID ?? 0;
             EnhancedSessionModeState = vm.EnhancedSessionModeState ?? IMsvm_ComputerSystem.EnhancedSessionMode.NotAllowed;
+            Snapshots = new List<Snapshot>();
 
             //
             // Generates user settings if they don't exist.
@@ -272,6 +275,13 @@ namespace VMPlex
                 }
             }
 
+            if (summary.Snapshots != null && summary.Snapshots.Length != 0)
+            {
+                Snapshots = SnapshotHierarchy.BuildFrom(
+                                (from snapshot in summary.Snapshots select
+                                WmiClassGenerator.CreateInstance<IMsvm_VirtualSystemSettingData>(snapshot)).ToArray());
+            }
+
             if (summary.ThumbnailImageWidth != null && ThumbnailWidth != summary.ThumbnailImageWidth)
             {
                 ThumbnailWidth= summary.ThumbnailImageWidth.Value;
@@ -367,7 +377,7 @@ namespace VMPlex
         public string Guid { get; set; }
         public string Version { get; set; }
         public uint ProcessID { get; set; }
-        public IMsvm_VirtualSystemSettingData[] Snapshots { get; set; }
+        public List<Snapshot> Snapshots { get; set; }
         public IMsvm_SecurityElement? SecurityElement { get => Msvm.GetAssociated<IMsvm_SecurityElement>(null).FirstOrDefault(); }
         public IMsvm_Keyboard Keyboard { get => Msvm.GetAssociated<IMsvm_Keyboard>("Msvm_SystemDevice").FirstOrDefault(); }
         public IMsvm_ComputerSystem.SystemState State { get; set; }

@@ -156,6 +156,7 @@ namespace VMPlex
                     103, // MemoryUsage
                     104, // Heartbeat
                     105, // Uptime
+                    107, // Snapshots
                     112 // MemoryAvailable
                 };
                 uint err = vsms.GetSummaryInformation(infoRequest, CreateSettingsArray(), out IMsvm_SummaryInformation[]? summary);
