@@ -65,7 +65,7 @@ namespace VMPlex
 
         private static void GetConfigIDs(ref HashSet<string> configs, Snapshot snapshot)
         {
-            configs.Add(snapshot.ConfigurationID);
+            configs.Add(snapshot.ConfigurationID + snapshot.ElementName);
             foreach (Snapshot s in snapshot.Children)
             {
                 GetConfigIDs(ref configs, s);
