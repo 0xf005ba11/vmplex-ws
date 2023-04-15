@@ -115,6 +115,14 @@ namespace VMPlex
             if (job != null)
             {
                 new HyperV.Job(job).WaitForCompletion();
+                if (job.ErrorCode != 0)
+                {
+                    UI.MessageBox.Show(
+                        System.Windows.MessageBoxImage.Error,
+                        "Checkpoint Apply Failed",
+                        job.ErrorDescription,
+                        System.Windows.MessageBoxButton.OK);
+                }
             }
 
             vm = new VirtualMachine(GetVMByGuid(vm.Guid));
@@ -131,6 +139,14 @@ namespace VMPlex
             if (job != null)
             {
                 new HyperV.Job(job).WaitForCompletion();
+                if (job.ErrorCode != 0)
+                {
+                    UI.MessageBox.Show(
+                        System.Windows.MessageBoxImage.Error,
+                        "Checkpoint Delete Failed",
+                        job.ErrorDescription,
+                        System.Windows.MessageBoxButton.OK);
+                }
             }
         }
 
@@ -141,6 +157,14 @@ namespace VMPlex
             if (job != null)
             {
                 new HyperV.Job(job).WaitForCompletion();
+                if (job.ErrorCode != 0)
+                {
+                    UI.MessageBox.Show(
+                        System.Windows.MessageBoxImage.Error,
+                        "Checkpoint Delete Failed",
+                        job.ErrorDescription,
+                        System.Windows.MessageBoxButton.OK);
+                }
             }
         }
 
