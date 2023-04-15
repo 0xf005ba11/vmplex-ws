@@ -162,6 +162,9 @@
                         <MenuItem Header="Save" Click="OnSaveCommand" IsEnabled="{Binding IsPoweredOn}" Style="{StaticResource DefaultMenuItemStyle}"/>
                         <MenuItem Header="Reboot" Click="OnRebootCommand" IsEnabled="{Binding IsRunning}" Style="{StaticResource DefaultMenuItemStyle}"/>
                         <MenuItem Header="Shutdown" Click="OnShutdownCommand" IsEnabled="{Binding IsRunning}" Style="{StaticResource DefaultMenuItemStyle}"/>
+                        <Separator/>
+                        <MenuItem Header="Create Checkpoint" Click="OnCreateCheckpoint" Style="{StaticResource DefaultMenuItemStyle}"/>
+                        <MenuItem Header="Revert" Click="OnRevertCheckpoint" Style="{StaticResource DefaultMenuItemStyle}"/>
                     </ContextMenu>
                 </ListView.Resources>
                 <ListView.View>

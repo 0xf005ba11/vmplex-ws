@@ -12,6 +12,7 @@ using System.Collections.Generic;
 
 using HyperV;
 using System.Linq;
+using System.Threading;
 
 namespace VMPlex.UI
 {
@@ -408,6 +409,38 @@ namespace VMPlex.UI
                 }
                 vm.DeleteFromServer();
             }
+        }
+
+        private void OnCreateCheckpoint(object sender, RoutedEventArgs e)
+        {
+            VirtualMachine vm = GetSelectedVm();
+            if (vm is null)
+            {
+                return;
+            }
+
+            new Thread(CreateCheckpoint).Start(vm);
+        }
+
+        private void CreateCheckpoint(object data)
+        {
+            VMManager.CreateSnapshot((VirtualMachine)data, VMManager.SnapshotType.Full);
+        }
+
+        private void OnRevertCheckpoint(object sender, RoutedEventArgs e)
+        {
+            VirtualMachine vm = GetSelectedVm();
+            if (vm is null)
+            {
+                return;
+            }
+
+            new Thread(RevertCheckpoint).Start(vm);
+        }
+
+        private void RevertCheckpoint(object data)
+        {
+            VMManager.RevertSnapshot((VirtualMachine)data);
         }
 
         private void OnRdpConnect(object sender, RoutedEventArgs e)

@@ -37,9 +37,30 @@ namespace VMPlex
         public static WmiSubscription<IMsvm_ComputerSystem> CreateMsvmWatcher(string guid) =>
             scope.Subscribe<IMsvm_ComputerSystem>("SELECT * FROM __InstanceModificationEvent WITHIN 1 WHERE TargetInstance ISA 'Msvm_ComputerSystem' AND TargetInstance.Name = '" + guid + "'");
 
-        public static void CreateSnapshot(VirtualMachine vm)
+        public enum SnapshotType : ushort
         {
+            Full = 2,
+            Disk = 3
+        }
 
+        public static void CreateSnapshot(VirtualMachine vm, SnapshotType snapshotType)
+        {
+            IMsvm_ComputerSystem system = GetVMByGuid(vm.Guid);
+
+            SnapshotService.CreateSnapshot(
+                            system,
+                            out IMsvm_VirtualSystemSettingData? snapshot,
+                            String.Empty,
+                            (ushort)snapshotType,
+                            out IMsvm_ConcreteJob? job);
+            if (job != null)
+            {
+                new HyperV.Job(job).WaitForCompletion();
+            }
+        }
+
+        public static void RevertSnapshot(VirtualMachine vm)
+        {
         }
 
         public static void ApplySnapshot(Snapshot snapshot)
@@ -72,7 +93,7 @@ namespace VMPlex
             // N.B. The underlying ManagementBaseObject in SettingData may be missing the __PATH which will break InvokeMethod.
             //      Query for the object again to get a fresh copy.
             IMsvm_VirtualSystemSettingData settings = GetVMSettingData(snapshot.SettingData.InstanceID);
-            VMManager.SnapshotService.ApplySnapshot(settings, out job);
+            SnapshotService.ApplySnapshot(settings, out job);
             if (job != null)
             {
                 new HyperV.Job(job).WaitForCompletion();
@@ -88,7 +109,7 @@ namespace VMPlex
         public static void DeleteSnapshot(Snapshot snapshot)
         {
             IMsvm_VirtualSystemSettingData settings = GetVMSettingData(snapshot.SettingData.InstanceID);
-            VMManager.SnapshotService.DestroySnapshot(settings, out IMsvm_ConcreteJob? job);
+            SnapshotService.DestroySnapshot(settings, out IMsvm_ConcreteJob? job);
             if (job != null)
             {
                 new HyperV.Job(job).WaitForCompletion();
@@ -98,7 +119,7 @@ namespace VMPlex
         public static void DeleteSnapshotTree(Snapshot snapshot)
         {
             IMsvm_VirtualSystemSettingData settings = GetVMSettingData(snapshot.SettingData.InstanceID);
-            VMManager.SnapshotService.DestroySnapshotTree(settings, out IMsvm_ConcreteJob? job);
+            SnapshotService.DestroySnapshotTree(settings, out IMsvm_ConcreteJob? job);
             if (job != null)
             {
                 new HyperV.Job(job).WaitForCompletion();

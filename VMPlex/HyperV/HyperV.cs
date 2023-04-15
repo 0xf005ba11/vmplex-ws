@@ -497,15 +497,15 @@ namespace HyperV
             ManagementBaseObject outParams = ((ManagementObject)__Instance).InvokeMethod("StopService", inParams, null!);
             return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
         }
-        public uint CreateSnapshot(ManagementBaseObject AffectedSystem, out ManagementBaseObject? ResultingSnapshot, string SnapshotSettings, ushort SnapshotType, out ManagementBaseObject? Job)
+        public uint CreateSnapshot(IMsvm_ComputerSystem AffectedSystem, out IMsvm_VirtualSystemSettingData? ResultingSnapshot, string SnapshotSettings, ushort SnapshotType, out IMsvm_ConcreteJob? Job)
         {
             ManagementBaseObject inParams = WmiClassImpl.MethodParameters(__Instance, "CreateSnapshot");
-            WmiClassImpl.SetProperty<ManagementBaseObject>(inParams, "AffectedSystem", AffectedSystem);
+            WmiClassImpl.SetProperty<ManagementBaseObject>(inParams, "AffectedSystem", AffectedSystem.__Instance);
             WmiClassImpl.SetProperty<string>(inParams, "SnapshotSettings", SnapshotSettings);
             WmiClassImpl.SetProperty<ushort>(inParams, "SnapshotType", SnapshotType);
             ManagementBaseObject outParams = ((ManagementObject)__Instance).InvokeMethod("CreateSnapshot", inParams, null!);
-            ResultingSnapshot = WmiClassImpl.GetProperty<ManagementBaseObject>(outParams, "ResultingSnapshot");
-            Job = WmiClassImpl.GetProperty<ManagementBaseObject>(outParams, "Job");
+            ResultingSnapshot = WmiClassImpl.GetProperty<IMsvm_VirtualSystemSettingData>(outParams, "ResultingSnapshot");
+            Job = WmiClassImpl.GetProperty<IMsvm_ConcreteJob>(outParams, "Job");
             return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
         }
         public uint DestroySnapshot(IMsvm_VirtualSystemSettingData AffectedSnapshot, out IMsvm_ConcreteJob? Job)
