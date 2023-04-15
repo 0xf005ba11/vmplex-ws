@@ -26,5 +26,17 @@ namespace VMPlex.UI
         {
             InitializeComponent();
         }
+
+        private void OnApply(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void OnRename(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void OnDelete(object sender, RoutedEventArgs e)
+        {
+        }
     }
 }

@@ -27,9 +27,21 @@ namespace VMPlex
             LostCommunication = 13
         }
         public event PropertyChangedEventHandler PropertyChanged;
-        public void NotifyChange(string name)
+        public void NotifyChange(params string[] names)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            if (PropertyChanged != null)
+            {
+                if (names == null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(null));
+                    return;
+                }
+
+                foreach (string name in names)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(name));
+                }
+            }
         }
 
         public enum StateChange : ushort
@@ -220,27 +232,22 @@ namespace VMPlex
 
         public void UpdateSummaryInformation(IMsvm_SummaryInformation summary)
         {
-            bool notify = false;
-
             bool loadreceived = false;
             byte[] thumbnail = null;
 
             if (summary.Version != null && Version != summary.Version)
             {
                 Version = summary.Version;
-                notify = true;
             }
 
             if (summary.NumberOfProcessors != null && NumberOfProcessors != summary.NumberOfProcessors)
             {
                 NumberOfProcessors = summary.NumberOfProcessors.Value;
-                notify = true;
             }
 
             if (summary.MemoryAvailable != null && MemoryAvailable != summary.MemoryAvailable)
             {
                 MemoryAvailable = summary.MemoryAvailable.Value;
-                notify = true;
             }
 
             if (summary.UpTime != null)
@@ -255,14 +262,12 @@ namespace VMPlex
                 if (summary.ProcessorLoad != ProcessorLoad)
                 {
                     ProcessorLoad = summary.ProcessorLoad.Value;
-                    notify = true;
                 }
             }
 
             if (summary.MemoryUsage != null && MemoryUsage != summary.MemoryUsage.Value)
             {
                 MemoryUsage = summary.MemoryUsage.Value;
-                notify = true;
             }
 
             if (summary.Heartbeat != null)
@@ -271,29 +276,34 @@ namespace VMPlex
                 if (hbstate != Heartbeat)
                 {
                     Heartbeat = hbstate;
-                    notify = true;
                 }
             }
 
             if (summary.Snapshots != null && summary.Snapshots.Length != 0)
             {
                 IMsvm_VirtualSystemSettingData mostCurrent = Msvm.GetAssociated<IMsvm_VirtualSystemSettingData>("Msvm_MostCurrentSnapshotInBranch").FirstOrDefault();
-                Snapshots = SnapshotHierarchy.BuildFrom(
-                                mostCurrent,
-                                (from snapshot in summary.Snapshots select
-                                 WmiClassGenerator.CreateInstance<IMsvm_VirtualSystemSettingData>(snapshot)).ToArray());
+                List<Snapshot> newSnapshots = SnapshotHierarchy.BuildFrom(
+                                                    mostCurrent,
+                                                    (from snapshot in summary.Snapshots select
+                                                     WmiClassGenerator.CreateInstance<IMsvm_VirtualSystemSettingData>(snapshot)).ToArray());
+                if (!SnapshotHierarchy.IsSame(Snapshots, newSnapshots))
+                {
+                    Snapshots = newSnapshots;
+                }
+            }
+            else if (Snapshots != null && (summary.Snapshots == null || summary.Snapshots.Length == 0))
+            {
+                Snapshots = new List<Snapshot>();
             }
 
             if (summary.ThumbnailImageWidth != null && ThumbnailWidth != summary.ThumbnailImageWidth)
             {
                 ThumbnailWidth= summary.ThumbnailImageWidth.Value;
-                notify = true;
             }
 
             if (summary.ThumbnailImageHeight != null && ThumbnailHeight != summary.ThumbnailImageHeight)
             {
                 ThumbnailHeight = summary.ThumbnailImageHeight.Value;
-                notify = true;
             }
 
             if (summary.ThumbnailImage != null)
@@ -323,39 +333,13 @@ namespace VMPlex
                         ThumbnailWidth * 2);
                     thumbnailBitmap.Freeze();
                     Thumbnail = thumbnailBitmap;
-                    if (Thumbnail == null)
-                    {
-                        notify = true;
-                    }
                 }
                 catch (System.NullReferenceException)
                 {
-                    if (Thumbnail != null)
-                    {
-                        Thumbnail = null;
-                        notify = true;
-                    }
-                }
-            }
-            else
-            {
-                if (Thumbnail != null)
-                {
-                    Thumbnail = null;
-                    notify = true;
                 }
             }
 
-            if (notify)
-            {
-                NotifyChange(null);
-            }
-            else
-            {
-                NotifyChange("Self");
-                NotifyChange("UpTime");
-                NotifyChange("Thumbnail");
-            }
+            NotifyChange(null);
         }
 
         private static void TryLaunchHVIntegrateInJob(string[] args)
