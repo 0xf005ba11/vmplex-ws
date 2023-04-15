@@ -61,6 +61,14 @@ namespace VMPlex
 
         public static void RevertSnapshot(VirtualMachine vm)
         {
+            IMsvm_ComputerSystem system = GetVMByGuid(vm.Guid);
+            IMsvm_VirtualSystemSettingData mostCurrent = system.GetAssociated<IMsvm_VirtualSystemSettingData>("Msvm_MostCurrentSnapshotInBranch").FirstOrDefault();
+            if (mostCurrent == null)
+            {
+                return;
+            }
+
+            ApplySnapshot(new Snapshot(mostCurrent, false));
         }
 
         public static void ApplySnapshot(Snapshot snapshot)

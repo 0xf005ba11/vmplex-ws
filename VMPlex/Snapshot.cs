@@ -8,7 +8,7 @@ namespace VMPlex
 {
     public class Snapshot
     {
-        public Snapshot(IMsvm_VirtualSystemSettingData settingData, bool isNow)
+        public Snapshot(IMsvm_VirtualSystemSettingData settingData, bool isNow = false)
         {
             SettingData = settingData;
             Children = new List<Snapshot>();
