@@ -380,6 +380,7 @@ namespace VMPlex
         public string Version { get; set; }
         public uint ProcessID { get; set; }
         public List<Snapshot> Snapshots { get; set; }
+        public bool CanRevert { get => Snapshots != null && Snapshots.Count > 0; }
         public IMsvm_SecurityElement? SecurityElement { get => Msvm.GetAssociated<IMsvm_SecurityElement>(null).FirstOrDefault(); }
         public IMsvm_Keyboard Keyboard { get => Msvm.GetAssociated<IMsvm_Keyboard>("Msvm_SystemDevice").FirstOrDefault(); }
         public IMsvm_ComputerSystem.SystemState State { get; set; }

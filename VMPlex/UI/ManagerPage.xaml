@@ -164,7 +164,7 @@
                         <MenuItem Header="Shutdown" Click="OnShutdownCommand" IsEnabled="{Binding IsRunning}" Style="{StaticResource DefaultMenuItemStyle}"/>
                         <Separator/>
                         <MenuItem Header="Create Checkpoint" Click="OnCreateCheckpoint" Style="{StaticResource DefaultMenuItemStyle}"/>
-                        <MenuItem Header="Revert" Click="OnRevertCheckpoint" Style="{StaticResource DefaultMenuItemStyle}"/>
+                        <MenuItem Header="Revert" Click="OnRevertCheckpoint" IsEnabled="{Binding CanRevert}" Style="{StaticResource DefaultMenuItemStyle}"/>
                     </ContextMenu>
                 </ListView.Resources>
                 <ListView.View>
