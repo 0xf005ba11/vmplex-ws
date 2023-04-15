@@ -11,17 +11,13 @@
     <Grid Margin="10">
         <TreeView Grid.Row="1" x:Name="vmCheckpoints" ItemsSource="{Binding Snapshots}">
             <TreeView.Resources>
-                <Style x:Key="ContextMenuItemStyle" TargetType="MenuItem">
-                    <Setter Property="FontSize" Value="14"/>
-                    <Setter Property="Margin" Value="5,0,5,0"/>
-                    <Setter Property="Padding" Value="2"/>
-                    <Setter Property="MinHeight" Value="2"/>
-                </Style>
                 <ContextMenu x:Key="SnapshotContextMenu">
                     <MenuItem Header="Apply" Click="OnApply" IsEnabled="{Binding IsNotNow}"/>
+                    <Separator/>
                     <MenuItem Header="Rename" Click="OnRename" IsEnabled="{Binding IsNotNow}"/>
                     <Separator/>
                     <MenuItem Header="Delete" Click="OnDelete" IsEnabled="{Binding IsNotNow}"/>
+                    <MenuItem Header="Delete Tree" Click="OnDeleteTree" IsEnabled="{Binding IsNotNow}"/>
                 </ContextMenu>
             </TreeView.Resources>
             <TreeView.ItemContainerStyle>

@@ -201,6 +201,22 @@ namespace VMPlex
             return Msvm.RequestStateChange((ushort)state, out IMsvm_ConcreteJob? job);
         }
 
+        public uint RequestStateChange(IMsvm_ComputerSystem.SystemState state)
+        {
+            return Msvm.RequestStateChange((ushort)state, out IMsvm_ConcreteJob? job);
+        }
+
+        public uint RequestStateChange(StateChange state, out IMsvm_ConcreteJob? job)
+        {
+            job = null;
+            uint err = Msvm.RequestStateChange((ushort)state, out IMsvm_ConcreteJob? concreteJob);
+            if (err == 4096)
+            {
+                job = concreteJob;
+            }
+            return err;
+        }
+
         public void TypeText(string text)
         {
             Keyboard.TypeText(text);

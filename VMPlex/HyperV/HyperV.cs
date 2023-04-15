@@ -442,6 +442,116 @@ namespace HyperV
         }
     }
 
+    [WmiClassName("Msvm_VirtualSystemSnapshotService", @"root\virtualization\v2")]
+    public class IMsvm_VirtualSystemSnapshotService : IWmiObject
+    {
+        public IMsvm_VirtualSystemSnapshotService(ManagementBaseObject instance) { __Instance = instance; }
+
+        public string? Caption{ get => WmiClassImpl.GetProperty<string>(__Instance, "Caption"); set => WmiClassImpl.SetProperty<string>(__Instance, "Caption", value); }
+        public string? Description{ get => WmiClassImpl.GetProperty<string>(__Instance, "Description"); set => WmiClassImpl.SetProperty<string>(__Instance, "Description", value); }
+        public string? ElementName{ get => WmiClassImpl.GetProperty<string>(__Instance, "ElementName"); set => WmiClassImpl.SetProperty<string>(__Instance, "ElementName", value); }
+        public string? InstanceID{ get => WmiClassImpl.GetProperty<string>(__Instance, "InstanceID"); set => WmiClassImpl.SetProperty<string>(__Instance, "InstanceID", value); }
+        public ushort? CommunicationStatus{ get => WmiClassImpl.GetProperty<ushort>(__Instance, "CommunicationStatus"); set => WmiClassImpl.SetProperty<ushort>(__Instance, "CommunicationStatus", value); }
+        public ushort? DetailedStatus{ get => WmiClassImpl.GetProperty<ushort>(__Instance, "DetailedStatus"); set => WmiClassImpl.SetProperty<ushort>(__Instance, "DetailedStatus", value); }
+        public ushort? HealthState{ get => WmiClassImpl.GetProperty<ushort>(__Instance, "HealthState"); set => WmiClassImpl.SetProperty<ushort>(__Instance, "HealthState", value); }
+        public DateTime? InstallDate{ get => WmiClassImpl.GetProperty<DateTime>(__Instance, "InstallDate"); set => WmiClassImpl.SetProperty<DateTime>(__Instance, "InstallDate", value); }
+        [WmiKey] public string? Name{ get => WmiClassImpl.GetProperty<string>(__Instance, "Name"); set => WmiClassImpl.SetProperty<string>(__Instance, "Name", value); }
+        public ushort? OperatingStatus{ get => WmiClassImpl.GetProperty<ushort>(__Instance, "OperatingStatus"); set => WmiClassImpl.SetProperty<ushort>(__Instance, "OperatingStatus", value); }
+        public ushort[]? OperationalStatus{ get => WmiClassImpl.GetProperty<ushort[]>(__Instance, "OperationalStatus"); set => WmiClassImpl.SetProperty<ushort[]>(__Instance, "OperationalStatus", value); }
+        public ushort? PrimaryStatus{ get => WmiClassImpl.GetProperty<ushort>(__Instance, "PrimaryStatus"); set => WmiClassImpl.SetProperty<ushort>(__Instance, "PrimaryStatus", value); }
+        public string? Status{ get => WmiClassImpl.GetProperty<string>(__Instance, "Status"); set => WmiClassImpl.SetProperty<string>(__Instance, "Status", value); }
+        public string[]? StatusDescriptions{ get => WmiClassImpl.GetProperty<string[]>(__Instance, "StatusDescriptions"); set => WmiClassImpl.SetProperty<string[]>(__Instance, "StatusDescriptions", value); }
+        public ushort[]? AvailableRequestedStates{ get => WmiClassImpl.GetProperty<ushort[]>(__Instance, "AvailableRequestedStates"); set => WmiClassImpl.SetProperty<ushort[]>(__Instance, "AvailableRequestedStates", value); }
+        public ushort? EnabledDefault{ get => WmiClassImpl.GetProperty<ushort>(__Instance, "EnabledDefault"); set => WmiClassImpl.SetProperty<ushort>(__Instance, "EnabledDefault", value); }
+        public ushort? EnabledState{ get => WmiClassImpl.GetProperty<ushort>(__Instance, "EnabledState"); set => WmiClassImpl.SetProperty<ushort>(__Instance, "EnabledState", value); }
+        public string? OtherEnabledState{ get => WmiClassImpl.GetProperty<string>(__Instance, "OtherEnabledState"); set => WmiClassImpl.SetProperty<string>(__Instance, "OtherEnabledState", value); }
+        public ushort? RequestedState{ get => WmiClassImpl.GetProperty<ushort>(__Instance, "RequestedState"); set => WmiClassImpl.SetProperty<ushort>(__Instance, "RequestedState", value); }
+        public DateTime? TimeOfLastStateChange{ get => WmiClassImpl.GetProperty<DateTime>(__Instance, "TimeOfLastStateChange"); set => WmiClassImpl.SetProperty<DateTime>(__Instance, "TimeOfLastStateChange", value); }
+        public ushort? TransitioningToState{ get => WmiClassImpl.GetProperty<ushort>(__Instance, "TransitioningToState"); set => WmiClassImpl.SetProperty<ushort>(__Instance, "TransitioningToState", value); }
+        [WmiKey] public string? CreationClassName{ get => WmiClassImpl.GetProperty<string>(__Instance, "CreationClassName"); set => WmiClassImpl.SetProperty<string>(__Instance, "CreationClassName", value); }
+        public string? PrimaryOwnerContact{ get => WmiClassImpl.GetProperty<string>(__Instance, "PrimaryOwnerContact"); set => WmiClassImpl.SetProperty<string>(__Instance, "PrimaryOwnerContact", value); }
+        public string? PrimaryOwnerName{ get => WmiClassImpl.GetProperty<string>(__Instance, "PrimaryOwnerName"); set => WmiClassImpl.SetProperty<string>(__Instance, "PrimaryOwnerName", value); }
+        public bool? Started{ get => WmiClassImpl.GetProperty<bool>(__Instance, "Started"); set => WmiClassImpl.SetProperty<bool>(__Instance, "Started", value); }
+        public string? StartMode{ get => WmiClassImpl.GetProperty<string>(__Instance, "StartMode"); set => WmiClassImpl.SetProperty<string>(__Instance, "StartMode", value); }
+        [WmiKey] public string? SystemCreationClassName{ get => WmiClassImpl.GetProperty<string>(__Instance, "SystemCreationClassName"); set => WmiClassImpl.SetProperty<string>(__Instance, "SystemCreationClassName", value); }
+        [WmiKey] public string? SystemName{ get => WmiClassImpl.GetProperty<string>(__Instance, "SystemName"); set => WmiClassImpl.SetProperty<string>(__Instance, "SystemName", value); }
+
+        public uint RequestStateChange(ushort RequestedState, DateTime TimeoutPeriod, out ManagementBaseObject? Job)
+        {
+            ManagementBaseObject inParams = WmiClassImpl.MethodParameters(__Instance, "RequestStateChange");
+            WmiClassImpl.SetProperty<ushort>(inParams, "RequestedState", RequestedState);
+            WmiClassImpl.SetProperty<DateTime>(inParams, "TimeoutPeriod", TimeoutPeriod);
+            ManagementBaseObject outParams = ((ManagementObject)__Instance).InvokeMethod("RequestStateChange", inParams, null!);
+            Job = WmiClassImpl.GetProperty<ManagementBaseObject>(outParams, "Job");
+            return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
+        }
+        public uint StartService()
+        {
+            ManagementBaseObject inParams = WmiClassImpl.MethodParameters(__Instance, "StartService");
+            ManagementBaseObject outParams = ((ManagementObject)__Instance).InvokeMethod("StartService", inParams, null!);
+            return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
+        }
+        public uint StopService()
+        {
+            ManagementBaseObject inParams = WmiClassImpl.MethodParameters(__Instance, "StopService");
+            ManagementBaseObject outParams = ((ManagementObject)__Instance).InvokeMethod("StopService", inParams, null!);
+            return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
+        }
+        public uint CreateSnapshot(ManagementBaseObject AffectedSystem, out ManagementBaseObject? ResultingSnapshot, string SnapshotSettings, ushort SnapshotType, out ManagementBaseObject? Job)
+        {
+            ManagementBaseObject inParams = WmiClassImpl.MethodParameters(__Instance, "CreateSnapshot");
+            WmiClassImpl.SetProperty<ManagementBaseObject>(inParams, "AffectedSystem", AffectedSystem);
+            WmiClassImpl.SetProperty<string>(inParams, "SnapshotSettings", SnapshotSettings);
+            WmiClassImpl.SetProperty<ushort>(inParams, "SnapshotType", SnapshotType);
+            ManagementBaseObject outParams = ((ManagementObject)__Instance).InvokeMethod("CreateSnapshot", inParams, null!);
+            ResultingSnapshot = WmiClassImpl.GetProperty<ManagementBaseObject>(outParams, "ResultingSnapshot");
+            Job = WmiClassImpl.GetProperty<ManagementBaseObject>(outParams, "Job");
+            return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
+        }
+        public uint DestroySnapshot(IMsvm_VirtualSystemSettingData AffectedSnapshot, out IMsvm_ConcreteJob? Job)
+        {
+            ManagementBaseObject inParams = WmiClassImpl.MethodParameters(__Instance, "DestroySnapshot");
+            WmiClassImpl.SetProperty<ManagementBaseObject>(inParams, "AffectedSnapshot", AffectedSnapshot.__Instance);
+            ManagementBaseObject outParams = ((ManagementObject)__Instance).InvokeMethod("DestroySnapshot", inParams, null!);
+            Job = WmiClassImpl.GetProperty<IMsvm_ConcreteJob>(outParams, "Job");
+            return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
+        }
+        public uint ApplySnapshot(IMsvm_VirtualSystemSettingData Snapshot, out IMsvm_ConcreteJob? Job)
+        {
+            ManagementBaseObject inParams = WmiClassImpl.MethodParameters(__Instance, "ApplySnapshot");
+            WmiClassImpl.SetProperty<ManagementBaseObject>(inParams, "Snapshot", Snapshot.__Instance);
+            ManagementBaseObject outParams = ((ManagementObject)__Instance).InvokeMethod("ApplySnapshot", inParams, null!);
+            Job = WmiClassImpl.GetProperty<IMsvm_ConcreteJob>(outParams, "Job");
+            return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
+        }
+        public uint DestroySnapshotTree(IMsvm_VirtualSystemSettingData SnapshotSettingData, out IMsvm_ConcreteJob? Job)
+        {
+            ManagementBaseObject inParams = WmiClassImpl.MethodParameters(__Instance, "DestroySnapshotTree");
+            WmiClassImpl.SetProperty<ManagementBaseObject>(inParams, "SnapshotSettingData", SnapshotSettingData.__Instance);
+            ManagementBaseObject outParams = ((ManagementObject)__Instance).InvokeMethod("DestroySnapshotTree", inParams, null!);
+            Job = WmiClassImpl.GetProperty<IMsvm_ConcreteJob>(outParams, "Job");
+            return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
+        }
+        public uint ClearSnapshotState(ManagementBaseObject SnapshotSettingData, out ManagementBaseObject? Job)
+        {
+            ManagementBaseObject inParams = WmiClassImpl.MethodParameters(__Instance, "ClearSnapshotState");
+            WmiClassImpl.SetProperty<ManagementBaseObject>(inParams, "SnapshotSettingData", SnapshotSettingData);
+            ManagementBaseObject outParams = ((ManagementObject)__Instance).InvokeMethod("ClearSnapshotState", inParams, null!);
+            Job = WmiClassImpl.GetProperty<ManagementBaseObject>(outParams, "Job");
+            return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
+        }
+        public uint ConvertToReferencePoint(ManagementBaseObject AffectedSnapshot, string ReferencePointSettings, out ManagementBaseObject? ResultingReferencePoint, out ManagementBaseObject? Job)
+        {
+            ManagementBaseObject inParams = WmiClassImpl.MethodParameters(__Instance, "ConvertToReferencePoint");
+            WmiClassImpl.SetProperty<ManagementBaseObject>(inParams, "AffectedSnapshot", AffectedSnapshot);
+            WmiClassImpl.SetProperty<string>(inParams, "ReferencePointSettings", ReferencePointSettings);
+            ManagementBaseObject outParams = ((ManagementObject)__Instance).InvokeMethod("ConvertToReferencePoint", inParams, null!);
+            ResultingReferencePoint = WmiClassImpl.GetProperty<ManagementBaseObject>(outParams, "ResultingReferencePoint");
+            Job = WmiClassImpl.GetProperty<ManagementBaseObject>(outParams, "Job");
+            return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
+        }
+    }
+
     [WmiClassName("Msvm_ComputerSystem", @"root\virtualization\v2")]
     public class IMsvm_ComputerSystem : IWmiObject
     {
