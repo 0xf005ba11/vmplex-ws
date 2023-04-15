@@ -10,77 +10,79 @@
     <UserControl.Resources>
         <system:Int32 x:Key="ColWidth">85</system:Int32>
     </UserControl.Resources>
-    <StackPanel CanVerticallyScroll="True">
-        <ListView Grid.Row="0" Background="Transparent" BorderThickness="0" Padding="0" Margin="25,5,5,5">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
-                    <Setter Property="Focusable" Value="False"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel CanVerticallyScroll="True">
+            <ListView Grid.Row="0" Background="Transparent" BorderThickness="0" Padding="0" Margin="25,5,5,5">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
+                        <Setter Property="Focusable" Value="False"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
                                      Value="True">
-                            <Setter Property="Margin" Value="-8"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
+                                <Setter Property="Margin" Value="-8"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
                                      Value="False">
-                            <Setter Property="Margin" Value="-4"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </ListView.ItemContainerStyle>
-            <ListViewItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Version:" FontWeight="Bold" Width="{Binding Source={StaticResource ColWidth}}"/>
-                    <TextBlock Text="{Binding Version}"/>
-                </StackPanel>
-            </ListViewItem>
-            <ListViewItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Heartbeat:" FontWeight="Bold" Width="{Binding Source={StaticResource ColWidth}}"/>
-                    <TextBlock Text="{Binding Heartbeat}"/>
-                </StackPanel>
-            </ListViewItem>
-            <ListViewItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Processors:" FontWeight="Bold" Width="{Binding Source={StaticResource ColWidth}}"/>
-                    <TextBlock Text="{Binding NumberOfProcessors}"/>
-                </StackPanel>
-            </ListViewItem>
-            <ListViewItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Memory:" FontWeight="Bold" Width="{Binding Source={StaticResource ColWidth}}"/>
-                    <TextBlock Text="{Binding MemoryUsage,StringFormat='{}{0} MB'}"/>
-                </StackPanel>
-            </ListViewItem>
-            <ListViewItem>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Guid:" FontWeight="Bold" Width="{Binding Source={StaticResource ColWidth}}"/>
-                    <TextBlock Name="guid" Text="{Binding Path=Guid, NotifyOnTargetUpdated=True}" TargetUpdated="OnGuidChanged"/>
-                    <Button Name="guidCopyButton" Background="Transparent" Visibility="Hidden" IsTabStop="False">
-                        <Label Content=" &#xE16F;" VerticalAlignment="Center" FontFamily="Segoe MDL2 Assets"/>
-                    </Button>
-                </StackPanel>
-            </ListViewItem>
-        </ListView>
-        <Border BorderThickness="1" BorderBrush="{DynamicResource SystemControlPageTextBaseHighBrush}">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
+                                <Setter Property="Margin" Value="-4"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListViewItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Version:" FontWeight="Bold" Width="{Binding Source={StaticResource ColWidth}}"/>
+                        <TextBlock Text="{Binding Version}"/>
+                    </StackPanel>
+                </ListViewItem>
+                <ListViewItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Heartbeat:" FontWeight="Bold" Width="{Binding Source={StaticResource ColWidth}}"/>
+                        <TextBlock Text="{Binding Heartbeat}"/>
+                    </StackPanel>
+                </ListViewItem>
+                <ListViewItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Processors:" FontWeight="Bold" Width="{Binding Source={StaticResource ColWidth}}"/>
+                        <TextBlock Text="{Binding NumberOfProcessors}"/>
+                    </StackPanel>
+                </ListViewItem>
+                <ListViewItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Memory:" FontWeight="Bold" Width="{Binding Source={StaticResource ColWidth}}"/>
+                        <TextBlock Text="{Binding MemoryUsage,StringFormat='{}{0} MB'}"/>
+                    </StackPanel>
+                </ListViewItem>
+                <ListViewItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Guid:" FontWeight="Bold" Width="{Binding Source={StaticResource ColWidth}}"/>
+                        <TextBlock Name="guid" Text="{Binding Path=Guid, NotifyOnTargetUpdated=True}" TargetUpdated="OnGuidChanged"/>
+                        <Button Name="guidCopyButton" Background="Transparent" Visibility="Hidden" IsTabStop="False">
+                            <Label Content=" &#xE16F;" VerticalAlignment="Center" FontFamily="Segoe MDL2 Assets"/>
+                        </Button>
+                    </StackPanel>
+                </ListViewItem>
+            </ListView>
+            <Border BorderThickness="1" BorderBrush="{DynamicResource SystemControlPageTextBaseHighBrush}">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
                                      Value="True">
-                            <Setter Property="Width" Value="400" />
-                            <Setter Property="Height" Value="300" />
-                            <Setter Property="Margin" Value="0,5,0,5" />
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
+                                <Setter Property="Width" Value="400" />
+                                <Setter Property="Height" Value="300" />
+                                <Setter Property="Margin" Value="0,5,0,5" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.CompactMode, UpdateSourceTrigger=PropertyChanged}"
                                      Value="False">
-                            <Setter Property="Width" Value="400" />
-                            <Setter Property="Height" Value="300" />
-                            <Setter Property="Margin" Value="5,25,5,10" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-            <Image Grid.Row="0" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="{Binding Thumbnail}"/>
-        </Border>
-    </StackPanel>
+                                <Setter Property="Width" Value="400" />
+                                <Setter Property="Height" Value="300" />
+                                <Setter Property="Margin" Value="5,25,5,10" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Image Grid.Row="0" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="{Binding Thumbnail}"/>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>
