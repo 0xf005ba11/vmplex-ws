@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.ComponentModel;
 
 using HyperV;
+using System.Threading;
 
 namespace VMPlex.UI
 {
@@ -244,15 +245,25 @@ namespace VMPlex.UI
 
         private void OnCreateCheckpoint(object sender, RoutedEventArgs e)
         {
-            m_vm.CreateSnapshot();
+            new Thread(CreateCheckpoint).Start(m_vm);
+        }
+
+        private void CreateCheckpoint(object data)
+        {
+            (data as VirtualMachine).CreateSnapshot();
         }
 
         private void OnRevertCheckpoint(object sender, RoutedEventArgs e)
         {
             if (Utility.ConfirmSnapshotAction(null, "Revert to previous checkpoint"))
             {
-                m_vm.RevertSnapshot();
+                new Thread(RevertCheckpoint).Start(m_vm);
             }
+        }
+
+        private void RevertCheckpoint(object data)
+        {
+            (data as VirtualMachine).RevertSnapshot();
         }
 
         private void OnRdpConnecting(object sender)
