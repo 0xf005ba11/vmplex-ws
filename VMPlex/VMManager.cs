@@ -12,6 +12,8 @@ using System.Threading;
 
 using EasyWMI;
 using HyperV;
+using System.Text.Json.Serialization;
+using VMPlex.UI;
 
 namespace VMPlex
 {
@@ -56,6 +58,14 @@ namespace VMPlex
             if (job != null)
             {
                 new HyperV.Job(job).WaitForCompletion();
+                if (job.ErrorCode != 0)
+                {
+                    UI.MessageBox.Show(
+                        System.Windows.MessageBoxImage.Error,
+                        "Checkpoint Creation Failed",
+                        job.ErrorDescription,
+                        System.Windows.MessageBoxButton.OK);
+                }
             }
         }
 
