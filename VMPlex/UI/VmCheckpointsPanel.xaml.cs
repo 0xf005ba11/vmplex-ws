@@ -28,20 +28,6 @@ namespace VMPlex.UI
             InitializeComponent();
         }
 
-        private bool ConfirmSnapshotAction(Snapshot snapshot, string action)
-        {
-            if (!UserSettings.Instance.Settings.ConfirmToolBarActions)
-            {
-                return true;
-            }
-
-            var res = UI.MessageBox.Show(
-                MessageBoxImage.Warning,
-                $"{action} {snapshot.ElementName}?",
-                MessageBoxButton.YesNo);
-            return res == MessageBoxResult.Yes;
-        }
-
         private Snapshot GetSnapshot(object sender)
         {
             MenuItem item = sender as MenuItem;
@@ -57,7 +43,7 @@ namespace VMPlex.UI
         {
             Snapshot snapshot = GetSnapshot(sender);
             if (snapshot == null ||
-                !ConfirmSnapshotAction(snapshot, "Apply checkpoint"))
+                !Utility.ConfirmSnapshotAction(snapshot, "Apply checkpoint"))
             {
                 return;
             }
@@ -73,7 +59,7 @@ namespace VMPlex.UI
         {
             Snapshot snapshot = GetSnapshot(sender);
             if (snapshot == null ||
-                !ConfirmSnapshotAction(snapshot, "Delete checkpoint"))
+                !Utility.ConfirmSnapshotAction(snapshot, "Delete checkpoint"))
             {
                 return;
             }
@@ -85,7 +71,7 @@ namespace VMPlex.UI
         {
             Snapshot snapshot = GetSnapshot(sender);
             if (snapshot == null ||
-                !ConfirmSnapshotAction(snapshot, "Delete checkpoint tree"))
+                !Utility.ConfirmSnapshotAction(snapshot, "Delete checkpoint tree"))
             {
                 return;
             }

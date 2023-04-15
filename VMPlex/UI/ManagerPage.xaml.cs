@@ -430,7 +430,8 @@ namespace VMPlex.UI
         private void OnRevertCheckpoint(object sender, RoutedEventArgs e)
         {
             VirtualMachine vm = GetSelectedVm();
-            if (vm is null)
+            if (vm is null ||
+                !Utility.ConfirmSnapshotAction(null, "Revert checkpoint"))
             {
                 return;
             }
