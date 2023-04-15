@@ -242,6 +242,19 @@ namespace VMPlex.UI
             m_vm.OpenSettingsDialog();
         }
 
+        private void OnCreateCheckpoint(object sender, RoutedEventArgs e)
+        {
+            m_vm.CreateSnapshot();
+        }
+
+        private void OnRevertCheckpoint(object sender, RoutedEventArgs e)
+        {
+            if (Utility.ConfirmSnapshotAction(null, "Revert to previous checkpoint"))
+            {
+                m_vm.RevertSnapshot();
+            }
+        }
+
         private void OnRdpConnecting(object sender)
         {
             this.Dispatcher.Invoke(() =>

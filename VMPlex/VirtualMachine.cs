@@ -373,6 +373,16 @@ namespace VMPlex
             }
         }
 
+        public void CreateSnapshot()
+        {
+            VMManager.CreateSnapshot(this, VMManager.SnapshotType.Full);
+        }
+
+        public void RevertSnapshot()
+        {
+            VMManager.RevertSnapshot(this);
+        }
+
         private IMsvm_ComputerSystem Msvm { get; set; }
         public VirtualMachine Self { get { return this; } }
         public string Name { get; set; }

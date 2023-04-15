@@ -431,7 +431,7 @@ namespace VMPlex.UI
         {
             VirtualMachine vm = GetSelectedVm();
             if (vm is null ||
-                !Utility.ConfirmSnapshotAction(null, "Revert checkpoint"))
+                !Utility.ConfirmSnapshotAction(null, "Revert to previous checkpoint"))
             {
                 return;
             }
