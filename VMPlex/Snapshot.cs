@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management;
 
@@ -44,9 +45,12 @@ namespace VMPlex
                     Snapshot child = new Snapshot(snapshot, false);
                     children.Add(child);
                     BuildChildren(mostCurrent, child, child.Children, snapshots);
+                    child.Children.Sort((a, b) => 
+                        DateTime.Compare(a.SettingData.CreationTime.GetValueOrDefault(),
+                                         b.SettingData.CreationTime.GetValueOrDefault()));
                     if (mostCurrent != null && child.SettingData.ConfigurationID == mostCurrent.ConfigurationID)
                     {
-                        child.Children.Add(new Snapshot(mostCurrent, true));
+                        child.Children.Insert(0, new Snapshot(mostCurrent, true));
                     }
                 }
             }
