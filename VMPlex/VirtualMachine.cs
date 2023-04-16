@@ -24,7 +24,8 @@ namespace VMPlex
             Ok = 2,
             Error = 6,
             NoContact = 12,
-            LostCommunication = 13
+            LostCommunication = 13,
+            Unknown = 15
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void NotifyChange(params string[] names)
