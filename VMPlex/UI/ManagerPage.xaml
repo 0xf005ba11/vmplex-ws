@@ -205,7 +205,7 @@
                                         util:GridViewSort.PropertyName="ProcessID"/>
                         <GridViewColumn Header="Status"
                                         DisplayMemberBinding="{Binding StatusText}"
-                                        Width="150"
+                                        Width="300"
                                         util:GridViewSort.PropertyName="StatusText"/>
                     </GridView>
                 </ListView.View>
