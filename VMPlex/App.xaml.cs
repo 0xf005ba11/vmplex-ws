@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using IWshRuntimeLibrary;
+using Microsoft.Win32;
 
 namespace VMPlex
 {
@@ -72,6 +73,7 @@ namespace VMPlex
         private const string ProgramNameShort = "VMPlex";
         private const string ProgramExe = ProgramNameShort + ".exe";
         private const string ProgramLnk = ProgramName + ".lnk";
+        private const string UninstallKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\" + ProgramNameShort;
 
         private string GetProgramDirectory()
         {
@@ -103,6 +105,7 @@ namespace VMPlex
                     Directory.CreateDirectory(startMenu);
 
                 System.IO.File.Copy(Process.GetCurrentProcess().MainModule.FileName, program);
+                SetUninstallKey(program, programDir);
 
                 var shell = new WshShell();
                 var shortcut = (IWshShortcut)shell.CreateShortcut(Path.Combine(startMenu, ProgramLnk));
@@ -128,6 +131,7 @@ namespace VMPlex
             try
             {
                 System.IO.File.Copy(Process.GetCurrentProcess().MainModule.FileName, program, true);
+                SetUninstallKey(program, programDir);
             }
             catch (Exception e)
             {
@@ -141,13 +145,17 @@ namespace VMPlex
         private void ActAsUninstaller()
         {
             var programDir = GetProgramDirectory();
+            var program = Path.Combine(programDir, ProgramExe);
             var shortcut = Path.Combine(GetStartMenuDirectory(), ProgramLnk);
             try
             {
+                if (System.IO.File.Exists(program))
+                    System.IO.File.Move(program, Path.GetTempFileName(), true);
                 if (Directory.Exists(programDir))
                     Directory.Delete(programDir, true);
                 if (System.IO.File.Exists(shortcut))
                     System.IO.File.Delete(shortcut);
+                Registry.CurrentUser.DeleteSubKey(UninstallKey, false);
             }
             catch (Exception e)
             {
@@ -156,6 +164,27 @@ namespace VMPlex
             }
 
             Environment.Exit(0);
+        }
+
+        private void SetUninstallKey(string Program, string InstallLocation)
+        {
+            using (RegistryKey key = Registry.CurrentUser.CreateSubKey(UninstallKey))
+            {
+                string ver = GetType().Assembly.GetName().Version.ToString();
+                key.SetValue("DisplayName", ProgramName);
+                key.SetValue("ApplicationVersion", ver);
+                key.SetValue("Publisher", ProgramNameShort);
+                key.SetValue("DisplayIcon", Program);
+                key.SetValue("DisplayVersion", ver);
+                key.SetValue("InstallDate", DateTime.Now.ToString("yyyyMMdd"));
+                key.SetValue("InstallLocation", InstallLocation);
+                key.SetValue("UninstallString", $"\"{Program}\" --uninstall");
+                key.SetValue("QuietUninstallString", $"\"{Program}\" --uninstall");
+                key.SetValue("NoModify", 1);
+                key.SetValue("NoRepair", 1);
+                key.SetValue("HelpLink", "https://github.com/0xf005ba11/vmplex-ws/issues");
+                key.SetValue("URLInfoAbout", "https://github.com/0xf005ba11/vmplex-ws");
+            }
         }
     }
 }
