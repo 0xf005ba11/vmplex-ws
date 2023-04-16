@@ -202,31 +202,31 @@
                         </GridView.ColumnHeaderTemplate>
                         <GridViewColumn Header="Name"
                                         DisplayMemberBinding="{Binding Name}"
-                                        Width="170"
+                                        Width="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.ManagerTabWidths[0], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                         util:GridViewSort.PropertyName="Name"/>
                         <GridViewColumn Header="Status"
                                         DisplayMemberBinding="{Binding State}"
-                                        Width="75"
+                                        Width="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.ManagerTabWidths[1], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                         util:GridViewSort.PropertyName="State"/>
                         <GridViewColumn Header="Cpu Usage (Host)"
                                         DisplayMemberBinding="{Binding Self, Converter={StaticResource VMCpuUsageConverter}}"
-                                        Width="148"
+                                        Width="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.ManagerTabWidths[2], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                         util:GridViewSort.PropertyName="ProcessorLoad"/>
                         <GridViewColumn Header="Assigned Memory"
                                         DisplayMemberBinding="{Binding Self, Converter={StaticResource VMMemoryConverter}}"
-                                        Width="150"
+                                        Width="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.ManagerTabWidths[3], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                         util:GridViewSort.PropertyName="MemoryUsage"/>
                         <GridViewColumn Header="Uptime"
                                         DisplayMemberBinding="{Binding Self, Converter={StaticResource VMUptimeConverter}}"
-                                        Width="83"
+                                        Width="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.ManagerTabWidths[4], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                         util:GridViewSort.PropertyName="UpTime"/>
                         <GridViewColumn Header="Process ID"
                                         DisplayMemberBinding="{Binding ProcessID, Converter={StaticResource VMPidConverter}}"
-                                        Width="94"
+                                        Width="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.ManagerTabWidths[5], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                         util:GridViewSort.PropertyName="ProcessID"/>
                         <GridViewColumn Header="Status"
                                         DisplayMemberBinding="{Binding StatusText}"
-                                        Width="300"
+                                        Width="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.ManagerTabWidths[6], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                         util:GridViewSort.PropertyName="StatusText"/>
                     </GridView>
                 </ListView.View>
