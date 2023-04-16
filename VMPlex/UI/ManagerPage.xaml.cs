@@ -444,15 +444,15 @@ namespace VMPlex.UI
             VMManager.RevertSnapshot((VirtualMachine)data);
         }
 
-        private void OnRdpConnect(object sender, RoutedEventArgs e)
+        private void RdpConnectButton_Click(object sender, RoutedEventArgs e)
         {
-            var settings = RdpConnectWindow.Show();
-            if (settings == null)
-            {
-                return;
-            }
+            rdpDropDown.Flyout.Hide();
 
-            if (settings.Server.Length == 0)
+            var strings = rdpConnectionBox.Text.Split('\\');
+            string domain = strings.Length > 1 ? strings[0] : "";
+            string server = strings.Length > 1 ? strings[1] : strings[0];
+
+            if (server.Length == 0)
             {
                 MessageBox.Show(
                     MessageBoxImage.Error,
@@ -461,6 +461,10 @@ namespace VMPlex.UI
                     MessageBoxButton.OK);
                 return;
             }
+
+            var settings = UserSettings.Instance.Settings.RdpConnections.FirstOrDefault(
+                c => c.Domain == domain && c.Server == server,
+                new RdpSettings { Domain = domain, Server = server });
 
             TabItem tab;
             try
