@@ -77,6 +77,22 @@ namespace VMPlex
         /// </summary>
         [JsonInclude]
         public WindowSettings MainWindow { get; set; } = new WindowSettings();
+
+        /// <summary>
+        /// Manager page tab widths, generally users don't need to edit this.
+        /// Used to persist state of the manager page tab widths.
+        /// </summary>
+        [JsonInclude]
+        public double[] ManagerTabWidths { get; set; } = new double[]
+            {
+                170,
+                75,
+                148,
+                150,
+                83,
+                94,
+                300
+            };
     }
 
     /// <summary>
