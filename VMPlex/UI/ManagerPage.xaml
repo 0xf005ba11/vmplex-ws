@@ -119,19 +119,13 @@
             </Grid.ColumnDefinitions>
             <ListView Grid.Column="0" x:Name="vmList" ItemsSource="{Binding}" util:GridViewSort.AutoSort="True">
                 <ListView.Resources>
-                    <Style x:Key="ContextMenuItemStyle" TargetType="MenuItem">
-                        <Setter Property="FontSize" Value="14" />
-                        <Setter Property="Margin" Value="5,0,5,0" />
-                        <Setter Property="Padding" Value="2" />
-                        <Setter Property="MinHeight" Value="2" />
-                    </Style>
                     <ContextMenu x:Key="VmContextMenu">
-                        <MenuItem Header="Connect" Click="VmContextMenu_Connect" Style="{StaticResource ContextMenuItemStyle}"/>
-                        <MenuItem Header="Settings" Click="OnSettingsCommand" Style="{StaticResource ContextMenuItemStyle}"/>
+                        <MenuItem Header="Connect" Click="VmContextMenu_Connect" Style="{StaticResource DefaultMenuItemStyle}"/>
+                        <MenuItem Header="Settings" Click="OnSettingsCommand" Style="{StaticResource DefaultMenuItemStyle}"/>
                         <Separator/>
                         <MenuItem Click="OnPowerCommand">
                             <MenuItem.Style>
-                                <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}">
+                                <Style TargetType="MenuItem" BasedOn="{StaticResource DefaultMenuItemStyle}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsPoweredOn}" Value="False">
                                             <Setter Property="Header" Value="Power On"/>
@@ -151,7 +145,7 @@
                         </MenuItem>
                         <MenuItem Header="Pause" Click="OnPauseCommand">
                             <MenuItem.Style>
-                                <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}">
+                                <Style TargetType="MenuItem" BasedOn="{StaticResource DefaultMenuItemStyle}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsRunning}" Value="True">
                                             <Setter Property="Visibility" Value="Visible"/>
@@ -163,11 +157,14 @@
                                 </Style>
                             </MenuItem.Style>
                         </MenuItem>
-                        <MenuItem Header="Reset" Click="OnResetCommand" IsEnabled="{Binding IsPoweredOn}" Style="{StaticResource ContextMenuItemStyle}"/>
+                        <MenuItem Header="Reset" Click="OnResetCommand" IsEnabled="{Binding IsPoweredOn}" Style="{StaticResource DefaultMenuItemStyle}"/>
                         <Separator/>
-                        <MenuItem Header="Save" Click="OnSaveCommand" IsEnabled="{Binding IsPoweredOn}" Style="{StaticResource ContextMenuItemStyle}"/>
-                        <MenuItem Header="Reboot" Click="OnRebootCommand" IsEnabled="{Binding IsRunning}" Style="{StaticResource ContextMenuItemStyle}"/>
-                        <MenuItem Header="Shutdown" Click="OnShutdownCommand" IsEnabled="{Binding IsRunning}" Style="{StaticResource ContextMenuItemStyle}"/>
+                        <MenuItem Header="Save" Click="OnSaveCommand" IsEnabled="{Binding IsPoweredOn}" Style="{StaticResource DefaultMenuItemStyle}"/>
+                        <MenuItem Header="Reboot" Click="OnRebootCommand" IsEnabled="{Binding IsRunning}" Style="{StaticResource DefaultMenuItemStyle}"/>
+                        <MenuItem Header="Shutdown" Click="OnShutdownCommand" IsEnabled="{Binding IsRunning}" Style="{StaticResource DefaultMenuItemStyle}"/>
+                        <Separator/>
+                        <MenuItem Header="Create Checkpoint" Click="OnCreateCheckpoint" Style="{StaticResource DefaultMenuItemStyle}"/>
+                        <MenuItem Header="Revert" Click="OnRevertCheckpoint" IsEnabled="{Binding CanRevert}" Style="{StaticResource DefaultMenuItemStyle}"/>
                     </ContextMenu>
                 </ListView.Resources>
                 <ListView.View>
@@ -263,12 +260,19 @@
             <local:VmInfoPanel Grid.Column="1" DataContext="{Binding ElementName=vmList, Path=SelectedItem}"/>
         </Grid>
         <GridSplitter Grid.Row="2" Height="3" HorizontalAlignment="Stretch"/>
-        <ScrollViewer Grid.Row="3" Margin="20,0,0,0">
-            <ui:ItemsRepeater x:Name="vmGrid" ItemsSource="{Binding}" ItemTemplate="{StaticResource VmTemplate}">
-                <ui:ItemsRepeater.Layout>
-                    <ui:UniformGridLayout/>
-                </ui:ItemsRepeater.Layout>
-            </ui:ItemsRepeater>
-        </ScrollViewer>
+        <TabControl Grid.Row="3" TabStripPlacement="Top">
+            <TabItem Header="Checkpoints">
+                <local:VmCheckpointsPanel DataContext="{Binding ElementName=vmList, Path=SelectedItem}"/>
+            </TabItem>
+            <TabItem Header="Thumbnails">
+                <ScrollViewer Grid.Row="3" Margin="20,0,0,0">
+                    <ui:ItemsRepeater x:Name="vmGrid" ItemsSource="{Binding}" ItemTemplate="{StaticResource VmTemplate}">
+                        <ui:ItemsRepeater.Layout>
+                            <ui:UniformGridLayout/>
+                        </ui:ItemsRepeater.Layout>
+                    </ui:ItemsRepeater>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>

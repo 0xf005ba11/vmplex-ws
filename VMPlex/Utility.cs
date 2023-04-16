@@ -163,5 +163,19 @@ namespace VMPlex
             name = "HVIntegrate";
             try { ExtractResource(name, HVIntegrateFileName); } catch(Exception) { }
         }
+        static public bool ConfirmSnapshotAction(Snapshot snapshot, string action)
+        {
+            if (!UserSettings.Instance.Settings.ConfirmToolBarActions)
+            {
+                return true;
+            }
+
+            var res = UI.MessageBox.Show(
+                        MessageBoxImage.Warning,
+                        snapshot == null ? $"{action}?" : $"{action} {snapshot.ElementName}?",
+                        MessageBoxButton.YesNo);
+            return res == MessageBoxResult.Yes;
+        }
+
     }
 }

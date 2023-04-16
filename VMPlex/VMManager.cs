@@ -6,11 +6,14 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Management;
 using System.Windows.Data;
 using System.Threading;
 
 using EasyWMI;
 using HyperV;
+using System.Text.Json.Serialization;
+using VMPlex.UI;
 
 namespace VMPlex
 {
@@ -28,8 +31,159 @@ namespace VMPlex
         public static IMsvm_ComputerSystem GetVMByGuid(string guid) =>
             scope.QueryInstances<IMsvm_ComputerSystem>(GuidSelector(guid)).FirstOrDefault();
 
+        public static IMsvm_VirtualSystemSettingData GetVMSettingData(string id) =>
+            scope.QueryInstances<IMsvm_VirtualSystemSettingData>("SELECT * FROM Msvm_VirtualSystemSettingData WHERE InstanceID='" + id + "'").FirstOrDefault();
+
+        public static IMsvm_VirtualSystemSnapshotService SnapshotService => scope.GetInstance<IMsvm_VirtualSystemSnapshotService>();
+
         public static WmiSubscription<IMsvm_ComputerSystem> CreateMsvmWatcher(string guid) =>
             scope.Subscribe<IMsvm_ComputerSystem>("SELECT * FROM __InstanceModificationEvent WITHIN 1 WHERE TargetInstance ISA 'Msvm_ComputerSystem' AND TargetInstance.Name = '" + guid + "'");
+
+        public enum SnapshotType : ushort
+        {
+            Full = 2,
+            Disk = 3
+        }
+
+        public static void ModifySystemSettings(IMsvm_VirtualSystemSettingData settings)
+        {
+            uint err = Instance.vsms.ModifySystemSettings(settings.__Instance.GetText(TextFormat.WmiDtd20), out IMsvm_ConcreteJob? job);
+            if (job != null)
+            {
+                new HyperV.Job(job).WaitForCompletion();
+                if (job.ErrorCode != 0)
+                {
+                    UI.MessageBox.Show(
+                        System.Windows.MessageBoxImage.Error,
+                        "Checkpoint Rename Failed",
+                        job.ErrorDescription,
+                        System.Windows.MessageBoxButton.OK);
+                }
+            }
+        }
+
+        public static void CreateSnapshot(VirtualMachine vm, SnapshotType snapshotType)
+        {
+            IMsvm_ComputerSystem system = GetVMByGuid(vm.Guid);
+
+            SnapshotService.CreateSnapshot(
+                            system,
+                            out IMsvm_VirtualSystemSettingData? snapshot,
+                            String.Empty,
+                            (ushort)snapshotType,
+                            out IMsvm_ConcreteJob? job);
+            if (job != null)
+            {
+                new HyperV.Job(job).WaitForCompletion();
+                if (job.ErrorCode != 0)
+                {
+                    UI.MessageBox.Show(
+                        System.Windows.MessageBoxImage.Error,
+                        "Checkpoint Creation Failed",
+                        job.ErrorDescription,
+                        System.Windows.MessageBoxButton.OK);
+                }
+            }
+        }
+
+        public static void RevertSnapshot(VirtualMachine vm)
+        {
+            IMsvm_ComputerSystem system = GetVMByGuid(vm.Guid);
+            IMsvm_VirtualSystemSettingData mostCurrent = system.GetAssociated<IMsvm_VirtualSystemSettingData>("Msvm_MostCurrentSnapshotInBranch").FirstOrDefault();
+            if (mostCurrent == null)
+            {
+                return;
+            }
+
+            ApplySnapshot(new Snapshot(mostCurrent, false));
+        }
+
+        public static void ApplySnapshot(Snapshot snapshot)
+        {
+            IMsvm_ComputerSystem system = GetVMByGuid(snapshot.SettingData.VirtualSystemIdentifier);
+            if (system == null)
+            {
+                return;
+            }
+
+            VirtualMachine vm = new VirtualMachine(system);
+            IMsvm_ComputerSystem.SystemState prevState = vm.State;
+            IMsvm_ConcreteJob job;
+            uint err;
+
+            // Must be off or saved to apply a snapshot
+            if (vm.State != IMsvm_ComputerSystem.SystemState.Off && vm.State != IMsvm_ComputerSystem.SystemState.Saved)
+            {
+                err = vm.RequestStateChange(VirtualMachine.StateChange.Offline, out job);
+                if (job != null)
+                {
+                    new HyperV.Job(job).WaitForCompletion();
+                }
+                else if (err != 0)
+                {
+                    return;
+                }
+            }
+
+            // N.B. The underlying ManagementBaseObject in SettingData may be missing the __PATH which will break InvokeMethod.
+            //      Query for the object again to get a fresh copy.
+            IMsvm_VirtualSystemSettingData settings = GetVMSettingData(snapshot.SettingData.InstanceID);
+            SnapshotService.ApplySnapshot(settings, out job);
+            if (job != null)
+            {
+                new HyperV.Job(job).WaitForCompletion();
+                if (job.ErrorCode != 0)
+                {
+                    UI.MessageBox.Show(
+                        System.Windows.MessageBoxImage.Error,
+                        "Checkpoint Apply Failed",
+                        job.ErrorDescription,
+                        System.Windows.MessageBoxButton.OK);
+                }
+            }
+
+            vm = new VirtualMachine(GetVMByGuid(vm.Guid));
+            if (vm.State == IMsvm_ComputerSystem.SystemState.Saved && prevState == IMsvm_ComputerSystem.SystemState.Running)
+            {
+                vm.RequestStateChange(prevState);
+            }
+        }
+
+        public static void DeleteSnapshot(Snapshot snapshot)
+        {
+            IMsvm_VirtualSystemSettingData settings = GetVMSettingData(snapshot.SettingData.InstanceID);
+            SnapshotService.DestroySnapshot(settings, out IMsvm_ConcreteJob? job);
+            if (job != null)
+            {
+                new HyperV.Job(job).WaitForCompletion();
+                if (job.ErrorCode != 0)
+                {
+                    UI.MessageBox.Show(
+                        System.Windows.MessageBoxImage.Error,
+                        "Checkpoint Delete Failed",
+                        job.ErrorDescription,
+                        System.Windows.MessageBoxButton.OK);
+                }
+            }
+        }
+
+        public static void DeleteSnapshotTree(Snapshot snapshot)
+        {
+            IMsvm_VirtualSystemSettingData settings = GetVMSettingData(snapshot.SettingData.InstanceID);
+            SnapshotService.DestroySnapshotTree(settings, out IMsvm_ConcreteJob? job);
+            if (job != null)
+            {
+                new HyperV.Job(job).WaitForCompletion();
+                if (job.ErrorCode != 0)
+                {
+                    UI.MessageBox.Show(
+                        System.Windows.MessageBoxImage.Error,
+                        "Checkpoint Delete Failed",
+                        job.ErrorDescription,
+                        System.Windows.MessageBoxButton.OK);
+                }
+            }
+        }
 
         // Implement singleton
         private static readonly Lazy<VMManager> lazy = new Lazy<VMManager>(() => new VMManager());
@@ -176,6 +330,7 @@ namespace VMPlex
                     103, // MemoryUsage
                     104, // Heartbeat
                     105, // Uptime
+                    107, // Snapshots
                     112 // MemoryAvailable
                 };
 

@@ -38,6 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Devolutions.MsRdpEx" Version="2022.12.8" />
+    <PackageReference Include="Dirkster.InplaceEditBoxLib" Version="1.4.2" />
     <PackageReference Include="ModernWpfUI" Version="0.9.5" />
   </ItemGroup>
   <ItemGroup>
