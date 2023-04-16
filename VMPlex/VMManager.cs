@@ -14,6 +14,7 @@ using EasyWMI;
 using HyperV;
 using System.Text.Json.Serialization;
 using VMPlex.UI;
+using System.Diagnostics;
 
 namespace VMPlex
 {
@@ -321,6 +322,7 @@ namespace VMPlex
         {
             lock (vmListLock)
             {
+                // https://learn.microsoft.com/en-us/previous-versions/windows/desktop/virtual/getsummaryinformation-msvm-virtualsystemmanagementservice
                 uint[] infoRequest = new uint[] {
                     0, // Name (Guid)
                     4, // NumberOfProcessors
@@ -331,6 +333,7 @@ namespace VMPlex
                     104, // Heartbeat
                     105, // Uptime
                     107, // Snapshots
+                    108, // AsynchronousTasks 
                     112 // MemoryAvailable
                 };
 

@@ -203,6 +203,10 @@
                                         DisplayMemberBinding="{Binding ProcessID, Converter={StaticResource VMPidConverter}}"
                                         Width="94"
                                         util:GridViewSort.PropertyName="ProcessID"/>
+                        <GridViewColumn Header="Status"
+                                        DisplayMemberBinding="{Binding StatusText}"
+                                        Width="150"
+                                        util:GridViewSort.PropertyName="StatusText"/>
                     </GridView>
                 </ListView.View>
                 <ListView.ItemContainerStyle>
