@@ -97,12 +97,12 @@ namespace HyperV
             ResultingResourceSettings = WmiClassImpl.GetProperty<ManagementBaseObject[]>(outParams, "ResultingResourceSettings");
             return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
         }
-        public uint ModifySystemSettings(string SystemSettings, out ManagementBaseObject? Job)
+        public uint ModifySystemSettings(string SystemSettings, out IMsvm_ConcreteJob? Job)
         {
             ManagementBaseObject inParams = WmiClassImpl.MethodParameters(__Instance, "ModifySystemSettings");
             WmiClassImpl.SetProperty<string>(inParams, "SystemSettings", SystemSettings);
             ManagementBaseObject outParams = ((ManagementObject)__Instance).InvokeMethod("ModifySystemSettings", inParams, null!);
-            Job = WmiClassImpl.GetProperty<ManagementBaseObject>(outParams, "Job");
+            Job = WmiClassImpl.GetProperty<IMsvm_ConcreteJob>(outParams, "Job");
             return WmiClassImpl.GetProperty<uint>(outParams, "ReturnValue");
         }
         public uint RemoveResourceSettings(ManagementBaseObject[] ResourceSettings, out ManagementBaseObject? Job)

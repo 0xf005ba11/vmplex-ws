@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ui="http://schemas.modernwpf.com/2019"
              xmlns:root="clr-namespace:VMPlex"
+             xmlns:EditInPlace="clr-namespace:InplaceEditBoxLib.Views;assembly=InplaceEditBoxLib"
              xmlns:local="clr-namespace:VMPlex.UI"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d">
@@ -30,7 +31,19 @@
                 <HierarchicalDataTemplate DataType="{x:Type root:Snapshot}" ItemsSource="{Binding Children}">
                     <StackPanel Orientation="Horizontal">
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="{Binding TextIcon}" FontSize="12"/>
-                        <Label Content="{Binding ElementName}" Margin="10,0,0,0"/>
+                        <EditInPlace:EditBox x:Name="nameEdit"
+                                             Text="{Binding ElementName}"
+                                             DisplayText="{Binding ElementName}"
+                                             Focusable="False"
+                                             VerticalAlignment="Stretch"
+                                             HorizontalAlignment="Left"
+                                             IsReadOnly="{Binding IsNow}"
+                                             IsEditableOnDoubleClick="False"
+                                             ToolTipService.ShowOnDisabled="False"
+                                             Margin="10,0"
+                                             DisplayTextForegroundBrush="{DynamicResource SystemControlPageTextBaseHighBrush}"
+                                             RenameCommand="{Binding Path=RenameCommand}"
+                                             RenameCommandParameter="{Binding}"/>
                     </StackPanel>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>

@@ -45,6 +45,23 @@ namespace VMPlex
             Disk = 3
         }
 
+        public static void ModifySystemSettings(IMsvm_VirtualSystemSettingData settings)
+        {
+            uint err = Instance.vsms.ModifySystemSettings(settings.__Instance.GetText(TextFormat.WmiDtd20), out IMsvm_ConcreteJob? job);
+            if (job != null)
+            {
+                new HyperV.Job(job).WaitForCompletion();
+                if (job.ErrorCode != 0)
+                {
+                    UI.MessageBox.Show(
+                        System.Windows.MessageBoxImage.Error,
+                        "Checkpoint Rename Failed",
+                        job.ErrorDescription,
+                        System.Windows.MessageBoxButton.OK);
+                }
+            }
+        }
+
         public static void CreateSnapshot(VirtualMachine vm, SnapshotType snapshotType)
         {
             IMsvm_ComputerSystem system = GetVMByGuid(vm.Guid);

@@ -15,13 +15,17 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Threading;
+using System.Windows.Forms.Design;
+using InplaceEditBoxLib;
+using System.Windows.Forms;
+using InplaceEditBoxLib.Events;
 
 namespace VMPlex.UI
 {
     /// <summary>
     /// Interaction logic for VmCheckpointsPanel.xaml
     /// </summary>
-    public partial class VmCheckpointsPanel : UserControl
+    public partial class VmCheckpointsPanel : System.Windows.Controls.UserControl
     {
         public VmCheckpointsPanel()
         {
@@ -53,6 +57,12 @@ namespace VMPlex.UI
 
         private void OnRename(object sender, RoutedEventArgs e)
         {
+            Snapshot snapshot = GetSnapshot(sender);
+            if (snapshot == null)
+            {
+                return;
+            }
+            snapshot.RequestEditMode(RequestEditEvent.StartEditMode);
         }
 
         private void OnDelete(object sender, RoutedEventArgs e)

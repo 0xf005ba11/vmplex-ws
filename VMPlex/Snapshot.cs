@@ -2,18 +2,95 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management;
+using InplaceEditBoxLib.Interfaces;
+using InplaceEditBoxLib.Events;
+using UserNotification.Events;
 
 using HyperV;
+using System.Windows.Input;
+using System.ComponentModel;
 
 namespace VMPlex
 {
-    public class Snapshot
+    public class Snapshot : IEditBox, ICommand, INotifyPropertyChanged
     {
         public Snapshot(IMsvm_VirtualSystemSettingData settingData, bool isNow = false)
         {
             SettingData = settingData;
             Children = new List<Snapshot>();
             IsNow = isNow;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void NotifyChange(params string[] names)
+        {
+            if (PropertyChanged != null)
+            {
+                if (names == null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(null));
+                    return;
+                }
+
+                foreach (string name in names)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(name));
+                }
+            }
+        }
+
+        // View model support for renaming via UI
+        public event RequestEditEventHandler RequestEdit;
+        public event ShowNotificationEventHandler ShowNotificationMessage;
+        public event EventHandler CanExecuteChanged;
+
+        public void RequestEditMode(RequestEditEvent request)
+        {
+            if (!IsNow)
+            {
+                RequestEdit?.Invoke(this, new RequestEdit(request));
+            }
+        }
+
+        public void ShowNotification()
+        {
+            ShowNotificationMessage?.Invoke(this, new ShowNotificationEvent("", "", null));
+        }
+
+        public bool CanExecute(object? parameter)
+        {
+            return true;
+        }
+
+        public void Execute(object? parameter)
+        {
+            if (parameter != null)
+            {
+                System.Tuple<string, object> args = parameter as System.Tuple<string, object>;
+                if (args != null)
+                {
+                    Rename(args.Item1);
+                }
+            }
+        }
+
+        public ICommand RenameCommand { get => this; }
+
+        public void Rename(string newName)
+        {
+            if (SettingData != null)
+            {
+                IMsvm_VirtualSystemSettingData settings = VMManager.GetVMSettingData(SettingData.InstanceID);
+                if (settings == null)
+                {
+                    return;
+                }
+
+                settings.ElementName = newName;
+                SettingData.ElementName = newName;
+                VMManager.ModifySystemSettings(settings);
+                NotifyChange(null);
+            }
         }
 
         public bool IsNow { get; set; }
