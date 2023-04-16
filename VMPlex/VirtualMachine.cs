@@ -12,6 +12,7 @@ using System.Diagnostics;
 
 using HyperV;
 using EasyWMI;
+using System.Management;
 
 namespace VMPlex
 {
@@ -247,6 +248,38 @@ namespace VMPlex
             NotifyChange(null);
         }
 
+        private string MakeStatusText(ManagementBaseObject[]? AsynchronousTasks)
+        {
+            var strings = new List<string>();
+            if (AsynchronousTasks != null)
+            {
+                foreach (var t in AsynchronousTasks)
+                {
+                    var task = WmiClassGenerator.CreateInstance<IMsvm_ConcreteJob>(t);
+                    if (task.JobState != 4) // completed
+                    {
+                        continue;
+                    }
+
+                    if (task.PercentComplete > 0 && task.PercentComplete < 100)
+                    {
+                        strings.Add($"{task.Caption} ({task.PercentComplete}%)");
+                        continue;
+                    }
+
+                    if (task.StatusDescriptions != null && task.StatusDescriptions.Length > 0)
+                    {
+                        strings.Add($"{task.Caption} - {task.StatusDescriptions.Last()}");
+                        continue;
+                    }
+
+                    strings.Add($"{task.Caption}");
+                }
+            }
+
+            return String.Join(", ", strings);
+        }
+
         public void UpdateSummaryInformation(IMsvm_SummaryInformation summary)
         {
             bool loadreceived = false;
@@ -266,6 +299,8 @@ namespace VMPlex
             {
                 MemoryAvailable = summary.MemoryAvailable.Value;
             }
+
+            StatusText = MakeStatusText(summary.AsynchronousTasks);
 
             if (summary.UpTime != null)
             {
@@ -390,6 +425,7 @@ namespace VMPlex
         public string Guid { get; set; }
         public string Version { get; set; }
         public uint ProcessID { get; set; }
+        public string StatusText { get; set; }
         public List<Snapshot> Snapshots { get; set; }
         public bool CanRevert { get => Snapshots != null && Snapshots.Count > 0; }
         public IMsvm_SecurityElement? SecurityElement { get => Msvm.GetAssociated<IMsvm_SecurityElement>(null).FirstOrDefault(); }
