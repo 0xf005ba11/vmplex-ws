@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using EasyWMI;
+using HyperV;
 using IWshRuntimeLibrary;
 using Microsoft.Win32;
 
@@ -15,13 +17,33 @@ namespace VMPlex
         protected override void OnStartup(StartupEventArgs e)
         {
             HandleCommandLine();
+            CheckCapability();
             LoadUserSettings();
             Utility.TryExtractHVIntegrate();
             base.OnStartup(e);
             Utility.CreateSelfJob();
         }
 
-        private void LoadUserSettings()
+        static private void CheckCapability()
+        {
+            //
+            // Before we show any other windows check that we can access the
+            // management service, if we can't then exit.
+            //
+            var vsms = new WmiScope(@"root\virtualization\v2")
+                .GetInstance<IMsvm_VirtualSystemManagementService>();
+            if (vsms == null)
+            {
+                UI.MessageBox.Show(
+                   System.Windows.MessageBoxImage.Error,
+                    "Virtual System Management",
+                    "VMPlex is unable to interact with the Virtual Machine Management Service. " +
+                    "Please run as administrator or add your user to the Hyper-V Administrators group.");
+                Environment.Exit(0xdead);
+            }
+        }
+
+        static private void LoadUserSettings()
         {
             try
             {

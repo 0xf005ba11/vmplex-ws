@@ -199,8 +199,9 @@ namespace VMPlex
             {
                 UI.MessageBox.Show(
                    System.Windows.MessageBoxImage.Error,
-                    "Vrtual System Management",
-                    "VMPlex is unable to interact with the Virtual Machine Management Service. Please run as administrator or add your user to the Hyper-V Administrators group.");
+                    "Virtual System Management",
+                    "VMPlex is unable to interact with the Virtual Machine Management Service. " +
+                    "Please run as administrator or add your user to the Hyper-V Administrators group.");
                 Environment.Exit(0xdead);
             }
 
