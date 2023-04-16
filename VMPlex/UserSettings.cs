@@ -221,6 +221,12 @@ namespace VMPlex
         /// </summary>
         [JsonInclude]
         public int DesktopHeight { get; set; } = 768;
+
+        [JsonIgnore]
+        public string DisplayText 
+        {
+            get { return Domain.Length > 0 ? $"{Domain}\\{Server}" : Server; } 
+        }
     }
 
     /// <summary>
