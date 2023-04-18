@@ -30,9 +30,18 @@ namespace VMPlex
             // Before we show any other windows check that we can access the
             // management service, if we can't then exit.
             //
-            var vsms = new WmiScope(@"root\virtualization\v2")
-                .GetInstance<IMsvm_VirtualSystemManagementService>();
-            if (vsms == null)
+            bool capable = false;
+            try
+            {
+                var vsms = new WmiScope(@"root\virtualization\v2")
+                    .GetInstance<IMsvm_VirtualSystemManagementService>();
+                capable = (vsms != null);
+            }
+            catch
+            {
+            }
+
+            if (!capable)
             {
                 UI.MessageBox.Show(
                    System.Windows.MessageBoxImage.Error,
