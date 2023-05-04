@@ -30,18 +30,8 @@ namespace VMPlex
             // Before we show any other windows check that we can access the
             // management service, if we can't then exit.
             //
-            bool capable = false;
-            try
-            {
-                var vsms = new WmiScope(@"root\virtualization\v2")
-                    .GetInstance<IMsvm_VirtualSystemManagementService>();
-                capable = (vsms != null);
-            }
-            catch
-            {
-            }
-
-            if (!capable)
+            var state = GetVsmsState();
+            if (state == VsmsState.NoPermission)
             {
                 UI.MessageBox.Show(
                    System.Windows.MessageBoxImage.Error,
@@ -49,6 +39,61 @@ namespace VMPlex
                     "VMPlex is unable to interact with the Virtual Machine Management Service. " +
                     "Please run as administrator or add your user to the Hyper-V Administrators group.");
                 Environment.Exit(0xdead);
+            }
+            else if (state == VsmsState.NotInstalled)
+            {
+                var res = UI.MessageBox.Show(
+                    System.Windows.MessageBoxImage.Error,
+                    "Virtual System Management",
+                    "VMPlex is unable to interact with the Virtual Machine Management Service. " +
+                    "Please ensure that Windows Hyper-V is enabled on this machine. " +
+                    "Open Windows Optional Features now?",
+                    MessageBoxButton.YesNo);
+                if (res == MessageBoxResult.Yes)
+                {
+                    LaunchOptionalFeaturesDialog();
+                }
+                Environment.Exit(0xdead);
+            }
+        }
+
+        private enum VsmsState
+        {
+            Ok,
+            NoPermission,
+            NotInstalled,
+        }
+
+        static private VsmsState GetVsmsState()
+        {
+            try
+            {
+                var vsms = new WmiScope(@"root\virtualization\v2")
+                    .GetInstance<IMsvm_VirtualSystemManagementService>();
+                return vsms != null ? VsmsState.Ok : VsmsState.NoPermission;
+            }
+            catch
+            {
+                return VsmsState.NotInstalled;
+            }
+        }
+
+        static private void LaunchOptionalFeaturesDialog()
+        {
+            try
+            {
+                var p = new Process();
+                p.StartInfo.FileName = "OptionalFeatures.exe";
+                p.StartInfo.UseShellExecute = true;
+                p.Start();
+            }
+            catch (Exception ex)
+            {
+                UI.MessageBox.Show(
+                   System.Windows.MessageBoxImage.Error,
+                    "VMPlex Workstation",
+                    "Failed to launch OptionalFeatures.exe\n\n" +
+                    ex.Message);
             }
         }
 
