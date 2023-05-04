@@ -2,7 +2,7 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.4.0.schema.json
 
 PackageIdentifier: VMPlex.VMPlex
-PackageVersion: 1.0.0.11
+PackageVersion: 1.0.0.12
 PackageLocale: en-US
 Publisher: VMPlex
 PublisherUrl: https://github.com/0xf005ba11/vmplex-ws/
