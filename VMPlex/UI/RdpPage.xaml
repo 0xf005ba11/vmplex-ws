@@ -19,16 +19,25 @@
             <WindowsFormsHost x:Name="rdpHost" Foreground="{x:Null}" Background="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden">
                 <local:RdpClient x:Name="rdp" Dock="Fill"/>
             </WindowsFormsHost>
-            <StackPanel VerticalAlignment="Center">
-            <Label x:Name="connectingText" Content="{Binding PageName}" ContentStringFormat="Connecting to {0}..." Foreground="LightGray" Background="Transparent" FontFamily="Segoe UI" FontSize="18" HorizontalAlignment="Center" Visibility="Hidden"/>
-            <TextBlock x:Name="errorText"
-                   Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:UI.RdpPage}}, Path=ErrorMessage}"
-                   TextAlignment="Center"
-                   Foreground="LightGray"
-                   Background="Transparent"
-                   FontFamily="Segoe UI"
-                   FontSize="18"
-                   Visibility="Hidden"/>
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Button Name="reconnectButton" 
+                        Content="Reconnect" 
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Click="RdpConnectButton_Click" 
+                        Foreground="LightGray"
+                        FontFamily="Segoe UI" 
+                        FontSize="18" 
+                        Visibility="Hidden"/>
+                <Label Name="connectingText" 
+                       Content="Connecting..." 
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       Foreground="LightGray" 
+                       Background="Transparent" 
+                       FontFamily="Segoe UI" 
+                       FontSize="18" 
+                       Visibility="Hidden"/>
             </StackPanel>
         </Grid>
     </Grid>

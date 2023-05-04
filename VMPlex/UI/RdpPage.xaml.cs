@@ -20,7 +20,6 @@ namespace VMPlex.UI
     public partial class RdpPage : UserControl, INotifyPropertyChanged
     {
         private readonly DispatcherTimer m_timer = new DispatcherTimer();
-        public string ErrorMessage { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         public void NotifyChange(string name)
@@ -31,6 +30,7 @@ namespace VMPlex.UI
         public RdpPage(RdpSettings settings)
         {
             InitializeComponent();
+            connectingText.Content = $"Connecting to {settings.Server}..."; 
             Connect(settings);
         }
 
@@ -73,26 +73,12 @@ namespace VMPlex.UI
             rdp.Connect();
         }
 
-        private void DisplayErrorMessage(string message)
-        {
-            ErrorMessage = message;
-            errorText.Visibility = Visibility.Visible;
-            rdpHost.Visibility = Visibility.Hidden;
-            NotifyChange("ErrorMessage");
-        }
-
-        private void HideErrorMessage()
-        {
-            ErrorMessage = "";
-            errorText.Visibility = Visibility.Hidden;
-            NotifyChange("ErrorMessage");
-        }
-
         private void OnRdpConnecting(object sender)
         {
             this.Dispatcher.Invoke(() =>
             {
                 connectingText.Visibility = Visibility.Visible;
+                reconnectButton.Visibility = Visibility.Hidden;
                 rdpHost.Visibility = Visibility.Hidden;
             });
         }
@@ -101,6 +87,7 @@ namespace VMPlex.UI
         {
             System.Diagnostics.Debug.Print("Rdp connected");
             connectingText.Visibility = Visibility.Hidden;
+            reconnectButton.Visibility = Visibility.Hidden;
             rdpHost.Visibility = System.Windows.Visibility.Visible;
             if (rdp.Enhanced)
             {
@@ -114,8 +101,8 @@ namespace VMPlex.UI
             this.Dispatcher.Invoke(() =>
             {
                 connectingText.Visibility = Visibility.Hidden;
+                reconnectButton.Visibility = Visibility.Visible;
                 rdpHost.Visibility = System.Windows.Visibility.Hidden;
-                HideErrorMessage();
             });
             m_timer.Stop();
         }
@@ -124,13 +111,16 @@ namespace VMPlex.UI
         {
             this.Dispatcher.Invoke(() =>
             {
-                switch(error)
-                {
-                case RdpClient.RdpError.BasicSessionWithShieldedVm:
-                    DisplayErrorMessage("Cannot connect to a shielded virtual machine with a basic session.\nPlease enable the Enhanced Mode option.");
-                    break;
-                }
+                connectingText.Visibility = Visibility.Hidden;
+                reconnectButton.Visibility = Visibility.Visible;
+                rdpHost.Visibility = Visibility.Hidden;
             });
+        }
+
+        private void RdpConnectButton_Click(object sender, object e)
+        {
+            Disconnect();
+            rdp.Connect();
         }
 
         public void Shutdown()
