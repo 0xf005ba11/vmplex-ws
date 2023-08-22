@@ -139,6 +139,11 @@ namespace VMPlex
             }).VirtualMachines.First(v => v.Guid == Guid);
         }
 
+        public void TypeCtrlAltDel()
+        {
+            Keyboard.TypeCtrlAltDel();
+        }
+
         public void OpenDebugger()
         {
             var settings = UserSettings.Instance.Settings;

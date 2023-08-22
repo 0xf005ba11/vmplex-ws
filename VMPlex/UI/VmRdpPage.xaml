@@ -38,6 +38,11 @@
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
                 <ui:AppBarSeparator IsCompact="True"/>
+                <ui:AppBarButton x:Name="vmCtrlAltDel" ToolTip="Ctrl+Alt+Delete" Click="OnCtrlAltDelCommand" IsTabStop="False" IsCompact="True">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74C;"/>
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
                 <ui:AppBarButton x:Name="vmTypeClipboard" ToolTip="Type Clipboard" Click="OnTypeCommand" IsTabStop="False" IsCompact="True">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE765;"/>

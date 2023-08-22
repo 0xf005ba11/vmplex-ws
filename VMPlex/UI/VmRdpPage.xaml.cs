@@ -228,6 +228,11 @@ namespace VMPlex.UI
             }
         }
 
+        private void OnCtrlAltDelCommand(object sender, RoutedEventArgs e)
+        {
+            m_vm.TypeCtrlAltDel();
+        }
+
         private void OnTypeCommand(object sender, RoutedEventArgs e)
         {
             m_vm.TypeText(Clipboard.GetText());
