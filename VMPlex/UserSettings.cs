@@ -438,6 +438,7 @@ namespace VMPlex
         {
             WriteIndented = true,
             IncludeFields = true,
+            NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
             Converters =
             {
                 new JsonStringEnumConverter()
