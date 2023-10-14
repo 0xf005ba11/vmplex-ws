@@ -14,6 +14,7 @@ A modern, tabbed UI for Hyper-V.
   - Virtual switch configuration
   - Disk editing
   - Thumbnail views
+  - Checkpoints support
 
 ## Quick Start
 1. Make sure the Hyper-V windows feature is enabled.
