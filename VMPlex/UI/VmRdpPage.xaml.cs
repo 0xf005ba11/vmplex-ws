@@ -48,6 +48,38 @@ namespace VMPlex.UI
             Connect(startupEnhanceState);
         }
 
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            //
+            // Make sure all the callbacks are removed so disposal works.
+            //
+            rdpGrid.SizeChanged -= OnGridSizeChanged;
+            rdpHost.DpiChanged -= RdpHost_DpiChanged;
+            rdp.DesktopResized -= OnRdpDesktopResized;
+            rdp.OnRdpConnecting -= OnRdpConnecting;
+            rdp.OnRdpConnected -= OnRdpConnected;
+            rdp.OnRdpDisconnected -= OnRdpDisconnected;
+            rdp.OnRdpError -= OnRdpError;
+            m_vm.PropertyChanged -= VmModel_PropertyChanged;
+
+            //
+            // https://social.msdn.microsoft.com/Forums/vstudio/en-US/b41a3943-1194-43d7-973b-e5bc8fbb5282/severe-memory-leaks?forum=wpf
+            // When mixing Windows Forms and WPF to make sure the ElementHost
+            // or WindowsFormsHost is disposed, or you could leak resources.
+            // Windows Forms will dispose an ElementHost when the non-modal
+            // Form it’s on closes; WPF will dispose a WindowsFormsHost if your
+            // application shuts down.  (Really the interop-specific bit here
+            // is that you could show a WindowsFormsHost on a Window in a
+            // Windows Forms message loop and never get that your Application
+            // is shutting down.)"
+            //
+            // But before disposing the WindowsFormsHost in several cases you
+            // should clear the UIElement that contains it for example the Grid:
+            //
+            rdpGrid.Children.Clear();
+            rdpHost.Dispose();
+        }
+
         private RdpOptions MakeRdpOptions()
         {
             var options = new RdpOptions();
