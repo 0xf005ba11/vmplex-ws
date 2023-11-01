@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using EasyWMI;
 using HyperV;
@@ -120,28 +121,18 @@ namespace VMPlex
         private void HandleCommandLine()
         {
             var args = Environment.GetCommandLineArgs();
-            if (args.Length < 2)
-            {
-                return;
-            }
 
-            switch (args[1])
+            if (args.Contains("--uninstall"))
             {
-                case "--install":
-                {
-                    ActAsInstaller();
-                    break;
-                }
-                case "--upgrade":
-                {
-                    ActAsUpgrader();
-                    break;
-                }
-                case "--uninstall":
-                {
-                    ActAsUninstaller();
-                    break;
-                }
+                ActAsUninstaller();
+            }
+            else if (args.Contains("--upgrade"))
+            {
+                ActAsUpgrader();
+            }
+            else if (args.Contains("--install"))
+            {
+                ActAsInstaller();
             }
         }
 
@@ -154,8 +145,8 @@ namespace VMPlex
         private string GetProgramDirectory()
         {
             return Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
-                "Programs", 
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Programs",
                 ProgramName);
         }
 
