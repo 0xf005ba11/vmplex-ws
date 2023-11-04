@@ -39,7 +39,7 @@
   <ItemGroup>
     <PackageReference Include="Devolutions.MsRdpEx" Version="2023.9.28" />
     <PackageReference Include="Dirkster.InplaceEditBoxLib" Version="1.4.2" />
-    <PackageReference Include="ModernWpfUI" Version="0.9.6" />
+    <PackageReference Include="ModernWpfUI" Version="0.9.5" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\rdp_session_bg.png" />

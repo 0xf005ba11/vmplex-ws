@@ -140,6 +140,9 @@ namespace VMPlex.UI
             }
             vmEnhancedMode.Checked += OnEnhancedChecked;
             vmEnhancedMode.Unchecked += OnEnhancedUnchecked;
+
+            vmCtrlAltDel.IsEnabled = !(bool)vmEnhancedMode.IsChecked;
+            vmTypeClipboard.IsEnabled = !(bool)vmEnhancedMode.IsChecked;
         }
 
         private void DisplayErrorMessage(string message)
@@ -192,8 +195,8 @@ namespace VMPlex.UI
 
         private void OnPowerCommand(object sender, RoutedEventArgs e)
         {
-            if (m_vm.State == IMsvm_ComputerSystem.SystemState.Off || 
-                m_vm.State == IMsvm_ComputerSystem.SystemState.Saved || 
+            if (m_vm.State == IMsvm_ComputerSystem.SystemState.Off ||
+                m_vm.State == IMsvm_ComputerSystem.SystemState.Saved ||
                 m_vm.State == IMsvm_ComputerSystem.SystemState.Paused)
             {
                 m_vm.RequestStateChange(VirtualMachine.StateChange.Enabled);

@@ -141,7 +141,8 @@ namespace VMPlex
 
         public void TypeCtrlAltDel()
         {
-            Keyboard.TypeCtrlAltDel();
+            if (Keyboard != null)
+                Keyboard.TypeCtrlAltDel();
         }
 
         public void OpenDebugger()
@@ -226,7 +227,8 @@ namespace VMPlex
 
         public void TypeText(string text)
         {
-            Keyboard.TypeText(text);
+            if (Keyboard != null)
+                Keyboard.TypeText(text);
         }
 
         public bool IsVideoAvailable()
