@@ -24,13 +24,13 @@ namespace VMPlex
         public string _schema = "https://raw.githubusercontent.com/0xf005ba11/vmplex-ws/main/VMPlex/UserSettingsSchema.json";
 
         /// <summary>
-        /// If true portions of the interface are styled in a compact style. 
+        /// If true portions of the interface are styled in a compact style.
         /// </summary>
         [JsonInclude]
         public bool CompactMode { get; set; } = false;
 
         /// <summary>
-        /// Optionally sets the font size for certain elements in the UI. 
+        /// Optionally sets the font size for certain elements in the UI.
         /// </summary>
         [JsonInclude]
         public double FontSize { get; set; } = 14;
@@ -115,15 +115,109 @@ namespace VMPlex
         public string Name { get; set; } = "";
 
         /// <summary>
-        /// Arguments passed to the debugger when launching one for this 
+        /// Arguments passed to the debugger when launching one for this
         /// virtual machine. As an example, when using windbg and debugging
         /// the target virtual machine over the network this would be in a
         /// form similar to "-k net:port=50000,key=1.2.3.4 -T WIN11X64".
-        /// References the documentation for your debugger. 
+        /// References the documentation for your debugger.
         /// </summary>
         [JsonInclude]
         public string DebuggerArguments { get; set; } = "";
 
+        /// <summary>
+        /// Values for the virtual machine tab open action.
+        /// </summary>
+        public enum TabActionOpen
+        {
+            /// <summary>
+            /// No action is taken when opening the virtual machine tab.
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// Opening a virtual machine tab resumes the virtual machine.
+            /// </summary>
+            Resume = 1,
+        }
+
+        /// <summary>
+        /// Specifies the action to take when opening the virtual machine tab.
+        /// </summary>
+        [JsonInclude]
+        public TabActionOpen OnTabOpen { get; set; } = TabActionOpen.None;
+
+        /// <summary>
+        /// Values for the virtual machine tab close action.
+        /// </summary>
+        public enum TabActionClose
+        {
+            /// <summary>
+            /// No action is taken when closing the virtual machine tab.
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// Closing the virtual machine tab pauses the virtual machine.
+            /// </summary>
+            Pause = 1,
+
+            /// <summary>
+            /// Closing the virtual machine tab saves the virtual machine.
+            /// </summary>
+            Save = 2,
+        }
+
+        /// <summary>
+        /// Specifies the action to take when closing the virtual machine tab.
+        /// </summary>
+        public TabActionClose OnTabClose { get; set; } = TabActionClose.None;
+
+        /// <summary>
+        /// Values for the virtual machine action when VMPlex starts.
+        /// </summary>
+        public enum ApplicationActionStart
+        {
+            /// <summary>
+            /// No action is taken when starting VMPlex.
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// When starting VMPlex the virtual machine is resumed.
+            /// </summary>
+            Resume = 1,
+        }
+
+        /// <summary>
+        /// Specifies the action to take when starting VMPlex.
+        /// </summary>
+        public ApplicationActionStart OnApplicationStart { get; set; } = ApplicationActionStart.None;
+
+        /// <summary>
+        /// Values for the virtual machine action when VMPlex exits.
+        /// </summary>
+        public enum ApplicationActionExit
+        {
+            /// <summary>
+            /// No action is taken when exiting VMPlex.
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// When exiting VMPlex the virtual machine is paused.
+            /// </summary>
+            Pause = 1,
+
+            /// <summary>
+            /// When exiting VMPlex the virtual machine is saved.
+            /// </summary>
+            Save = 2,
+        }
+
+        /// <summary>
+        /// Specifies the action to take when exiting VMPlex.
+        /// </summary>
+        public ApplicationActionExit OnApplicationExit { get; set; } = ApplicationActionExit.None;
 
         /// <summary>
         /// Indicates if the virtual machine tab is open and at what index.
@@ -140,7 +234,7 @@ namespace VMPlex
     }
 
     /// <summary>
-    /// User settings for a RDP connections. 
+    /// User settings for a RDP connections.
     /// </summary>
     public class RdpSettings
     {
@@ -184,7 +278,7 @@ namespace VMPlex
             /// remote computer". The "Leave at remote computer" option is
             /// supported only when connecting remotely to a host computer
             /// that is running Windows Vista. If the connection is to a host
-            /// computer that is running Windows Server 2008, the option 
+            /// computer that is running Windows Server 2008, the option
             /// "Leave at remote computer" is changed to "Do not play".
             /// </summary>
             PlayOnServer = 1,
@@ -196,7 +290,7 @@ namespace VMPlex
         }
 
         /// <summary>
-        /// Sets different values for the audio redirection mode. 
+        /// Sets different values for the audio redirection mode.
         /// </summary>
         [JsonInclude]
         public AudioRedirectionModeSetting AudioRedirectionMode { get; set; } = AudioRedirectionModeSetting.Redirect;
@@ -239,14 +333,14 @@ namespace VMPlex
         public int DesktopHeight { get; set; } = 768;
 
         [JsonIgnore]
-        public string DisplayText 
+        public string DisplayText
         {
-            get { return Domain.Length > 0 ? $"{Domain}\\{Server}" : Server; } 
+            get { return Domain.Length > 0 ? $"{Domain}\\{Server}" : Server; }
         }
     }
 
     /// <summary>
-    /// Window settings. 
+    /// Window settings.
     /// </summary>
     public class WindowSettings
     {
@@ -433,7 +527,7 @@ namespace VMPlex
 
         private object Lock = new object();
         private Settings ActiveSettings = new Settings();
-        private FileSystemWatcher SettingsFileWatcher; 
+        private FileSystemWatcher SettingsFileWatcher;
         private JsonSerializerOptions JsonSerializeOpts = new JsonSerializerOptions
         {
             WriteIndented = true,

@@ -14,6 +14,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using HyperV;
+
 namespace VMPlex
 {
     /// <summary>
@@ -47,10 +49,42 @@ namespace VMPlex
             {
                 WindowState = s.MainWindow.State;
             }
+
+            foreach (var vm in VMManager.Instance.VirtualMachines)
+            {
+                if (vm.GetVmUserSettings().OnApplicationStart == VmConfig.ApplicationActionStart.Resume &&
+                    (vm.State == IMsvm_ComputerSystem.SystemState.Saved ||
+                     vm.State == IMsvm_ComputerSystem.SystemState.Paused))
+                {
+                    vm.RequestStateChange(VirtualMachine.StateChange.Enabled);
+                }
+            }
         }
 
         private void MainWindow_Closing(object sender, object e)
         {
+            foreach (var vm in VMManager.Instance.VirtualMachines)
+            {
+                switch (vm.GetVmUserSettings().OnApplicationExit)
+                {
+                    case VmConfig.ApplicationActionExit.Pause:
+                    {
+                        vm.RequestStateChange(VirtualMachine.StateChange.Quiesce);
+                        break;
+                    }
+                    case VmConfig.ApplicationActionExit.Save:
+                    {
+                        vm.RequestStateChange(VirtualMachine.StateChange.Offline);
+                        break;
+                    }
+                    case VmConfig.ApplicationActionExit.None:
+                    default:
+                    {
+                        break;
+                    }
+                }
+            }
+
             UserSettings.Instance.Mutate(s =>
             {
                 s.MainWindow.Width = Width;

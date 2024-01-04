@@ -49,7 +49,8 @@ namespace VMPlex.UI
                 var tabs = new List<TabItem>();
                 foreach (var vm in VMManager.Instance.VirtualMachines)
                 {
-                    int index = vm.GetVmUserSettings().TabIndex;
+                    var settings = vm.GetVmUserSettings();
+                    int index = settings.TabIndex;
 
                     if (index < 0)
                     {
@@ -62,6 +63,13 @@ namespace VMPlex.UI
                     }
 
                     tabs[index] = CreateVmTab(vm);
+
+                    if (settings.OnTabOpen == VmConfig.TabActionOpen.Resume &&
+                        (vm.State == IMsvm_ComputerSystem.SystemState.Saved ||
+                         vm.State == IMsvm_ComputerSystem.SystemState.Paused))
+                    {
+                        vm.RequestStateChange(VirtualMachine.StateChange.Enabled);
+                    }
                 }
 
                 TabControl tc = (TabControl)(((TabItem)this.Parent).Parent);
@@ -87,11 +95,18 @@ namespace VMPlex.UI
 
             int index = tc.Items.Add(CreateVmTab(vm));
 
-            vm.MutateVmUserSettings(s =>
+            var settings = vm.MutateVmUserSettings(s =>
             {
                 s.TabIndex = index;
                 return s;
             });
+
+            if (settings.OnTabOpen == VmConfig.TabActionOpen.Resume &&
+                (vm.State == IMsvm_ComputerSystem.SystemState.Saved ||
+                 vm.State == IMsvm_ComputerSystem.SystemState.Paused))
+            {
+                vm.RequestStateChange(VirtualMachine.StateChange.Enabled);
+            }
 
             Dispatcher.BeginInvoke((Action)(() => tc.SelectedIndex = index));
         }
@@ -185,11 +200,30 @@ namespace VMPlex.UI
             VirtualMachine vm = (VirtualMachine)tab.DataContext;
             button.Tag = null;
 
-            vm.MutateVmUserSettings(s =>
+            var settings = vm.MutateVmUserSettings(s =>
             {
                 s.TabIndex = -1;
                 return s;
             });
+
+            switch (settings.OnTabClose)
+            {
+                case VmConfig.TabActionClose.Pause:
+                {
+                    vm.RequestStateChange(VirtualMachine.StateChange.Quiesce);
+                    break;
+                }
+                case VmConfig.TabActionClose.Save:
+                {
+                    vm.RequestStateChange(VirtualMachine.StateChange.Offline);
+                    break;
+                }
+                case VmConfig.TabActionClose.None:
+                default:
+                {
+                    break;
+                }
+            }
 
             if (tab.Content != null && tab.Content is VmRdpPage)
             {
@@ -248,8 +282,8 @@ namespace VMPlex.UI
             {
                 return;
             }
-            if (vm.State == IMsvm_ComputerSystem.SystemState.Off || 
-                vm.State == IMsvm_ComputerSystem.SystemState.Saved || 
+            if (vm.State == IMsvm_ComputerSystem.SystemState.Off ||
+                vm.State == IMsvm_ComputerSystem.SystemState.Saved ||
                 vm.State == IMsvm_ComputerSystem.SystemState.Paused)
             {
                 vm.RequestStateChange(VirtualMachine.StateChange.Enabled);
@@ -395,9 +429,9 @@ namespace VMPlex.UI
             }
             var res = UI.MessageBox.Show(
                 MessageBoxImage.Question,
-                $"Are you sure you want to delete {vm.Name}?", 
+                $"Are you sure you want to delete {vm.Name}?",
                 "Deleting the virtual machine will remove it from the server. " +
-                "This can not be undone.", 
+                "This can not be undone.",
                 MessageBoxButton.YesNo);
             if (res == MessageBoxResult.Yes)
             {
