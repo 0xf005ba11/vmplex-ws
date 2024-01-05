@@ -51,6 +51,44 @@
                         "default": "",
                         "description": "Arguments passed to the debugger when launching one for this virtual machine."
                     },
+                    "OnTabOpen":  {
+                        "type": "string",
+                        "enum": [
+                            "None",
+                            "Resume"
+                        ],
+                        "default": "None",
+                        "description": "Specifies the action to take when opening the virtual machine tab."
+                    },
+                    "OnTabClose":  {
+                        "type": "string",
+                        "enum": [
+                            "None",
+                            "Pause",
+                            "Save"
+                        ],
+                        "default": "None",
+                        "description": "Specifies the action to take when closing the virtual machine tab."
+                    },
+                    "OnApplicationStart":  {
+                        "type": "string",
+                        "enum": [
+                            "None",
+                            "Resume"
+                        ],
+                        "default": "None",
+                        "description": "Specifies the action to take when VMPlex starts."
+                    },
+                    "OnApplicationExit":  {
+                        "type": "string",
+                        "enum": [
+                            "None",
+                            "Pause",
+                            "Save"
+                        ],
+                        "default": "None",
+                        "description": "Specifies the action to take when VMPlex exits."
+                    },
                     "TabIndex": {
                         "type": "integer",
                         "default": false,
