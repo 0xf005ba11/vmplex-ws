@@ -14,55 +14,55 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Background="{DynamicResource CommandBarBackground}">
             <DockPanel Grid.Column="0">
-                <ui:AppBarButton x:Name="vmPower" ToolTip="Power" Click="OnPowerCommand" IsTabStop="False" IsCompact="True">
+                <ui:AppBarButton x:Name="vmPower" ToolTip="Power" Click="OnPowerCommand" IsTabStop="False" IsCompact="True" Focusable="False">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7E8;"/>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
-                <ui:AppBarButton x:Name="vmPause" Icon="Pause" ToolTip="Pause (Power On to Resume)" Click="OnPauseCommand" IsTabStop="False" IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmReset" ToolTip="Reset" Click="OnResetCommand" IsTabStop="False" IsCompact="True">
+                <ui:AppBarButton x:Name="vmPause" Icon="Pause" ToolTip="Pause (Power On to Resume)" Click="OnPauseCommand" IsTabStop="False" IsCompact="True" Focusable="False"/>
+                <ui:AppBarButton x:Name="vmReset" ToolTip="Reset" Click="OnResetCommand" IsTabStop="False" IsCompact="True" Focusable="False">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEC58;"/>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
                 <ui:AppBarSeparator IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmSave" ToolTip="Save (Power On to Resume)" Click="OnSaveCommand" IsTabStop="False" IsCompact="True">
+                <ui:AppBarButton x:Name="vmSave" ToolTip="Save (Power On to Resume)" Click="OnSaveCommand" IsTabStop="False" IsCompact="True" Focusable="False">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE708;"/>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
-                <ui:AppBarButton x:Name="vmReboot" Icon="Refresh" ToolTip="Reboot" Click="OnRebootCommand" IsTabStop="False" IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmShutdown" ToolTip="Shutdown" Click="OnShutdownCommand" IsTabStop="False" IsCompact="True">
+                <ui:AppBarButton x:Name="vmReboot" Icon="Refresh" ToolTip="Reboot" Click="OnRebootCommand" IsTabStop="False" IsCompact="True" Focusable="False"/>
+                <ui:AppBarButton x:Name="vmShutdown" ToolTip="Shutdown" Click="OnShutdownCommand" IsTabStop="False" IsCompact="True" Focusable="False">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF83D;"/>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
                 <ui:AppBarSeparator IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmCtrlAltDel" ToolTip="Ctrl+Alt+Delete" Click="OnCtrlAltDelCommand" IsTabStop="False" IsCompact="True">
+                <ui:AppBarButton x:Name="vmCtrlAltDel" ToolTip="Ctrl+Alt+Delete" Click="OnCtrlAltDelCommand" IsTabStop="False" IsCompact="True" Focusable="False">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74C;"/>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
-                <ui:AppBarButton x:Name="vmTypeClipboard" ToolTip="Type Clipboard" Click="OnTypeCommand" IsTabStop="False" IsCompact="True">
+                <ui:AppBarButton x:Name="vmTypeClipboard" ToolTip="Type Clipboard" Click="OnTypeCommand" IsTabStop="False" IsCompact="True" Focusable="False">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE765;"/>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
-                <ui:AppBarToggleButton x:Name="vmEnhancedMode" Icon="SlideShow" ToolTip="Enhanced Mode" Checked="OnEnhancedChecked" Unchecked="OnEnhancedUnchecked" IsTabStop="False" IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmDebug" ToolTip="Launch Debugger" Click="OnDebugCommand" IsTabStop="False" IsCompact="True">
+                <ui:AppBarToggleButton x:Name="vmEnhancedMode" Icon="SlideShow" ToolTip="Enhanced Mode" Checked="OnEnhancedChecked" Unchecked="OnEnhancedUnchecked" IsTabStop="False" IsCompact="True" Focusable="False"/>
+                <ui:AppBarButton x:Name="vmDebug" ToolTip="Launch Debugger" Click="OnDebugCommand" IsTabStop="False" IsCompact="True" Focusable="False">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEBE8;"/>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
                 <ui:AppBarSeparator IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmSettings" Icon="Setting" ToolTip="Settings" Click="OnSettingsCommand" IsTabStop="False" IsCompact="True"/>
+                <ui:AppBarButton x:Name="vmSettings" Icon="Setting" ToolTip="Settings" Click="OnSettingsCommand" IsTabStop="False" IsCompact="True" Focusable="False"/>
                 <ui:AppBarSeparator IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmCheckpoint" ToolTip="Create Checkpoint" Click="OnCreateCheckpoint" IsTabStop="False" IsCompact="True">
+                <ui:AppBarButton x:Name="vmCheckpoint" ToolTip="Create Checkpoint" Click="OnCreateCheckpoint" IsTabStop="False" IsCompact="True" Focusable="False">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF407;"/>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
-                <ui:AppBarButton x:Name="vmRevert" ToolTip="Revert" Click="OnRevertCheckpoint" IsTabStop="False" IsCompact="True">
+                <ui:AppBarButton x:Name="vmRevert" ToolTip="Revert" Click="OnRevertCheckpoint" IsTabStop="False" IsCompact="True" Focusable="False">
                     <ui:AppBarButton.Style>
                         <Style TargetType="ui:AppBarButton">
                             <Style.Triggers>
