@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2022 Ira Strawser. All rights reserved.
  */
 
@@ -61,13 +61,21 @@ namespace VMPlex
                         System.Windows.MessageBoxButton.OK);
                 }
             }
+            else if (err != 0)
+            {
+                UI.MessageBox.Show(
+                    System.Windows.MessageBoxImage.Error,
+                    "Checkpoint Rename Failed",
+                    $"WMI request failed with error {err}.",
+                    System.Windows.MessageBoxButton.OK);
+            }
         }
 
         public static void CreateSnapshot(VirtualMachine vm, SnapshotType snapshotType)
         {
             IMsvm_ComputerSystem system = GetVMByGuid(vm.Guid);
 
-            SnapshotService.CreateSnapshot(
+            uint err = SnapshotService.CreateSnapshot(
                             system,
                             out IMsvm_VirtualSystemSettingData? snapshot,
                             String.Empty,
@@ -84,6 +92,14 @@ namespace VMPlex
                         job.ErrorDescription,
                         System.Windows.MessageBoxButton.OK);
                 }
+            }
+            else if (err != 0)
+            {
+                UI.MessageBox.Show(
+                    System.Windows.MessageBoxImage.Error,
+                    "Checkpoint Creation Failed",
+                    $"WMI request failed with error {err}.",
+                    System.Windows.MessageBoxButton.OK);
             }
         }
 
@@ -129,7 +145,7 @@ namespace VMPlex
             // N.B. The underlying ManagementBaseObject in SettingData may be missing the __PATH which will break InvokeMethod.
             //      Query for the object again to get a fresh copy.
             IMsvm_VirtualSystemSettingData settings = GetVMSettingData(snapshot.SettingData.InstanceID);
-            SnapshotService.ApplySnapshot(settings, out job);
+            err = SnapshotService.ApplySnapshot(settings, out job);
             if (job != null)
             {
                 new HyperV.Job(job).WaitForCompletion();
@@ -142,6 +158,14 @@ namespace VMPlex
                         System.Windows.MessageBoxButton.OK);
                 }
             }
+            else if (err != 0)
+            {
+                UI.MessageBox.Show(
+                    System.Windows.MessageBoxImage.Error,
+                    "Checkpoint Apply Failed",
+                    $"WMI request failed with error {err}.",
+                    System.Windows.MessageBoxButton.OK);
+            }
 
             vm = new VirtualMachine(GetVMByGuid(vm.Guid));
             if (vm.State == IMsvm_ComputerSystem.SystemState.Saved && prevState == IMsvm_ComputerSystem.SystemState.Running)
@@ -153,7 +177,7 @@ namespace VMPlex
         public static void DeleteSnapshot(Snapshot snapshot)
         {
             IMsvm_VirtualSystemSettingData settings = GetVMSettingData(snapshot.SettingData.InstanceID);
-            SnapshotService.DestroySnapshot(settings, out IMsvm_ConcreteJob? job);
+            uint err = SnapshotService.DestroySnapshot(settings, out IMsvm_ConcreteJob? job);
             if (job != null)
             {
                 new HyperV.Job(job).WaitForCompletion();
@@ -166,12 +190,20 @@ namespace VMPlex
                         System.Windows.MessageBoxButton.OK);
                 }
             }
+            else if (err != 0)
+            {
+                UI.MessageBox.Show(
+                    System.Windows.MessageBoxImage.Error,
+                    "Checkpoint Delete Failed",
+                    $"WMI request failed with error {err}.",
+                    System.Windows.MessageBoxButton.OK);
+            }
         }
 
         public static void DeleteSnapshotTree(Snapshot snapshot)
         {
             IMsvm_VirtualSystemSettingData settings = GetVMSettingData(snapshot.SettingData.InstanceID);
-            SnapshotService.DestroySnapshotTree(settings, out IMsvm_ConcreteJob? job);
+            uint err = SnapshotService.DestroySnapshotTree(settings, out IMsvm_ConcreteJob? job);
             if (job != null)
             {
                 new HyperV.Job(job).WaitForCompletion();
@@ -183,6 +215,14 @@ namespace VMPlex
                         job.ErrorDescription,
                         System.Windows.MessageBoxButton.OK);
                 }
+            }
+            else if (err != 0)
+            {
+                UI.MessageBox.Show(
+                    System.Windows.MessageBoxImage.Error,
+                    "Checkpoint Delete Failed",
+                    $"WMI request failed with error {err}.",
+                    System.Windows.MessageBoxButton.OK);
             }
         }
 
@@ -234,7 +274,10 @@ namespace VMPlex
         private void OnCreateInstance(object sender, WmiEvent<IMsvm_ComputerSystem> e)
         {
             IMsvm_ComputerSystem target = e.TargetInstance;
-            VirtualMachines.Add(new VirtualMachine(target));
+            lock (vmListLock)
+            {
+                VirtualMachines.Add(new VirtualMachine(target));
+            }
             UpdateSummaryInformation();
             //OnVmCreated(this, target);
         }
@@ -244,8 +287,8 @@ namespace VMPlex
             IMsvm_ComputerSystem target = e.TargetInstance;
 
             VirtualMachine removed = null;
+            lock(vmListLock)
             {
-                lock(vmListLock)
                 for (int i = 0; i < VirtualMachines.Count; ++i)
                 {
                     if (VirtualMachines[i].Guid == target.Name)
