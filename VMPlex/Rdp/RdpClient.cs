@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2022 Ira Strawser. All rights reserved.
  */
 
@@ -602,11 +602,11 @@ namespace VMPlex
                 }
             }
 
-            if (width == double.NaN)
+            if (double.IsNaN(width))
             {
                 width = (double)ClientRectangle.Width;
             }
-            if (height == double.NaN)
+            if (double.IsNaN(height))
             {
                 height = (double)ClientRectangle.Height;
             }

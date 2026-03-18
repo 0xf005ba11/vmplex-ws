@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2022 Ira Strawser. All rights reserved.
  */
 
@@ -124,8 +124,15 @@ namespace VMPlex
             AssignProcessToJobObject(selfJobObject, Process.GetCurrentProcess().Handle);
 
             IntPtr jobInfoPtr = Marshal.AllocHGlobal(Marshal.SizeOf(jobInfo));
-            Marshal.StructureToPtr(jobInfo, jobInfoPtr, false);
-            SetInformationJobObject(selfJobObject, JOBOBJECTINFOCLASS.ExtendedLimitInformation, jobInfoPtr, (uint)Marshal.SizeOf(jobInfo));
+            try
+            {
+                Marshal.StructureToPtr(jobInfo, jobInfoPtr, false);
+                SetInformationJobObject(selfJobObject, JOBOBJECTINFOCLASS.ExtendedLimitInformation, jobInfoPtr, (uint)Marshal.SizeOf(jobInfo));
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(jobInfoPtr);
+            }
         }
 
         private static string HVIntegrateFileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\hvintegrate.exe";

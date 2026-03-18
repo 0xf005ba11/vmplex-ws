@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2022 Ira Strawser. All rights reserved.
  */
 
@@ -247,7 +247,7 @@ namespace VMPlex
 
         public void UpdateMainInformation(IMsvm_ComputerSystem vm)
         {
-            Msvm = VMManager.GetVMByGuid(vm.Name);
+            Msvm = VMManager.GetVMByGuid(vm.Name) ?? vm;
             EnhancedSessionModeState = vm.EnhancedSessionModeState ?? IMsvm_ComputerSystem.EnhancedSessionMode.NotAllowed;
             State = vm.EnabledState ?? IMsvm_ComputerSystem.SystemState.Unknown;
             Name = vm.ElementName;

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2022 Johnny Shaw. All rights reserved.
  */
 
@@ -479,46 +479,63 @@ namespace VMPlex
 
         private void ReloadOnChange()
         {
-            //
-            // This is disgusting... but the editor could be contending with
-            // us trying to reload settings... keep trying for a short period.
-            //
-            Exception exception = null;
-            for (int i = 0; i < 5; i++, Thread.Sleep(100))
+            if (Interlocked.Exchange(ref ReloadInProgress, 1) == 1)
             {
-                try
-                {
-                    Load();
-                    exception = null;
-                    break;
-                }
-                catch (Exception exc)
-                {
-                    exception = exc;
-                    continue;
-                }
+                return;
             }
 
-            if (exception == null)
-            {
-                NotifyChange();
-            }
-            else
+            ThreadPool.QueueUserWorkItem(_ => ReloadOnChangeInternal());
+        }
+
+        private void ReloadOnChangeInternal()
+        {
+            try
             {
                 //
-                // Don't nag too often since the change notification can fire
-                // back-to-back depending on the file writing method and
-                // changes. Also, we don't have access to the modern WFP here
-                // so show an old school message box.
+                // This is disgusting... but the editor could be contending with
+                // us trying to reload settings... keep trying for a short period.
                 //
-                if ((DateTime.Now - LastReloadErrorTime).Seconds > 3)
+                Exception exception = null;
+                for (int i = 0; i < 5; i++, Thread.Sleep(100))
                 {
-                    UI.MessageBox.Show(
-                         MessageBoxImage.Error,
-                         "VMPlex Settings Error",
-                         $"Failed to load settings file \"{UserSettingsFile}\"\n{exception.Message}");
-                    LastReloadErrorTime = DateTime.Now;
+                    try
+                    {
+                        Load();
+                        exception = null;
+                        break;
+                    }
+                    catch (Exception exc)
+                    {
+                        exception = exc;
+                        continue;
+                    }
                 }
+
+                if (exception == null)
+                {
+                    Application.Current.Dispatcher.Invoke(() => NotifyChange());
+                }
+                else
+                {
+                    //
+                    // Don't nag too often since the change notification can fire
+                    // back-to-back depending on the file writing method and
+                    // changes. Also, we don't have access to the modern WFP here
+                    // so show an old school message box.
+                    //
+                    if ((DateTime.Now - LastReloadErrorTime).Seconds > 3)
+                    {
+                        UI.MessageBox.Show(
+                             MessageBoxImage.Error,
+                             "VMPlex Settings Error",
+                             $"Failed to load settings file \"{UserSettingsFile}\"\n{exception.Message}");
+                        LastReloadErrorTime = DateTime.Now;
+                    }
+                }
+            }
+            finally
+            {
+                Interlocked.Exchange(ref ReloadInProgress, 0);
             }
         }
 
@@ -539,5 +556,6 @@ namespace VMPlex
             }
         };
         private DateTime LastReloadErrorTime = DateTime.Now;
+        private int ReloadInProgress;
     }
 }
