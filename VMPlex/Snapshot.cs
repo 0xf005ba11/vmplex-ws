@@ -94,7 +94,6 @@ namespace VMPlex
         }
 
         public bool IsNow { get; set; }
-        public bool IsNotNow { get => !IsNow; }
         public string ConfigurationID { get => IsNow ? "now" + SettingData.ConfigurationID : SettingData.ConfigurationID; }
         public string ElementName { get => IsNow ? "Now" : SettingData.ElementName; }
         public string TextIcon { get => IsNow ? "\xF5B0" : "\xEC77"; }

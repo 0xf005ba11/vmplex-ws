@@ -1,0 +1,66 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}\\VMPlex.sln"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build (Release)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}\\VMPlex.sln",
+                "--configuration",
+                "Release"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "clean",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "clean",
+                "${workspaceFolder}\\VMPlex.sln"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish (deployment package)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}\\VMPlex\\VMPlex.csproj",
+                "-p:PublishProfile=FolderProfile"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "run VMPlex",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}\\VMPlex\\VMPlex.csproj"
+            ],
+            "group": "test",
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

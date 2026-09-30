@@ -113,6 +113,7 @@ namespace VMPlex.UI
 
             rdp.InitializeForLocalVmConnection(m_vm, options);
 
+            UpdateButtons(m_vm.State);
             m_vm.PropertyChanged += VmModel_PropertyChanged;
             m_timer.Tick += OnResizeTimer;
             rdp.OnRdpConnecting += OnRdpConnecting;
@@ -354,27 +355,52 @@ namespace VMPlex.UI
             });
         }
 
+        private void UpdateButtons(IMsvm_ComputerSystem.SystemState state)
+        {
+            bool isPaused = state == IMsvm_ComputerSystem.SystemState.Paused;
+            bool isRunning = state != IMsvm_ComputerSystem.SystemState.Unknown
+                && state != IMsvm_ComputerSystem.SystemState.Off
+                && state != IMsvm_ComputerSystem.SystemState.Saved
+                && state != IMsvm_ComputerSystem.SystemState.FastSaved
+                && state != IMsvm_ComputerSystem.SystemState.Hibernated
+                && !isPaused;
+            bool isPoweredOn = isRunning || isPaused;
+
+            vmPowerIcon.Glyph = isPoweredOn ? "" : "";
+
+            vmPause.IsEnabled = isPoweredOn;
+            vmReset.IsEnabled = isPoweredOn;
+            vmSave.IsEnabled = isPoweredOn;
+            vmReboot.IsEnabled = isRunning;
+            vmShutdown.IsEnabled = isRunning;
+            vmCheckpoint.IsEnabled = m_vm.CanCreateCheckpoint;
+        }
+
         private void VmModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             VirtualMachine vm = (VirtualMachine)sender;
-            if (m_prevEnhancedState == vm.EnhancedSessionModeState)
+            this.Dispatcher.Invoke(() =>
             {
-                return;
-            }
+                UpdateButtons(vm.State);
+                if (m_prevEnhancedState == vm.EnhancedSessionModeState)
+                {
+                    return;
+                }
 
-            if (m_prevEnhancedState == IMsvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
-            {
-                // moving from enhanced to normal
-                m_timer.Stop();
-                System.Diagnostics.Debug.Print("rdp resize timer stopped in VmModel_PropertyChanged");
-            }
-            else
-            {
-                // moving to enhanced
-                System.Diagnostics.Debug.Print("OnSizeChanged: VmModel_PropertyChanged");
-                StartResizeTimer();
-            }
-            m_prevEnhancedState = vm.EnhancedSessionModeState;
+                if (m_prevEnhancedState == IMsvm_ComputerSystem.EnhancedSessionMode.AllowedAndAvailable)
+                {
+                    // moving from enhanced to normal
+                    m_timer.Stop();
+                    System.Diagnostics.Debug.Print("rdp resize timer stopped in VmModel_PropertyChanged");
+                }
+                else
+                {
+                    // moving to enhanced
+                    System.Diagnostics.Debug.Print("OnSizeChanged: VmModel_PropertyChanged");
+                    StartResizeTimer();
+                }
+                m_prevEnhancedState = vm.EnhancedSessionModeState;
+            });
         }
 
         public void Shutdown()

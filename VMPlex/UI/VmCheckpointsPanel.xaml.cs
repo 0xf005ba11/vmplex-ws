@@ -34,13 +34,29 @@ namespace VMPlex.UI
 
         private Snapshot GetSnapshot(object sender)
         {
-            MenuItem item = sender as MenuItem;
+            System.Windows.Controls.MenuItem item = sender as System.Windows.Controls.MenuItem;
             if (item == null)
             {
                 return null;
             }
 
             return item.DataContext as Snapshot;
+        }
+
+        private void OnCreateCheckpoint(object sender, RoutedEventArgs e)
+        {
+            VirtualMachine vm = DataContext as VirtualMachine;
+            if (vm == null)
+            {
+                return;
+            }
+
+            new Thread(CreateCheckpoint).Start(vm);
+        }
+
+        private void CreateCheckpoint(object data)
+        {
+            VMManager.CreateSnapshot((VirtualMachine)data, VMManager.SnapshotType.Full);
         }
 
         private void OnApply(object sender, RoutedEventArgs e)

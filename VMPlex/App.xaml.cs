@@ -5,7 +5,6 @@ using System.Linq;
 using System.Windows;
 using EasyWMI;
 using HyperV;
-using IWshRuntimeLibrary;
 using Microsoft.Win32;
 
 namespace VMPlex
@@ -174,12 +173,7 @@ namespace VMPlex
                 System.IO.File.Copy(Process.GetCurrentProcess().MainModule.FileName, program);
                 SetUninstallKey(program, programDir);
 
-                var shell = new WshShell();
-                var shortcut = (IWshShortcut)shell.CreateShortcut(Path.Combine(startMenu, ProgramLnk));
-                shortcut.Description = ProgramName;
-                shortcut.TargetPath = program;
-                shortcut.WorkingDirectory = programDir;
-                shortcut.Save();
+                ShellLink.Create(Path.Combine(startMenu, ProgramLnk), program, programDir, ProgramName);
             }
             catch (Exception e)
             {

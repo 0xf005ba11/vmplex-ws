@@ -166,6 +166,10 @@ namespace VMPlex.UI
         private void VmContextMenu_Connect(object sender, EventArgs e)
         {
             var vm = GetSelectedVm();
+            if (vm is null)
+            {
+                return;
+            }
             TabControl tc = (TabControl)(((TabItem)this.Parent).Parent);
             OpenVmTab(vm, tc);
         }
@@ -595,6 +599,39 @@ namespace VMPlex.UI
                 return ((VirtualMachine)value).UpTime.ToString();
             }
             return String.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class NullToBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return value != null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class BoolToGridLengthConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            bool isChecked = value is bool b && b;
+            if (!isChecked)
+            {
+                return new GridLength(0);
+            }
+
+            double width = System.Convert.ToDouble(parameter, culture);
+            return new GridLength(width);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

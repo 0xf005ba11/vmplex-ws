@@ -2,7 +2,6 @@
 *.pubxml.user
 
 .vs/
-.vscode/
 bin/
 **/obj/
 

@@ -87,7 +87,7 @@ namespace VMPlex
             {
                 170,
                 75,
-                148,
+                70,
                 150,
                 83,
                 94,
@@ -345,10 +345,10 @@ namespace VMPlex
     public class WindowSettings
     {
         [JsonInclude]
-        public double Width { get; set; } = 1200;
+        public double Width { get; set; } = 1024;
 
         [JsonInclude]
-        public double Height { get; set; } = 900;
+        public double Height { get; set; } = 600;
 
         [JsonInclude]
         public double Top { get; set; } = -1;

@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "VMPlex",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}\\bin\\Debug\\VMPlex.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}\\bin\\Debug",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        }
+    ]
+}

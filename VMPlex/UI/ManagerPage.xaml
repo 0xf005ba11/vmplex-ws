@@ -14,6 +14,9 @@
         <local:VMMemoryConverter x:Key="VMMemoryConverter"/>
         <local:VMCpuUsageConverter x:Key="VMCpuUsageConverter"/>
         <local:VMUptimeConverter x:Key="VMUptimeConverter"/>
+        <local:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
+        <local:BoolToGridLengthConverter x:Key="BoolToGridLengthConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <DataTemplate x:Key="VmTemplate">
             <Button MouseDoubleClick="VmTemplate_MouseDoubleClick" Background="{DynamicResource SystemControlBackgroundAltMediumLowBrush}">
                 <StackPanel Orientation="Vertical">
@@ -54,58 +57,90 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Background="{DynamicResource CommandBarBackground}">
-            <DockPanel Grid.Column="0">
-                <ui:AppBarButton x:Name="vmPower" ToolTip="Power" Click="OnPowerCommand" IsTabStop="False" IsCompact="True">
+            <DockPanel Grid.Column="0" LastChildFill="False">
+                <ui:AppBarToggleButton x:Name="vmToggleInfoPanel" DockPanel.Dock="Right" ToolTip="Show Info Panel" IsTabStop="False" IsCompact="True" IsChecked="False" Width="40" Height="40">
+                    <ui:AppBarToggleButton.Icon>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE90D;"/>
+                    </ui:AppBarToggleButton.Icon>
+                </ui:AppBarToggleButton>
+                <ui:AppBarButton x:Name="vmPower" ToolTip="Power" Click="OnPowerCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40"
+                                 IsEnabled="{Binding ElementName=vmList, Path=SelectedItem, Converter={StaticResource NullToBooleanConverter}}">
                     <ui:AppBarButton.Icon>
-                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7E8;"/>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets">
+                            <ui:FontIcon.Style>
+                                <Style TargetType="ui:FontIcon">
+                                    <Setter Property="Glyph" Value="&#xE768;"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=vmList, Path=SelectedItem.IsPoweredOn}" Value="True">
+                                            <Setter Property="Glyph" Value="&#xE71A;"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:FontIcon.Style>
+                        </ui:FontIcon>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
-                <ui:AppBarButton x:Name="vmPause" Icon="Pause" ToolTip="Pause (Power On to Resume)" Click="OnPauseCommand" IsTabStop="False" IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmReset" ToolTip="Reset" Click="OnResetCommand" IsTabStop="False" IsCompact="True">
+                <ui:AppBarButton x:Name="vmPause" Icon="Pause" ToolTip="Pause (Power On to Resume)" Click="OnPauseCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40"
+                                 IsEnabled="{Binding ElementName=vmList, Path=SelectedItem.IsPoweredOn, FallbackValue=False}"/>
+                <ui:AppBarButton x:Name="vmReset" ToolTip="Reset" Click="OnResetCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40"
+                                 IsEnabled="{Binding ElementName=vmList, Path=SelectedItem.IsPoweredOn, FallbackValue=False}">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEC58;"/>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
                 <ui:AppBarSeparator IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmSave" ToolTip="Save (Power On to Resume)" Click="OnSaveCommand" IsTabStop="False" IsCompact="True">
+                <ui:AppBarButton x:Name="vmSave" ToolTip="Save (Power On to Resume)" Click="OnSaveCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40"
+                                 IsEnabled="{Binding ElementName=vmList, Path=SelectedItem.IsPoweredOn, FallbackValue=False}">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE708;"/>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
-                <ui:AppBarButton x:Name="vmReboot" Icon="Refresh" ToolTip="Reboot" Click="OnRebootCommand" IsTabStop="False" IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmShutdown" ToolTip="Shutdown" Click="OnShutdownCommand" IsTabStop="False" IsCompact="True">
+                <ui:AppBarButton x:Name="vmReboot" Icon="Refresh" ToolTip="Reboot" Click="OnRebootCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40"
+                                 IsEnabled="{Binding ElementName=vmList, Path=SelectedItem.IsRunning, FallbackValue=False}"/>
+                <ui:AppBarButton x:Name="vmShutdown" ToolTip="Shutdown" Click="OnShutdownCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40"
+                                 IsEnabled="{Binding ElementName=vmList, Path=SelectedItem.IsRunning, FallbackValue=False}">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF83D;"/>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
                 <ui:AppBarSeparator IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmDebug" ToolTip="Launch Debugger" Click="OnDebugCommand" IsTabStop="False" IsCompact="True">
+                <ui:AppBarButton x:Name="vmConnect" ToolTip="Connect" Click="VmContextMenu_Connect" IsTabStop="False" IsCompact="True" Width="40" Height="40"
+                                 IsEnabled="{Binding ElementName=vmList, Path=SelectedItem, Converter={StaticResource NullToBooleanConverter}}">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8A7;"/>
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
+                <ui:AppBarSeparator IsCompact="True"/>
+                <ui:AppBarButton x:Name="hypervSettings" ToolTip="Hyper-V Settings" Click="OnHyperVSettingsCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE912;"/>
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
+                <ui:AppBarButton x:Name="networkSettings" ToolTip="Virtual Switch Manager" Click="OnVirtualSwitchManagerCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEC27;"/>
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
+                <ui:AppBarButton x:Name="editVirtualDrive" ToolTip="Edit Disk" Click="OnEditDiskCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40">
+                    <ui:AppBarButton.Icon>
+                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEDA2;"/>
+                    </ui:AppBarButton.Icon>
+                </ui:AppBarButton>
+                <ui:AppBarButton x:Name="vmSettings" Icon="Setting" ToolTip="VM Settings" Click="OnSettingsCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40"
+                                 IsEnabled="{Binding ElementName=vmList, Path=SelectedItem, Converter={StaticResource NullToBooleanConverter}}"/>
+                <ui:AppBarSeparator IsCompact="True"/>
+                <ui:AppBarButton x:Name="vmAdd" Icon="Add" ToolTip="Create VM" Click="OnAddCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40"/>
+                <ui:AppBarButton x:Name="vmDelete" Icon="Delete" ToolTip="Delete VM" Click="OnDeleteCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40"
+                                 IsEnabled="{Binding ElementName=vmList, Path=SelectedItem, Converter={StaticResource NullToBooleanConverter}}"/>
+                <ui:AppBarSeparator IsCompact="True"/>
+                <ui:AppBarButton x:Name="vmDebug" ToolTip="Launch Debugger" Click="OnDebugCommand" IsTabStop="False" IsCompact="True" Width="40" Height="40"
+                                 IsEnabled="{Binding ElementName=vmList, Path=SelectedItem, Converter={StaticResource NullToBooleanConverter}}">
                     <ui:AppBarButton.Icon>
                         <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEBE8;"/>
                     </ui:AppBarButton.Icon>
                 </ui:AppBarButton>
                 <ui:AppBarSeparator IsCompact="True"/>
-                <ui:AppBarButton x:Name="hypervSettings" ToolTip="Hyper-V Settings" Click="OnHyperVSettingsCommand" IsTabStop="False" IsCompact="True">
-                    <ui:AppBarButton.Icon>
-                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE912;"/>
-                    </ui:AppBarButton.Icon>
-                </ui:AppBarButton>
-                <ui:AppBarButton x:Name="networkSettings" ToolTip="Virtual Switch Manager" Click="OnVirtualSwitchManagerCommand" IsTabStop="False" IsCompact="True">
-                    <ui:AppBarButton.Icon>
-                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEC27;"/>
-                    </ui:AppBarButton.Icon>
-                </ui:AppBarButton>
-                <ui:AppBarButton x:Name="editVirtualDrive" ToolTip="Edit Disk" Click="OnEditDiskCommand" IsTabStop="False" IsCompact="True">
-                    <ui:AppBarButton.Icon>
-                        <ui:FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEDA2;"/>
-                    </ui:AppBarButton.Icon>
-                </ui:AppBarButton>
-                <ui:AppBarButton x:Name="vmSettings" Icon="Setting" ToolTip="VM Settings" Click="OnSettingsCommand" IsTabStop="False" IsCompact="True"/>
-                <ui:AppBarSeparator IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmAdd" Icon="Add" ToolTip="Create VM" Click="OnAddCommand" IsTabStop="False" IsCompact="True"/>
-                <ui:AppBarButton x:Name="vmDelete" Icon="Delete" ToolTip="Delete VM" Click="OnDeleteCommand" IsTabStop="False" IsCompact="True"/>
-                <ui:AppBarSeparator IsCompact="True"/>
-                <ui:DropDownButton Name="rdpDropDown" ToolTip="Remote Desktop Connection" IsTabStop="False" CornerRadius="0" Padding="15,11,15,10" FocusVisualMargin="0,0,0,0">
+                <ui:DropDownButton Name="rdpDropDown" ToolTip="Remote Desktop Connection" IsTabStop="False" CornerRadius="0" Padding="15,10,15,10" FocusVisualMargin="0,0,0,0">
                     <ui:DropDownButton.Style>
                         <Style TargetType="ui:DropDownButton">
                             <Setter Property="Background" Value="Transparent"/>
@@ -136,7 +171,7 @@
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="500"/>
+                <ColumnDefinition Width="{Binding ElementName=vmToggleInfoPanel, Path=IsChecked, Converter={StaticResource BoolToGridLengthConverter}, ConverterParameter=500}"/>
             </Grid.ColumnDefinitions>
             <ListView Grid.Column="0" x:Name="vmList" ItemsSource="{Binding}" util:GridViewSort.AutoSort="True">
                 <ListView.Resources>
@@ -184,7 +219,7 @@
                         <MenuItem Header="Reboot" Click="OnRebootCommand" IsEnabled="{Binding IsRunning}" Style="{StaticResource DefaultMenuItemStyle}"/>
                         <MenuItem Header="Shutdown" Click="OnShutdownCommand" IsEnabled="{Binding IsRunning}" Style="{StaticResource DefaultMenuItemStyle}"/>
                         <Separator/>
-                        <MenuItem Header="Create Checkpoint" Click="OnCreateCheckpoint" Style="{StaticResource DefaultMenuItemStyle}"/>
+                        <MenuItem Header="Create Checkpoint" Click="OnCreateCheckpoint" IsEnabled="{Binding CanCreateCheckpoint}" Style="{StaticResource DefaultMenuItemStyle}"/>
                         <MenuItem Header="Revert" Click="OnRevertCheckpoint" IsEnabled="{Binding CanRevert}" Style="{StaticResource DefaultMenuItemStyle}"/>
                     </ContextMenu>
                 </ListView.Resources>
@@ -204,11 +239,11 @@
                                         DisplayMemberBinding="{Binding Name}"
                                         Width="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.ManagerTabWidths[0], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                         util:GridViewSort.PropertyName="Name"/>
-                        <GridViewColumn Header="Status"
+                        <GridViewColumn Header="State"
                                         DisplayMemberBinding="{Binding State}"
                                         Width="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.ManagerTabWidths[1], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                         util:GridViewSort.PropertyName="State"/>
-                        <GridViewColumn Header="Cpu Usage (Host)"
+                        <GridViewColumn Header="Host CPU"
                                         DisplayMemberBinding="{Binding Self, Converter={StaticResource VMCpuUsageConverter}}"
                                         Width="{Binding Source={x:Static root:UserSettings.Instance}, Path=Settings.ManagerTabWidths[2], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                         util:GridViewSort.PropertyName="ProcessorLoad"/>
@@ -282,7 +317,8 @@
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>
-            <local:VmInfoPanel Grid.Column="1" DataContext="{Binding ElementName=vmList, Path=SelectedItem}"/>
+            <local:VmInfoPanel Grid.Column="1" DataContext="{Binding ElementName=vmList, Path=SelectedItem}"
+                               Visibility="{Binding ElementName=vmToggleInfoPanel, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         </Grid>
         <GridSplitter Grid.Row="2" Height="3" HorizontalAlignment="Stretch"/>
         <TabControl Grid.Row="3" TabStripPlacement="Top">

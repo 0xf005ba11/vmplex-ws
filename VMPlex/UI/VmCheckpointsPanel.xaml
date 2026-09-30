@@ -1,8 +1,8 @@
-﻿<UserControl x:Class="VMPlex.UI.VmCheckpointsPanel"
+<UserControl x:Class="VMPlex.UI.VmCheckpointsPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ui="http://schemas.modernwpf.com/2019"
              xmlns:root="clr-namespace:VMPlex"
              xmlns:EditInPlace="clr-namespace:InplaceEditBoxLib.Views;assembly=InplaceEditBoxLib"
@@ -13,18 +13,94 @@
         <TreeView Grid.Row="1" x:Name="vmCheckpoints" ItemsSource="{Binding Snapshots}">
             <TreeView.Resources>
                 <ContextMenu x:Key="SnapshotContextMenu">
-                    <MenuItem Header="Apply" Click="OnApply" IsEnabled="{Binding IsNotNow}"/>
-                    <Separator/>
-                    <MenuItem Header="Rename" Click="OnRename" IsEnabled="{Binding IsNotNow}"/>
-                    <Separator/>
-                    <MenuItem Header="Delete" Click="OnDelete" IsEnabled="{Binding IsNotNow}"/>
-                    <MenuItem Header="Delete Tree" Click="OnDeleteTree" IsEnabled="{Binding IsNotNow}"/>
+                    <MenuItem Header="Create Checkpoint" Click="OnCreateCheckpoint"
+                              IsEnabled="{Binding PlacementTarget.Tag.CanCreateCheckpoint, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                              ToolTipService.ShowOnDisabled="True"
+                              ToolTip="No changes since the last checkpoint">
+                        <MenuItem.Style>
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNow}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </MenuItem.Style>
+                    </MenuItem>
+                    <MenuItem Header="Apply" Click="OnApply">
+                        <MenuItem.Style>
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNow}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </MenuItem.Style>
+                    </MenuItem>
+                    <Separator>
+                        <Separator.Style>
+                            <Style TargetType="Separator" BasedOn="{StaticResource {x:Type Separator}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNow}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Separator.Style>
+                    </Separator>
+                    <MenuItem Header="Rename" Click="OnRename">
+                        <MenuItem.Style>
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNow}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </MenuItem.Style>
+                    </MenuItem>
+                    <Separator>
+                        <Separator.Style>
+                            <Style TargetType="Separator" BasedOn="{StaticResource {x:Type Separator}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNow}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Separator.Style>
+                    </Separator>
+                    <MenuItem Header="Delete" Click="OnDelete">
+                        <MenuItem.Style>
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNow}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </MenuItem.Style>
+                    </MenuItem>
+                    <MenuItem Header="Delete Tree" Click="OnDeleteTree">
+                        <MenuItem.Style>
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNow}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </MenuItem.Style>
+                    </MenuItem>
                 </ContextMenu>
             </TreeView.Resources>
             <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource DefaultTreeViewItemStyle}">
                     <Setter Property="IsExpanded" Value="True"/>
                     <Setter Property="ContextMenu" Value="{StaticResource SnapshotContextMenu}"/>
+                    <Setter Property="Tag" Value="{Binding RelativeSource={RelativeSource AncestorType=TreeView}, Path=DataContext}"/>
                 </Style>
             </TreeView.ItemContainerStyle>
             <TreeView.ItemTemplate>

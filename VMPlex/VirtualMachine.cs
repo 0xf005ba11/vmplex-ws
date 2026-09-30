@@ -65,6 +65,7 @@ namespace VMPlex
             State = vm.EnabledState ?? IMsvm_ComputerSystem.SystemState.Unknown;
             ProcessID = vm.ProcessID ?? 0;
             EnhancedSessionModeState = vm.EnhancedSessionModeState ?? IMsvm_ComputerSystem.EnhancedSessionMode.NotAllowed;
+            TimeOfLastStateChange = vm.TimeOfLastStateChange;
             Snapshots = new List<Snapshot>();
 
             //
@@ -252,6 +253,7 @@ namespace VMPlex
             State = vm.EnabledState ?? IMsvm_ComputerSystem.SystemState.Unknown;
             Name = vm.ElementName;
             ProcessID = vm.ProcessID ?? 0;
+            TimeOfLastStateChange = vm.TimeOfLastStateChange;
             NotifyChange(null);
         }
 
@@ -457,6 +459,56 @@ namespace VMPlex
         public bool IsPaused { get {  return State == IMsvm_ComputerSystem.SystemState.Paused; } }
         public bool IsSaved { get {  return State == IMsvm_ComputerSystem.SystemState.Saved; } }
         public bool IsPoweredOn { get { return IsRunning || IsPaused; } }
+        public DateTime? TimeOfLastStateChange { get; set; }
+
+        // Best-effort check for whether the VM could have changed since its most recent
+        // checkpoint. Only meaningful while the VM is off and has stayed off since that
+        // checkpoint was taken; a running (or ever-started-since) VM is assumed changeable,
+        // since there's no cheap way to know whether it actually wrote anything to disk.
+        public bool CanCreateCheckpoint
+        {
+            get
+            {
+                if (State != IMsvm_ComputerSystem.SystemState.Off || TimeOfLastStateChange == null)
+                {
+                    return true;
+                }
+
+                DateTime? latestCheckpoint = GetLatestCheckpointTime(Snapshots);
+                if (latestCheckpoint == null)
+                {
+                    return true;
+                }
+
+                return TimeOfLastStateChange.Value > latestCheckpoint.Value;
+            }
+        }
+
+        private static DateTime? GetLatestCheckpointTime(List<Snapshot> snapshots)
+        {
+            DateTime? latest = null;
+            if (snapshots == null)
+            {
+                return latest;
+            }
+
+            foreach (Snapshot snapshot in snapshots)
+            {
+                if (!snapshot.IsNow && snapshot.SettingData?.CreationTime != null &&
+                    (latest == null || snapshot.SettingData.CreationTime > latest))
+                {
+                    latest = snapshot.SettingData.CreationTime;
+                }
+
+                DateTime? childLatest = GetLatestCheckpointTime(snapshot.Children);
+                if (childLatest != null && (latest == null || childLatest > latest))
+                {
+                    latest = childLatest;
+                }
+            }
+
+            return latest;
+        }
         public IMsvm_ComputerSystem.EnhancedSessionMode EnhancedSessionModeState { get; set; }
         public ushort NumberOfProcessors { get; set; }
         public BitmapSource Thumbnail { get; set; }
